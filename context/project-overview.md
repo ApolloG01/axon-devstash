@@ -19,15 +19,19 @@ Developers face fragmented knowledge management:
 ## 👥 Target Users
 
 ### Everyday Developer
+
 Quick access to snippets, prompts, commands, and links during daily work.
 
 ### AI-First Developer
+
 Centralized storage for prompts, context files, workflows, and system messages.
 
 ### Content Creator / Educator
+
 Organized repository for code blocks, explanations, tutorials, and course materials.
 
 ### Full-Stack Builder
+
 Collection of patterns, boilerplates, API examples, and reusable components.
 
 ---
@@ -40,19 +44,20 @@ Items are the core content units in DevStash. Each item has a type that determin
 
 #### System Types (Non-editable)
 
-| Type | Content Type | URL Pattern | Pro Only |
-|------|--------------|-------------|----------|
-| **Snippet** | Text | `/items/snippets` | No |
-| **Prompt** | Text | `/items/prompts` | No |
-| **Note** | Text | `/items/notes` | No |
-| **Command** | Text | `/items/commands` | No |
-| **Link** | URL | `/items/links` | No |
-| **File** | File Upload | `/items/files` | Yes |
-| **Image** | File Upload | `/items/images` | Yes |
+| Type        | Content Type | URL Pattern       | Pro Only |
+| ----------- | ------------ | ----------------- | -------- |
+| **Snippet** | Text         | `/items/snippets` | No       |
+| **Prompt**  | Text         | `/items/prompts`  | No       |
+| **Note**    | Text         | `/items/notes`    | No       |
+| **Command** | Text         | `/items/commands` | No       |
+| **Link**    | URL          | `/items/links`    | No       |
+| **File**    | File Upload  | `/items/files`    | Yes      |
+| **Image**   | File Upload  | `/items/images`   | Yes      |
 
 **Future**: Custom types (Pro feature, post-MVP)
 
 #### Item Quick Access
+
 Items should be accessible via a drawer interface for rapid creation and viewing without full page navigation.
 
 ### B. Collections
@@ -60,12 +65,14 @@ Items should be accessible via a drawer interface for rapid creation and viewing
 Collections are flexible containers for organizing items of any type.
 
 **Key Features**:
+
 - Multi-type support (one collection can hold snippets, notes, files, etc.)
 - Many-to-many relationship (items can belong to multiple collections)
 - Favorites support
 - Default type for quick item creation
 
 **Example Collections**:
+
 - "React Patterns" → snippets, notes
 - "Context Files" → files, prompts
 - "Python Snippets" → snippets, commands
@@ -74,6 +81,7 @@ Collections are flexible containers for organizing items of any type.
 ### C. Search
 
 Full-text search across:
+
 - Item content
 - Item titles
 - Tags
@@ -83,6 +91,7 @@ Full-text search across:
 ### D. Authentication
 
 **Methods**:
+
 - Email/password (Next-Auth credentials)
 - GitHub OAuth
 
@@ -137,22 +146,22 @@ model User {
   emailVerified         DateTime?
   image                 String?
   password              String?      // For email/password auth
-  
+
   // Pro subscription fields
   isPro                 Boolean      @default(false)
   stripeCustomerId      String?      @unique
   stripeSubscriptionId  String?      @unique
-  
+
   // Relations
   accounts              Account[]
   sessions              Session[]
   items                 Item[]
   itemTypes             ItemType[]
   collections           Collection[]
-  
+
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt
-  
+
   @@map("users")
 }
 
@@ -169,9 +178,9 @@ model Account {
   scope             String?
   id_token          String?  @db.Text
   session_state     String?
-  
+
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
@@ -181,9 +190,9 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  
+
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("sessions")
 }
 
@@ -191,7 +200,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
@@ -206,16 +215,16 @@ model ItemType {
   icon        String   // Icon name from lucide-react
   color       String   // Hex color code
   isSystem    Boolean  @default(false) // System types cannot be deleted
-  
+
   userId      String?  // NULL for system types, user ID for custom types
   user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   items       Item[]
   collections Collection[] // For defaultType relation
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@unique([userId, name]) // User can't have duplicate type names
   @@map("item_types")
 }
@@ -228,38 +237,38 @@ model Item {
   id          String   @id @default(cuid())
   title       String
   description String?  @db.Text
-  
+
   // Content handling - either text OR file, never both
   contentType String   // "text" | "file" | "url"
   content     String?  @db.Text // For text-based items (snippets, prompts, notes, commands)
-  
+
   // File-related fields (for file/image types)
   fileUrl     String?  // Cloudflare R2 URL
   fileName    String?  // Original filename
   fileSize    Int?     // Size in bytes
-  
+
   // URL field (for link type)
   url         String?  @db.Text
-  
+
   // Metadata
   language    String?  // Programming language for code snippets
   isFavorite  Boolean  @default(false)
   isPinned    Boolean  @default(false)
-  
+
   // Relations
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   itemTypeId  String
   itemType    ItemType @relation(fields: [itemTypeId], references: [id], onDelete: Restrict)
-  
+
   tags        Tag[]    @relation("ItemTags")
   collections ItemCollection[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   lastUsedAt  DateTime @default(now()) // For "recently used" feature
-  
+
   @@index([userId, isFavorite])
   @@index([userId, isPinned])
   @@index([userId, lastUsedAt])
@@ -276,19 +285,19 @@ model Collection {
   name           String
   description    String?  @db.Text
   isFavorite     Boolean  @default(false)
-  
+
   // Default type for quick-add items in this collection
   defaultTypeId  String?
   defaultType    ItemType? @relation(fields: [defaultTypeId], references: [id], onDelete: SetNull)
-  
+
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   items          ItemCollection[]
-  
+
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  
+
   @@index([userId, isFavorite])
   @@map("collections")
 }
@@ -300,12 +309,12 @@ model Collection {
 model ItemCollection {
   itemId       String
   item         Item       @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  
+
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  
+
   addedAt      DateTime   @default(now())
-  
+
   @@id([itemId, collectionId])
   @@index([collectionId])
   @@map("item_collections")
@@ -318,11 +327,11 @@ model ItemCollection {
 model Tag {
   id        String   @id @default(cuid())
   name      String   @unique
-  
+
   items     Item[]   @relation("ItemTags")
-  
+
   createdAt DateTime @default(now())
-  
+
   @@map("tags")
 }
 ```
@@ -332,6 +341,7 @@ model Tag {
 ## 🏗️ Tech Stack
 
 ### Frontend & Framework
+
 - **Next.js 15** (App Router with React Server Components)
 - **React 19**
 - **TypeScript** for type safety
@@ -339,6 +349,7 @@ model Tag {
 - Single codebase/repository
 
 ### Database & ORM
+
 - **Neon** (Serverless PostgreSQL)
 - **Prisma 7** (latest - fetch current docs)
   - ⚠️ **CRITICAL**: Never use `prisma db push` or direct database updates
@@ -346,22 +357,27 @@ model Tag {
 - **Redis** (Optional, for caching)
 
 ### Storage
+
 - **Cloudflare R2** for file and image uploads
 
 ### Authentication
+
 - **Next-Auth v5** (Auth.js)
 - Email/password credentials
 - GitHub OAuth
 
 ### AI Integration
+
 - **OpenAI GPT-4o-mini** model (cost-effective for tagging, summaries, explanations)
 
 ### Styling
+
 - **Tailwind CSS v4**
 - **shadcn/ui** component library
 - Dark mode by default
 
 ### Payments (Future)
+
 - **Stripe** for subscription management
 - Webhook handling for subscription events
 
@@ -370,6 +386,7 @@ model Tag {
 ## 💰 Monetization Strategy
 
 ### Free Tier
+
 - ✅ 50 items total
 - ✅ 3 collections
 - ✅ All system types except file/image
@@ -379,6 +396,7 @@ model Tag {
 - ❌ No AI features
 
 ### Pro Tier ($8/month or $72/year)
+
 - ✅ Unlimited items
 - ✅ Unlimited collections
 - ✅ File & image uploads
@@ -396,6 +414,7 @@ model Tag {
 ## 🎨 UI/UX Design System
 
 ### Design Principles
+
 - Modern, minimal, developer-focused aesthetic
 - Clean typography with generous whitespace
 - Subtle borders and shadows
@@ -403,17 +422,24 @@ model Tag {
 
 ### Color System
 
+### Screenshots
+
+Refer to the screenshots below as a base for the dashboard UI. It does not have to be exact. Use it as a reference:
+
+- @context/screenshots/dashboard-ui.main.png
+- @context/screenshots/dashboard-ui.drawer.png
+
 #### Item Type Colors & Icons
 
-| Type | Color | Hex | Icon (Lucide) |
-|------|-------|-----|---------------|
-| Snippet | Blue | `#3b82f6` | `Code` |
-| Prompt | Purple | `#8b5cf6` | `Sparkles` |
-| Command | Orange | `#f97316` | `Terminal` |
-| Note | Yellow | `#fde047` | `StickyNote` |
-| File | Gray | `#6b7280` | `File` |
-| Image | Pink | `#ec4899` | `Image` |
-| Link | Emerald | `#10b981` | `Link` |
+| Type    | Color   | Hex       | Icon (Lucide) |
+| ------- | ------- | --------- | ------------- |
+| Snippet | Blue    | `#3b82f6` | `Code`        |
+| Prompt  | Purple  | `#8b5cf6` | `Sparkles`    |
+| Command | Orange  | `#f97316` | `Terminal`    |
+| Note    | Yellow  | `#fde047` | `StickyNote`  |
+| File    | Gray    | `#6b7280` | `File`        |
+| Image   | Pink    | `#ec4899` | `Image`       |
+| Link    | Emerald | `#10b981` | `Link`        |
 
 ### Layout Structure
 
@@ -445,12 +471,14 @@ model Tag {
 ```
 
 ### Responsive Design
+
 - **Desktop-first** with mobile optimization
 - Sidebar converts to drawer on mobile/tablet
 - Touch-friendly targets on mobile
 - Optimized grid layouts for different screen sizes
 
 ### Micro-interactions
+
 - Smooth transitions (200-300ms)
 - Hover states on cards (subtle scale/shadow)
 - Toast notifications for CRUD actions
@@ -462,6 +490,7 @@ model Tag {
 ## 📐 System Architecture
 
 ### Directory Structure
+
 ```
 devstash/
 ├── src/
@@ -525,7 +554,7 @@ devstash/
   GET    /[id]              # Get single item
   PATCH  /[id]              # Update item
   DELETE /[id]              # Delete item
-  
+
 /api/collections
   GET    /                  # List user's collections
   POST   /                  # Create collection
@@ -560,6 +589,7 @@ devstash/
 ## 🚀 Development Phases
 
 ### Phase 1: Foundation (MVP)
+
 - [ ] Project setup (Next.js, Prisma, Tailwind)
 - [ ] Database schema & migrations
 - [ ] Authentication (Next-Auth)
@@ -569,6 +599,7 @@ devstash/
 - [ ] Item-Collection relationships
 
 ### Phase 2: Core Features
+
 - [ ] Search functionality
 - [ ] Favorites & pinning
 - [ ] Tags system
@@ -578,6 +609,7 @@ devstash/
 - [ ] File import feature
 
 ### Phase 3: Pro Features
+
 - [ ] Cloudflare R2 integration
 - [ ] File/image upload
 - [ ] OpenAI integration
@@ -587,6 +619,7 @@ devstash/
 - [ ] Export functionality
 
 ### Phase 4: Monetization
+
 - [ ] Stripe integration
 - [ ] Subscription management
 - [ ] Usage limits enforcement
@@ -594,6 +627,7 @@ devstash/
 - [ ] Billing portal
 
 ### Phase 5: Polish & Launch
+
 - [ ] Performance optimization
 - [ ] Mobile responsiveness
 - [ ] Analytics
@@ -639,5 +673,5 @@ devstash/
 
 ---
 
-*Last Updated: [Current Date]*
-*Version: 1.0*
+_Last Updated: [Current Date]_
+_Version: 1.0_
