@@ -1,1 +1,12 @@
-@AGENTS.md
+# Axon - Devstash
+
+A developer knowledge hub for snippets, files, images, links and custom types.
+
+## Context Files
+
+Read the following to get the full context of the project:
+
+- @context/project-overview.md
+- @context/coding-standards.md
+- @context/ai-interaction.md
+- @context/current-feature.md
