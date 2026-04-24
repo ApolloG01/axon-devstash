@@ -29,3 +29,5 @@ Completed
 - **2026-04-24**: Completed Prisma + Neon PostgreSQL setup — Prisma 7 configured with PrismaPg adapter, full schema defined, initial migration applied, system item types seeded via prisma/seed.ts.
 - **2026-04-24**: Started Seed Data — demo user, system item types, collections, and items per seed-spec.md.
 - **2026-04-24**: Completed Seed Data — demo user (demo@devstash.io), 7 system item types, 5 collections, 18 items, 31 tags seeded via prisma/seed.ts.
+- **2026-04-24**: Started Dashboard Collections — replace mock data with real Prisma queries, type color accents, type icons per collection.
+- **2026-04-24**: Completed Dashboard Collections — src/lib/db/collections.ts created, collections fetched from Neon in server component, accent color derived from most-used type, type icons displayed per card, collection stats updated to live data.

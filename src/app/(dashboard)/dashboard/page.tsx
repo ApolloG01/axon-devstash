@@ -1,9 +1,12 @@
-import { mockItems, mockCollections, mockItemTypes } from "@/lib/mock-data"
+import { mockItems, mockItemTypes } from "@/lib/mock-data"
+import { getDemoUserCollections } from "@/lib/db/collections"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { CollectionCard } from "@/components/dashboard/collection-card"
 import { ItemCard } from "@/components/dashboard/item-card"
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const collections = await getDemoUserCollections()
+
   const getItemType = (itemTypeId: string) =>
     mockItemTypes.find((t) => t.id === itemTypeId)
 
@@ -15,9 +18,9 @@ export default function DashboardPage() {
 
   const stats = {
     items: mockItems.length,
-    collections: mockCollections.length,
+    collections: collections.length,
     favoriteItems: mockItems.filter((i) => i.isFavorite).length,
-    favoriteCollections: mockCollections.filter((c) => c.isFavorite).length,
+    favoriteCollections: collections.filter((c) => c.isFavorite).length,
   }
 
   return (
@@ -34,12 +37,9 @@ export default function DashboardPage() {
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {mockCollections.map((col) => {
-            const defaultType = col.defaultTypeId ? getItemType(col.defaultTypeId) : undefined
-            return (
-              <CollectionCard key={col.id} collection={col} defaultType={defaultType} />
-            )
-          })}
+          {collections.map((col) => (
+            <CollectionCard key={col.id} collection={col} />
+          ))}
         </div>
       </section>
 
