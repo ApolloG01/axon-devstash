@@ -1,25 +1,25 @@
-import { mockItems, mockItemTypes } from "@/lib/mock-data"
+export const dynamic = "force-dynamic"
+
 import { getDemoUserCollections } from "@/lib/db/collections"
+import { getPinnedItems, getRecentItems, getItemStats, getDemoUserId } from "@/lib/db/items"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { CollectionCard } from "@/components/dashboard/collection-card"
 import { ItemCard } from "@/components/dashboard/item-card"
 
 export default async function DashboardPage() {
-  const collections = await getDemoUserCollections()
+  const userId = await getDemoUserId()
 
-  const getItemType = (itemTypeId: string) =>
-    mockItemTypes.find((t) => t.id === itemTypeId)
-
-  const pinnedItems = mockItems.filter((i) => i.isPinned)
-
-  const recentItems = [...mockItems]
-    .sort((a, b) => new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime())
-    .slice(0, 10)
+  const [collections, pinnedItems, recentItems, itemStats] = await Promise.all([
+    getDemoUserCollections(),
+    userId ? getPinnedItems(userId) : [],
+    userId ? getRecentItems(userId, 10) : [],
+    userId ? getItemStats(userId) : { total: 0, favorites: 0 },
+  ])
 
   const stats = {
-    items: mockItems.length,
+    items: itemStats.total,
     collections: collections.length,
-    favoriteItems: mockItems.filter((i) => i.isFavorite).length,
+    favoriteItems: itemStats.favorites,
     favoriteCollections: collections.filter((c) => c.isFavorite).length,
   }
 
@@ -49,7 +49,7 @@ export default async function DashboardPage() {
           <h2 className="text-sm font-semibold mb-4">Pinned</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {pinnedItems.map((item) => (
-              <ItemCard key={item.id} item={item} type={getItemType(item.itemTypeId)} />
+              <ItemCard key={item.id} item={item} />
             ))}
           </div>
         </section>
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {recentItems.map((item) => (
-            <ItemCard key={item.id} item={item} type={getItemType(item.itemTypeId)} />
+            <ItemCard key={item.id} item={item} />
           ))}
         </div>
       </section>

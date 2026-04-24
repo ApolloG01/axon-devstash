@@ -1,27 +1,9 @@
 import { Star } from "lucide-react"
+import type { ItemWithType } from "@/lib/db/items"
 
-interface Item {
-  id: string
-  title: string
-  description?: string | null
-  content?: string | null
-  language?: string | null
-  isFavorite: boolean
-  tags: string[]
-}
-
-interface ItemType {
-  name: string
-  color: string
-}
-
-interface ItemCardProps {
-  item: Item
-  type?: ItemType
-}
-
-export function ItemCard({ item, type }: ItemCardProps) {
-  const accentColor = type?.color ?? "#6b7280"
+export function ItemCard({ item }: { item: ItemWithType }) {
+  const { itemType, tags } = item
+  const accentColor = itemType.color
 
   return (
     <div className="group rounded-lg border border-border bg-card hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer">
@@ -48,25 +30,23 @@ export function ItemCard({ item, type }: ItemCardProps) {
           )}
 
           <div className="flex items-center gap-1.5 flex-wrap">
-            {type && (
-              <span
-                className="text-[10px] font-medium px-1.5 py-0.5 rounded-sm capitalize"
-                style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
-              >
-                {type.name}
-              </span>
-            )}
+            <span
+              className="text-[10px] font-medium px-1.5 py-0.5 rounded-sm capitalize"
+              style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+            >
+              {itemType.name}
+            </span>
             {item.language && (
               <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">
                 {item.language}
               </span>
             )}
-            {item.tags.slice(0, 2).map((tag) => (
+            {tags.slice(0, 2).map((tag) => (
               <span
-                key={tag}
+                key={tag.name}
                 className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm"
               >
-                #{tag}
+                #{tag.name}
               </span>
             ))}
           </div>
