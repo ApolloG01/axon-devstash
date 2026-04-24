@@ -1,24 +1,18 @@
 # Current Feature
 
-Dashboard UI Phase 3 — Main content area with stats cards, recent collections, pinned items, and recent items.
+_No active feature. Ready for next task._
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- [ ] 4 stats cards at the top (total items, collections, favorite items, favorite collections)
-- [ ] Recent collections section
-- [ ] Pinned items section
-- [ ] 10 most recent items section
+—
 
 ## Notes
 
-- Reference: @context/features/dashboard-phase-3-spec.md
-- See @context/screenshots/dashboard-ui-main.png for visual target
-- Use mock data from @src/lib/mock-data.ts (no database yet)
-- Build on top of Phase 1 & 2 layout
+—
 
 ## History
 
@@ -30,3 +24,6 @@ In Progress
 - **2026-04-23**: Started Dashboard UI Phase 2 — collapsible sidebar, item types, collections, user avatar, mobile drawer.
 - **2026-04-23**: Completed Dashboard UI Phase 2 — collapsible sidebar with toggle button, item types with colored icons linking to `/items/TYPE`, favorite and recent collections sections, user avatar area at bottom, mobile Sheet drawer support.
 - **2026-04-23**: Started Dashboard UI Phase 3 — main content area, stats cards, recent collections, pinned items, recent items.
+- **2026-04-23**: Completed Dashboard UI Phase 3 — 4 stats cards, collections grid with type color accents, pinned items section, recent items grid with type badges and tags.
+- **2026-04-24**: Started Prisma + Neon PostgreSQL setup — install Prisma 7, define schema, create initial migration.
+- **2026-04-24**: Completed Prisma + Neon PostgreSQL setup — Prisma 7 configured with PrismaPg adapter, full schema defined, initial migration applied, system item types seeded via prisma/seed.ts.
