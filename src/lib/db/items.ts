@@ -51,6 +51,14 @@ export async function getItemStats(userId: string) {
   return { total, favorites }
 }
 
+export async function getSystemItemTypes() {
+  return prisma.itemType.findMany({
+    where: { isSystem: true },
+    select: { id: true, name: true, icon: true, color: true },
+    orderBy: { createdAt: "asc" },
+  })
+}
+
 // Temporary until auth is implemented
 export async function getDemoUserId(): Promise<string | null> {
   const user = await prisma.user.findUnique({

@@ -33,3 +33,5 @@ Completed
 - **2026-04-24**: Completed Dashboard Collections — src/lib/db/collections.ts created, collections fetched from Neon in server component, accent color derived from most-used type, type icons displayed per card, collection stats updated to live data.
 - **2026-04-24**: Started Dashboard Items — replace mock item data with real Prisma queries for pinned and recent items.
 - **2026-04-24**: Completed Dashboard Items — src/lib/db/items.ts created, pinned and recent items fetched from Neon, all stats live from DB, page set to force-dynamic to ensure fresh data on every request.
+- **2026-04-24**: Started Dashboard Stats & Sidebar from Database — replace sidebar mock data with real Prisma queries.
+- **2026-04-24**: Completed Dashboard Stats & Sidebar from Database — sidebar now fetches item types and collections from DB, data passed server → client via props, colored circles for recent collections, Types and Collections section labels added, fixed wrong demo user email in getDemoUserCollections().

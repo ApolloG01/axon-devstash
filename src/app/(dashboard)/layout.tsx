@@ -1,17 +1,31 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar";
-import { Search, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
+import { getSystemItemTypes } from "@/lib/db/items"
+import { getDemoUserCollections } from "@/lib/db/collections"
+import { Search, Plus } from "lucide-react"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
+  const [itemTypes, collections] = await Promise.all([
+    getSystemItemTypes(),
+    getDemoUserCollections(),
+  ])
+
+  const favoriteCollections = collections.filter((c) => c.isFavorite)
+  const recentCollections = collections.slice(0, 3)
+
   return (
     <div className="flex flex-col h-screen">
       <header className="flex items-center gap-2 px-4 h-14 border-b border-border shrink-0">
-        <MobileSidebarTrigger />
+        <MobileSidebarTrigger
+          itemTypes={itemTypes}
+          favoriteCollections={favoriteCollections}
+          recentCollections={recentCollections}
+        />
 
         <span className="text-sm font-semibold tracking-tight w-40 shrink-0">
           Axon - DevStash
@@ -36,9 +50,13 @@ export default function DashboardLayout({
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+        <Sidebar
+          itemTypes={itemTypes}
+          favoriteCollections={favoriteCollections}
+          recentCollections={recentCollections}
+        />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>
-  );
+  )
 }

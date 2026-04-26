@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "next/link";
 import {
   Code,
   Sparkles,
@@ -8,13 +8,14 @@ import {
   File,
   Image,
   Star,
-  Clock,
-} from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { mockUser, mockItemTypes, mockCollections } from "@/lib/mock-data"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+const ICON_MAP: Record<
+  string,
+  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
+> = {
   Code,
   Sparkles,
   Terminal,
@@ -22,46 +23,76 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?:
   Link: LinkIcon,
   File,
   Image,
+};
+
+export interface SidebarItemType {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
+export interface SidebarCollection {
+  id: string;
+  name: string;
+  isFavorite: boolean;
+  accentColor: string;
 }
 
 interface SidebarContentProps {
-  collapsed?: boolean
+  collapsed?: boolean;
+  itemTypes: SidebarItemType[];
+  favoriteCollections: SidebarCollection[];
+  recentCollections: SidebarCollection[];
 }
 
-export function SidebarContent({ collapsed = false }: SidebarContentProps) {
-  const favoriteCollections = mockCollections.filter((c) => c.isFavorite)
-  const recentCollections = mockCollections.slice(0, 3)
-
-  const initials = mockUser.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-
+export function SidebarContent({
+  collapsed = false,
+  itemTypes,
+  favoriteCollections,
+  recentCollections,
+}: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto py-3 space-y-4">
-        {/* Item Types */}
-        <nav className="px-2 space-y-0.5">
-          {mockItemTypes.map((type) => {
-            const Icon = ICON_MAP[type.icon]
-            return (
-              <Link
-                key={type.id}
-                href={`/items/${type.name}s`}
-                className={cn(
-                  "flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                  collapsed && "justify-center"
-                )}
-              >
-                {Icon && (
-                  <Icon className="h-4 w-4 shrink-0" style={{ color: type.color }} />
-                )}
-                {!collapsed && <span className="capitalize">{type.name}s</span>}
-              </Link>
-            )
-          })}
-        </nav>
+        {/* Types */}
+        <div className="px-2">
+          {!collapsed && (
+            <p className="px-2 mb-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Types
+            </p>
+          )}
+          <nav className="space-y-0.5">
+            {itemTypes.map((type) => {
+              const Icon = ICON_MAP[type.icon];
+              return (
+                <Link
+                  key={type.id}
+                  href={`/items/${type.name}s`}
+                  className={cn(
+                    "flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+                    collapsed && "justify-center",
+                  )}
+                >
+                  {Icon && (
+                    <Icon
+                      className="h-4 w-4 shrink-0"
+                      style={{ color: type.color }}
+                    />
+                  )}
+                  {!collapsed && <span className="capitalize">{type.name}s</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Collections */}
+        {!collapsed && (
+          <p className="px-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Collections
+          </p>
+        )}
 
         {/* Favorites */}
         {favoriteCollections.length > 0 && (
@@ -81,7 +112,7 @@ export function SidebarContent({ collapsed = false }: SidebarContentProps) {
                   href={`/collections/${col.id}`}
                   className={cn(
                     "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                    collapsed ? "justify-center" : "truncate"
+                    collapsed ? "justify-center" : "truncate",
                   )}
                 >
                   <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" />
@@ -93,48 +124,73 @@ export function SidebarContent({ collapsed = false }: SidebarContentProps) {
         )}
 
         {/* Recent */}
-        <div className="px-2">
-          {!collapsed && (
-            <div className="flex items-center gap-1.5 px-2 mb-1.5">
-              <Clock className="h-3 w-3 text-muted-foreground" />
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Recent
-              </span>
+        {recentCollections.length > 0 && (
+          <div className="px-2">
+            {!collapsed && (
+              <div className="flex items-center gap-1.5 px-2 mb-1.5">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  Recent
+                </span>
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {recentCollections.map((col) => (
+                <Link
+                  key={col.id}
+                  href={`/collections/${col.id}`}
+                  className={cn(
+                    "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+                    collapsed ? "justify-center" : "truncate",
+                  )}
+                >
+                  <div
+                    className="h-2 w-2 rounded-full shrink-0"
+                    style={{ backgroundColor: col.accentColor }}
+                  />
+                  {!collapsed && <span className="truncate">{col.name}</span>}
+                </Link>
+              ))}
             </div>
-          )}
-          <div className="space-y-0.5">
-            {recentCollections.map((col) => (
+            {!collapsed && (
               <Link
-                key={col.id}
-                href={`/collections/${col.id}`}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                  collapsed ? "justify-center" : "truncate"
-                )}
+                href="/collections"
+                className="flex items-center px-2 py-1.5 mt-1 text-[18px] text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Clock className="h-3.5 w-3.5 shrink-0" />
-                {!collapsed && <span className="truncate">{col.name}</span>}
+                View all collections →
               </Link>
-            ))}
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* User area */}
-      <div className={cn("border-t border-border p-3 shrink-0", collapsed && "flex justify-center")}>
-        <div className={cn("flex items-center gap-2.5 min-w-0", collapsed && "flex-col")}>
+      <div
+        className={cn(
+          "border-t border-border p-3 shrink-0",
+          collapsed && "flex justify-center",
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center gap-2.5 min-w-0",
+            collapsed && "flex-col",
+          )}
+        >
           <Avatar size="sm">
-            <AvatarImage src={mockUser.image ?? undefined} />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback>DU</AvatarFallback>
           </Avatar>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium leading-none truncate">{mockUser.name}</p>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">{mockUser.email}</p>
+              <p className="text-sm font-medium leading-none truncate">
+                Demo User
+              </p>
+              <p className="text-xs text-muted-foreground truncate mt-0.5">
+                demo@devstash.io
+              </p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

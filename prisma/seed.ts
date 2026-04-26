@@ -25,11 +25,11 @@ const systemItemTypes = [
 // ========================================
 
 const collections = [
-  { id: "col_react",    name: "React Patterns",      description: "Reusable React patterns and hooks",           defaultTypeId: "type_snippet" },
-  { id: "col_ai",       name: "AI Workflows",         description: "AI prompts and workflow automations",         defaultTypeId: "type_prompt"  },
-  { id: "col_devops",   name: "DevOps",               description: "Infrastructure and deployment resources",     defaultTypeId: "type_command" },
-  { id: "col_terminal", name: "Terminal Commands",    description: "Useful shell commands for everyday development", defaultTypeId: "type_command" },
-  { id: "col_design",   name: "Design Resources",     description: "UI/UX resources and references",              defaultTypeId: "type_link"    },
+  { id: "col_react",    name: "React Patterns",      description: "Reusable React patterns and hooks",              defaultTypeId: "type_snippet", isFavorite: true  },
+  { id: "col_ai",       name: "AI Workflows",         description: "AI prompts and workflow automations",            defaultTypeId: "type_prompt",  isFavorite: true  },
+  { id: "col_devops",   name: "DevOps",               description: "Infrastructure and deployment resources",        defaultTypeId: "type_command", isFavorite: false },
+  { id: "col_terminal", name: "Terminal Commands",    description: "Useful shell commands for everyday development",  defaultTypeId: "type_command", isFavorite: false },
+  { id: "col_design",   name: "Design Resources",     description: "UI/UX resources and references",                 defaultTypeId: "type_link",    isFavorite: false },
 ]
 
 // ========================================
@@ -374,7 +374,7 @@ async function main() {
   for (const col of collections) {
     await prisma.collection.upsert({
       where: { id: col.id },
-      update: {},
+      update: { isFavorite: col.isFavorite },
       create: { ...col, userId: user.id },
     })
     console.log(`    ✓ ${col.name}`)
