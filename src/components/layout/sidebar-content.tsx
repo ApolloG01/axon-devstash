@@ -10,7 +10,10 @@ import {
   Star,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
+const PRO_TYPES = new Set(["file", "image"]);
 
 const ICON_MAP: Record<
   string,
@@ -80,7 +83,19 @@ export function SidebarContent({
                       style={{ color: type.color }}
                     />
                   )}
-                  {!collapsed && <span className="capitalize">{type.name}s</span>}
+                  {!collapsed && (
+                    <>
+                      <span className="capitalize flex-1">{type.name}s</span>
+                      {PRO_TYPES.has(type.name) && (
+                        <Badge
+                          variant="outline"
+                          className="h-4 px-1 text-[10px] font-semibold tracking-wider text-muted-foreground border-muted-foreground/30"
+                        >
+                          PRO
+                        </Badge>
+                      )}
+                    </>
+                  )}
                 </Link>
               );
             })}
