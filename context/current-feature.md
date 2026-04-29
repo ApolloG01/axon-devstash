@@ -1,35 +1,18 @@
-# Current Feature: Auth Setup - NextAuth + GitHub Provider
+# Current Feature
+
+_No active feature. Ready for next task._
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Install NextAuth v5 (`next-auth@beta`) and `@auth/prisma-adapter`
-- Set up split auth config pattern for edge compatibility
-- Add GitHub OAuth provider
-- Protect `/dashboard/*` routes using Next.js middleware proxy
-- Redirect unauthenticated users to sign-in
+—
 
 ## Notes
 
-**Files to create:**
-- `src/auth.config.ts` — Edge-compatible config (providers only, no adapter)
-- `src/auth.ts` — Full config with Prisma adapter and JWT strategy
-- `src/app/api/auth/[...nextauth]/route.ts` — Export handlers from auth.ts
-- `src/proxy.ts` — Route protection with redirect logic
-- `src/types/next-auth.d.ts` — Extend Session type with user.id
-
-**Key gotchas:**
-- Use `next-auth@beta` (not `@latest` which installs v4)
-- Proxy file must be at `src/proxy.ts` (same level as `app/`)
-- Use named export: `export const proxy = auth(...)` not default export
-- Use `session: { strategy: 'jwt' }` with split config pattern
-- Don't set custom `pages.signIn` — use NextAuth's default page
-- Use Context7 to verify newest config and conventions before implementing
-
-**Required env vars:** `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`
+—
 
 ## History
 
@@ -54,3 +37,4 @@ In Progress
 - **2026-04-24**: Completed Dashboard Stats & Sidebar from Database — sidebar now fetches item types and collections from DB, data passed server → client via props, colored circles for recent collections, Types and Collections section labels added, fixed wrong demo user email in getDemoUserCollections().
 - **2026-04-28**: Completed Add Pro Badge to Sidebar — installed shadcn/ui Badge component, added subtle outline PRO badge next to Files and Images in the sidebar item types list, hidden when sidebar is collapsed.
 - **2026-04-29**: Completed Code Quality Quick Wins — DATABASE_URL guard with explicit error throw, shared ICON_MAP constant, consolidated getDemoUserId with React cache(), fixed recentCollections ordering, root route redirect to /dashboard, APP_NAME constant, sidebar font-size typo fix.
+- **2026-04-29**: Completed Auth Setup — NextAuth v5 (next-auth@beta) installed with @auth/prisma-adapter, split auth config for edge compatibility (auth.config.ts + auth.ts), GitHub OAuth provider added, src/proxy.ts guards /dashboard/* routes with redirect to sign-in, Session extended with user.id, AUTH_SECRET generated and added to .env.
