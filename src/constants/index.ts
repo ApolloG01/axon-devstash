@@ -1,1 +1,1 @@
-export const APP_NAME = "Axon DevStash"
+export const APP_NAME = "Axon - DevStash";
