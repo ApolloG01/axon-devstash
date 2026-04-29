@@ -36,3 +36,4 @@ Completed
 - **2026-04-24**: Started Dashboard Stats & Sidebar from Database — replace sidebar mock data with real Prisma queries.
 - **2026-04-24**: Completed Dashboard Stats & Sidebar from Database — sidebar now fetches item types and collections from DB, data passed server → client via props, colored circles for recent collections, Types and Collections section labels added, fixed wrong demo user email in getDemoUserCollections().
 - **2026-04-28**: Completed Add Pro Badge to Sidebar — installed shadcn/ui Badge component, added subtle outline PRO badge next to Files and Images in the sidebar item types list, hidden when sidebar is collapsed.
+- **2026-04-29**: Completed Code Quality Quick Wins — DATABASE_URL guard with explicit error throw, shared ICON_MAP constant, consolidated getDemoUserId with React cache(), fixed recentCollections ordering, root route redirect to /dashboard, APP_NAME constant, sidebar font-size typo fix.
