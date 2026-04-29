@@ -1,31 +1,18 @@
-# Current Feature: Auth Credentials - Email/Password Provider
+# Current Feature
+
+_No active feature. Ready for next task._
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Add Credentials provider for email/password login
-- Update `auth.config.ts` with Credentials placeholder (`authorize: () => null`)
-- Update `auth.ts` with real bcrypt validation logic
-- Create `POST /api/auth/register` route (name, email, password, confirmPassword)
-- Verify GitHub OAuth still works alongside credentials
+—
 
 ## Notes
 
-**Credentials split pattern:**
-- `auth.config.ts`: Credentials provider with `authorize: () => null` (edge-safe placeholder)
-- `auth.ts`: Override Credentials with actual bcrypt logic
-
-**Registration route (`/api/auth/register`):**
-- Validate passwords match
-- Check user doesn't already exist
-- Hash with bcryptjs
-- Create user in DB
-- Return `{ success, error }` JSON
-
-**bcryptjs already installed.** Password field already exists in User schema (`password String?`).
+—
 
 ## History
 
@@ -51,3 +38,4 @@ In Progress
 - **2026-04-28**: Completed Add Pro Badge to Sidebar — installed shadcn/ui Badge component, added subtle outline PRO badge next to Files and Images in the sidebar item types list, hidden when sidebar is collapsed.
 - **2026-04-29**: Completed Code Quality Quick Wins — DATABASE_URL guard with explicit error throw, shared ICON_MAP constant, consolidated getDemoUserId with React cache(), fixed recentCollections ordering, root route redirect to /dashboard, APP_NAME constant, sidebar font-size typo fix.
 - **2026-04-29**: Completed Auth Setup — NextAuth v5 (next-auth@beta) installed with @auth/prisma-adapter, split auth config for edge compatibility (auth.config.ts + auth.ts), GitHub OAuth provider added, src/proxy.ts guards /dashboard/* routes with redirect to sign-in, Session extended with user.id, AUTH_SECRET generated and added to .env.
+- **2026-04-29**: Completed Auth Credentials — Credentials provider added to auth.config.ts (edge-safe placeholder) and auth.ts (bcrypt validation), POST /api/auth/register created with duplicate-email (409) and password-match (400) guards, both GitHub and email/password sign-in working on default NextAuth page.
