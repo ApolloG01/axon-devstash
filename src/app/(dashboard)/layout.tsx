@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes } from "@/lib/db/items"
 import { getDemoUserCollections } from "@/lib/db/collections"
+import { APP_NAME } from "@/constants"
 import { Search, Plus } from "lucide-react"
 
 export default async function DashboardLayout({
@@ -28,7 +29,7 @@ export default async function DashboardLayout({
         />
 
         <span className="text-sm font-semibold tracking-tight w-40 shrink-0">
-          Axon - DevStash
+          {APP_NAME}
         </span>
 
         <div className="flex-1 max-w-lg">

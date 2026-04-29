@@ -1,20 +1,7 @@
 import Link from "next/link"
-import {
-  Code, Sparkles, Terminal, StickyNote,
-  Link as LinkIcon, File, Image, Layers,
-  type LucideProps,
-} from "lucide-react"
+import { Layers } from "lucide-react"
+import { ICON_MAP } from "@/constants/icon-map"
 import type { CollectionWithTypes } from "@/lib/db/collections"
-
-const ICON_MAP: Record<string, React.ComponentType<LucideProps>> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  Link: LinkIcon,
-  File,
-  Image,
-}
 
 export function CollectionCard({ collection }: { collection: CollectionWithTypes }) {
   return (

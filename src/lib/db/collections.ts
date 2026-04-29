@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getDemoUserId } from "@/lib/db/demo";
 
 export type CollectionWithTypes = {
   id: string;
@@ -27,11 +28,10 @@ export async function getCollectionsByUserId(
         },
       },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: { updatedAt: "desc" },
   });
 
   return collections.map((col) => {
-    // Count items per type to find the dominant one
     const typeCounts = new Map<
       string,
       { name: string; color: string; icon: string; count: number }
@@ -70,10 +70,7 @@ export async function getCollectionsByUserId(
 
 // Temporary until auth is implemented — fetches for the demo user
 export async function getDemoUserCollections(): Promise<CollectionWithTypes[]> {
-  const user = await prisma.user.findUnique({
-    where: { email: "demo@devstash.io" },
-    select: { id: true },
-  });
-  if (!user) return [];
-  return getCollectionsByUserId(user.id);
+  const userId = await getDemoUserId();
+  if (!userId) return [];
+  return getCollectionsByUserId(userId);
 }

@@ -1,32 +1,11 @@
 import Link from "next/link";
-import {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  Link as LinkIcon,
-  File,
-  Image,
-  Star,
-} from "lucide-react";
+import { Star } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ICON_MAP } from "@/constants/icon-map";
 import { cn } from "@/lib/utils";
 
 const PRO_TYPES = new Set(["file", "image"]);
-
-const ICON_MAP: Record<
-  string,
-  React.ComponentType<{ className?: string; style?: React.CSSProperties }>
-> = {
-  Code,
-  Sparkles,
-  Terminal,
-  StickyNote,
-  Link: LinkIcon,
-  File,
-  Image,
-};
 
 export interface SidebarItemType {
   id: string;
@@ -169,7 +148,7 @@ export function SidebarContent({
             {!collapsed && (
               <Link
                 href="/collections"
-                className="flex items-center px-2 py-1.5 mt-1 text-[18px] text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 View all collections →
               </Link>

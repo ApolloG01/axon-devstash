@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+export { getDemoUserId } from "@/lib/db/demo"
 
 export type ItemWithType = {
   id: string
@@ -57,13 +58,4 @@ export async function getSystemItemTypes() {
     select: { id: true, name: true, icon: true, color: true },
     orderBy: { createdAt: "asc" },
   })
-}
-
-// Temporary until auth is implemented
-export async function getDemoUserId(): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { email: "demo@devstash.io" },
-    select: { id: true },
-  })
-  return user?.id ?? null
 }
