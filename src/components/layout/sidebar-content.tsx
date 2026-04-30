@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { UserMenu } from "@/components/layout/user-menu";
 import { ICON_MAP } from "@/constants/icon-map";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +21,18 @@ export interface SidebarCollection {
   accentColor: string;
 }
 
+export interface SidebarUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 interface SidebarContentProps {
   collapsed?: boolean;
   itemTypes: SidebarItemType[];
   favoriteCollections: SidebarCollection[];
   recentCollections: SidebarCollection[];
+  user: SidebarUser;
 }
 
 export function SidebarContent({
@@ -33,6 +40,7 @@ export function SidebarContent({
   itemTypes,
   favoriteCollections,
   recentCollections,
+  user,
 }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -158,32 +166,8 @@ export function SidebarContent({
       </div>
 
       {/* User area */}
-      <div
-        className={cn(
-          "border-t border-border p-3 shrink-0",
-          collapsed && "flex justify-center",
-        )}
-      >
-        <div
-          className={cn(
-            "flex items-center gap-2.5 min-w-0",
-            collapsed && "flex-col",
-          )}
-        >
-          <Avatar size="sm">
-            <AvatarFallback>DU</AvatarFallback>
-          </Avatar>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium leading-none truncate">
-                Demo User
-              </p>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">
-                demo@devstash.io
-              </p>
-            </div>
-          )}
-        </div>
+      <div className="border-t border-border p-2 shrink-0">
+        <UserMenu user={user} collapsed={collapsed} />
       </div>
     </div>
   );

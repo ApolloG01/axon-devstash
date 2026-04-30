@@ -5,8 +5,14 @@ import { getPinnedItems, getRecentItems, getItemStats, getDemoUserId } from "@/l
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { CollectionCard } from "@/components/dashboard/collection-card"
 import { ItemCard } from "@/components/dashboard/item-card"
+import { PageToast } from "@/components/shared/page-toast"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>
+}) {
+  const { welcome } = await searchParams
   const userId = await getDemoUserId()
 
   const [collections, pinnedItems, recentItems, itemStats] = await Promise.all([
@@ -25,6 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto w-full">
+      {welcome === "1" && <PageToast message="Welcome back!" />}
       {/* Stats */}
       <StatsCards stats={stats} />
 
