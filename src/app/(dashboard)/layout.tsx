@@ -4,6 +4,7 @@ import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes } from "@/lib/db/items"
 import { getDemoUserCollections } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
+import { auth } from "@/auth"
 import { Search, Plus } from "lucide-react"
 
 export default async function DashboardLayout({
@@ -11,10 +12,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [itemTypes, collections] = await Promise.all([
+  const [session, itemTypes, collections] = await Promise.all([
+    auth(),
     getSystemItemTypes(),
     getDemoUserCollections(),
   ])
+
+  const user = session?.user ?? { name: null, email: null, image: null }
 
   const favoriteCollections = collections.filter((c) => c.isFavorite)
   const recentCollections = collections.slice(0, 3)
@@ -26,6 +30,7 @@ export default async function DashboardLayout({
           itemTypes={itemTypes}
           favoriteCollections={favoriteCollections}
           recentCollections={recentCollections}
+          user={user}
         />
 
         <span className="text-sm font-semibold tracking-tight w-40 shrink-0">
@@ -55,6 +60,7 @@ export default async function DashboardLayout({
           itemTypes={itemTypes}
           favoriteCollections={favoriteCollections}
           recentCollections={recentCollections}
+          user={user}
         />
         <main className="flex-1 overflow-auto">{children}</main>
       </div>

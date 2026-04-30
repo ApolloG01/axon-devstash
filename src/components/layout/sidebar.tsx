@@ -4,16 +4,17 @@ import { useState } from "react"
 import { PanelLeftClose, PanelLeftOpen, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { SidebarContent, type SidebarItemType, type SidebarCollection } from "./sidebar-content"
+import { SidebarContent, type SidebarItemType, type SidebarCollection, type SidebarUser } from "./sidebar-content"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
   itemTypes: SidebarItemType[]
   favoriteCollections: SidebarCollection[]
   recentCollections: SidebarCollection[]
+  user: SidebarUser
 }
 
-export function Sidebar({ itemTypes, favoriteCollections, recentCollections }: SidebarProps) {
+export function Sidebar({ itemTypes, favoriteCollections, recentCollections, user }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -41,12 +42,13 @@ export function Sidebar({ itemTypes, favoriteCollections, recentCollections }: S
         itemTypes={itemTypes}
         favoriteCollections={favoriteCollections}
         recentCollections={recentCollections}
+        user={user}
       />
     </aside>
   )
 }
 
-export function MobileSidebarTrigger({ itemTypes, favoriteCollections, recentCollections }: SidebarProps) {
+export function MobileSidebarTrigger({ itemTypes, favoriteCollections, recentCollections, user }: SidebarProps) {
   return (
     <Sheet>
       <SheetTrigger
@@ -60,6 +62,7 @@ export function MobileSidebarTrigger({ itemTypes, favoriteCollections, recentCol
           itemTypes={itemTypes}
           favoriteCollections={favoriteCollections}
           recentCollections={recentCollections}
+          user={user}
         />
       </SheetContent>
     </Sheet>
