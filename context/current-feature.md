@@ -1,37 +1,18 @@
-# Current Feature: Auth UI - Sign In, Register & Sign Out
+# Current Feature
+
+_No active feature. Ready for next task._
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Build custom `/sign-in` page with email/password fields and "Sign in with GitHub" button
-- Build custom `/register` page with name, email, password, confirm password fields
-- Register form submits to `/api/auth/register`, redirects to sign-in on success
-- Form validation with error display on both pages
-- Update sidebar bottom: show user avatar (GitHub image or initials fallback), user name, dropdown with "Sign out"
+—
 
 ## Notes
 
-**Pages to create:**
-- `src/app/(auth)/sign-in/page.tsx` — Custom sign-in page
-- `src/app/(auth)/register/page.tsx` — Custom register page
-
-**Components to create:**
-- Reusable avatar component: GitHub image if available, otherwise initials (e.g. "Brad Traversy" → "BT")
-
-**Sidebar changes:**
-- Replace current user area at bottom with real session user data
-- Avatar click → dropdown/popover with "Sign out" link
-- Avatar click on icon itself → navigate to `/profile`
-
-**NextAuth config update:**
-- Set `pages.signIn = "/sign-in"` so NextAuth redirects to custom page
-
-**Avatar logic:**
-- `session.user.image` → use as `<img>` src
-- Otherwise → derive initials from `session.user.name`
+—
 
 ## History
 
@@ -58,3 +39,4 @@ In Progress
 - **2026-04-29**: Completed Code Quality Quick Wins — DATABASE_URL guard with explicit error throw, shared ICON_MAP constant, consolidated getDemoUserId with React cache(), fixed recentCollections ordering, root route redirect to /dashboard, APP_NAME constant, sidebar font-size typo fix.
 - **2026-04-29**: Completed Auth Setup — NextAuth v5 (next-auth@beta) installed with @auth/prisma-adapter, split auth config for edge compatibility (auth.config.ts + auth.ts), GitHub OAuth provider added, src/proxy.ts guards /dashboard/* routes with redirect to sign-in, Session extended with user.id, AUTH_SECRET generated and added to .env.
 - **2026-04-29**: Completed Auth Credentials — Credentials provider added to auth.config.ts (edge-safe placeholder) and auth.ts (bcrypt validation), POST /api/auth/register created with duplicate-email (409) and password-match (400) guards, both GitHub and email/password sign-in working on default NextAuth page.
+- **2026-04-30**: Completed Auth UI — Custom /sign-in and /register pages using Server Actions (secure POST, no credentials in URL), UserAvatar component (GitHub image or initials fallback), UserMenu sidebar dropdown with sign-out, sonner toasts for register/login/sign-out events (top-center, richColors).
