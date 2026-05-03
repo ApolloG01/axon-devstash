@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
@@ -18,7 +19,9 @@ export default async function DashboardLayout({
     getDemoUserCollections(),
   ])
 
-  const user = session?.user ?? { name: null, email: null, image: null }
+  if (!session?.user) redirect("/sign-in")
+
+  const user = session.user
 
   const favoriteCollections = collections.filter((c) => c.isFavorite)
   const recentCollections = collections.slice(0, 3)

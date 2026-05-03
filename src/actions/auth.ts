@@ -48,6 +48,7 @@ export async function registerUser(
   const confirmPassword = formData.get("confirmPassword") as string
 
   if (!name || !email || !password) return "All fields are required."
+  if (password.length < 8) return "Password must be at least 8 characters."
   if (password !== confirmPassword) return "Passwords do not match."
 
   const existing = await prisma.user.findUnique({ where: { email } })

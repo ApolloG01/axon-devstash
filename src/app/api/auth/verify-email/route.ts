@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const record = await prisma.verificationToken.findUnique({ where: { token } })
 
-  if (!record || record.expires < new Date()) {
+  if (!record || record.identifier.startsWith("password-reset:") || record.expires < new Date()) {
     if (record) await prisma.verificationToken.delete({ where: { token } })
     return NextResponse.redirect(new URL("/sign-in?error=invalid-token", req.url))
   }
