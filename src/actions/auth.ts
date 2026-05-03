@@ -3,6 +3,12 @@
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/resend"
+import {
+  checkSignInLimit,
+  checkRegisterLimit,
+  checkForgotPasswordLimit,
+  getActionIp,
+} from "@/lib/rate-limit"
 import bcrypt from "bcryptjs"
 import { randomBytes } from "crypto"
 import { AuthError } from "next-auth"
@@ -13,6 +19,13 @@ export async function credentialsSignIn(
   formData: FormData,
 ): Promise<string | null> {
   const email = (formData.get("email") as string)?.trim()
+
+  const ip = await getActionIp()
+  const rl = await checkSignInLimit(ip, email)
+  if (rl.limited) {
+    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
+    return `Too many sign-in attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+  }
 
   const user = await prisma.user.findUnique({ where: { email }, select: { emailVerified: true, password: true } })
   if (user?.password && !user.emailVerified) {
@@ -48,6 +61,13 @@ export async function registerUser(
   const confirmPassword = formData.get("confirmPassword") as string
 
   if (!name || !email || !password) return "All fields are required."
+
+  const ip = await getActionIp()
+  const rl = await checkRegisterLimit(ip)
+  if (rl.limited) {
+    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
+    return `Too many registration attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+  }
   if (password.length < 8) return "Password must be at least 8 characters."
   if (password !== confirmPassword) return "Passwords do not match."
 
@@ -86,6 +106,13 @@ export async function requestPasswordReset(
 ): Promise<string | null> {
   const email = (formData.get("email") as string)?.trim()
   if (!email) return "Email is required."
+
+  const ip = await getActionIp()
+  const rl = await checkForgotPasswordLimit(ip)
+  if (rl.limited) {
+    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
+    return `Too many attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+  }
 
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, password: true } })
 
