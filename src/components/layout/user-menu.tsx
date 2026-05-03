@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { LogOut, User } from "lucide-react"
+import { signOut } from "next-auth/react"
 import { UserAvatar } from "@/components/shared/user-avatar"
-import { signOutAction } from "@/actions/auth"
 import { cn } from "@/lib/utils"
 
 interface UserMenuProps {
@@ -54,15 +54,13 @@ export function UserMenu({ user, collapsed = false }: UserMenuProps) {
             <User className="h-3.5 w-3.5" />
             Profile
           </Link>
-          <form action={signOutAction} className="w-full">
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent transition-colors w-full"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
-          </form>
+          <button
+            onClick={() => signOut({ callbackUrl: "/sign-in?signedOut=1" })}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-popover-foreground hover:bg-accent transition-colors w-full"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Sign out
+          </button>
         </div>
       )}
     </div>

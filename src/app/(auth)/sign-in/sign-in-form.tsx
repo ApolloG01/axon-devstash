@@ -12,17 +12,23 @@ export function SignInForm({
   callbackUrl,
   registered,
   signedOut,
+  verified,
+  tokenError,
 }: {
   callbackUrl: string
   registered?: boolean
   signedOut?: boolean
+  verified?: boolean
+  tokenError?: boolean
 }) {
   const [error, formAction, isPending] = useActionState(credentialsSignIn, null)
 
   useEffect(() => {
-    if (registered) toast.success("Account created! You can now sign in.")
+    if (verified) toast.success("Email verified! You can now sign in.")
+    else if (tokenError) toast.error("Verification link is invalid or expired.")
+    else if (registered) toast.info("Account created! Check your email to verify your account.")
     else if (signedOut) toast.info("You've been signed out.")
-  }, [registered, signedOut])
+  }, [registered, signedOut, verified, tokenError])
 
   return (
     <div className="space-y-6">
