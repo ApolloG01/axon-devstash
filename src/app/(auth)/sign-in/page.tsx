@@ -3,7 +3,7 @@ import { SignInForm } from "./sign-in-form"
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string | string[]; registered?: string; signedOut?: string; verified?: string; error?: string }>
+  searchParams: Promise<{ callbackUrl?: string | string[]; registered?: string; signedOut?: string; verified?: string; error?: string; passwordReset?: string }>
 }) {
   const params = await searchParams
   const raw = params.callbackUrl
@@ -12,5 +12,6 @@ export default async function SignInPage({
   const signedOut = params.signedOut === "1"
   const verified = params.verified === "1"
   const tokenError = params.error === "invalid-token"
-  return <SignInForm callbackUrl={callbackUrl} registered={registered} signedOut={signedOut} verified={verified} tokenError={tokenError} />
+  const passwordReset = params.passwordReset === "1"
+  return <SignInForm callbackUrl={callbackUrl} registered={registered} signedOut={signedOut} verified={verified} tokenError={tokenError} passwordReset={passwordReset} />
 }
