@@ -2,15 +2,15 @@
 
 ## Status
 
-Not Started
+<!-- Not Started | In Progress | Complete -->
 
 ## Goals
 
-<!-- Add goals here -->
+<!--  List goals here -->
 
 ## Notes
 
-<!-- Add notes here -->
+<!--  Additional context, constraints, or implementation details -->
 
 ## History
 
@@ -41,3 +41,4 @@ Not Started
 - **2026-05-03**: Completed Email Verification on Register — Resend integration for verification emails, VerificationToken stored in DB (24h expiry), GET /api/auth/verify-email endpoint, unverified accounts blocked from sign-in with clear error, verified/error/registered toasts on sign-in page, dev terminal URL logging for local testing.
 - **2026-05-03**: Completed Forgot Password — /forgot-password and /reset-password pages, reset tokens in VerificationToken with password-reset: prefix (1h expiry), bcrypt password update, success toast on sign-in, OAuth accounts silently skipped, dev terminal URL logging.
 - **2026-05-03**: Completed Profile Page — /profile route (protected), user info with avatar, usage stats with per-type breakdown, change password form (credentials accounts only), delete account with AlertDialog confirmation.
+- **2026-05-03**: Completed Rate Limiting for Auth — src/lib/rate-limit.ts created with Upstash Redis sliding window (fail-open on error); credentialsSignIn limited to 5/15min/IP+email, registerUser and /api/auth/register limited to 3/1h/IP, requestPasswordReset limited to 3/1h/IP; 429 + Retry-After header on API route; inline error surfaced on all auth forms.
