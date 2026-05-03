@@ -14,21 +14,24 @@ export function SignInForm({
   signedOut,
   verified,
   tokenError,
+  passwordReset,
 }: {
   callbackUrl: string
   registered?: boolean
   signedOut?: boolean
   verified?: boolean
   tokenError?: boolean
+  passwordReset?: boolean
 }) {
   const [error, formAction, isPending] = useActionState(credentialsSignIn, null)
 
   useEffect(() => {
     if (verified) toast.success("Email verified! You can now sign in.")
+    else if (passwordReset) toast.success("Password reset! You can now sign in.")
     else if (tokenError) toast.error("Verification link is invalid or expired.")
     else if (registered) toast.info("Account created! Check your email to verify your account.")
     else if (signedOut) toast.info("You've been signed out.")
-  }, [registered, signedOut, verified, tokenError])
+  }, [registered, signedOut, verified, tokenError, passwordReset])
 
   return (
     <div className="space-y-6">
@@ -68,6 +71,11 @@ export function SignInForm({
             required
             autoComplete="current-password"
           />
+          <div className="flex justify-end">
+            <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Signing in…" : "Sign in"}
           </Button>

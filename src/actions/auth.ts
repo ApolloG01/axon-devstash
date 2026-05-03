@@ -2,7 +2,7 @@
 
 import { signIn, signOut } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { sendVerificationEmail } from "@/lib/resend"
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/resend"
 import bcrypt from "bcryptjs"
 import { randomBytes } from "crypto"
 import { AuthError } from "next-auth"
@@ -75,4 +75,70 @@ export async function registerUser(
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/sign-in?signedOut=1" })
+}
+
+const RESET_PREFIX = "password-reset:"
+
+export async function requestPasswordReset(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const email = (formData.get("email") as string)?.trim()
+  if (!email) return "Email is required."
+
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true, password: true } })
+
+  // Always show the same message to avoid revealing whether an email exists
+  if (!user?.password) {
+    return null // silently skip OAuth accounts or non-existent emails
+  }
+
+  // Delete any existing reset token for this email
+  await prisma.verificationToken.deleteMany({ where: { identifier: `${RESET_PREFIX}${email}` } })
+
+  const token = randomBytes(32).toString("hex")
+  const expires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+
+  await prisma.verificationToken.create({
+    data: { identifier: `${RESET_PREFIX}${email}`, token, expires },
+  })
+
+  try {
+    await sendPasswordResetEmail(email, token)
+  } catch (err) {
+    console.error("[requestPasswordReset] Failed to send reset email:", err)
+  }
+
+  return null
+}
+
+export async function resetPassword(
+  _prevState: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const token = (formData.get("token") as string)?.trim()
+  const password = formData.get("password") as string
+  const confirmPassword = formData.get("confirmPassword") as string
+
+  if (!token || !password) return "Invalid request."
+  if (password !== confirmPassword) return "Passwords do not match."
+  if (password.length < 8) return "Password must be at least 8 characters."
+
+  const record = await prisma.verificationToken.findUnique({ where: { token } })
+
+  if (!record || !record.identifier.startsWith(RESET_PREFIX) || record.expires < new Date()) {
+    if (record) await prisma.verificationToken.delete({ where: { token } })
+    return "INVALID_TOKEN"
+  }
+
+  const email = record.identifier.slice(RESET_PREFIX.length)
+
+  await prisma.user.update({
+    where: { email },
+    data: { password: await bcrypt.hash(password, 12) },
+  })
+
+  await prisma.verificationToken.delete({ where: { token } })
+
+  redirect("/sign-in?passwordReset=1")
 }

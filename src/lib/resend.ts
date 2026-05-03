@@ -28,3 +28,26 @@ export async function sendVerificationEmail(email: string, token: string) {
     `,
   })
 }
+
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  const resetUrl = `${baseUrl}/reset-password?token=${token}`
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`\n[DEV] Password reset URL for ${email}:\n${resetUrl}\n`)
+  }
+
+  await resend.emails.send({
+    from: "Axon DevStash <onboarding@resend.dev>",
+    to: email,
+    subject: "Reset your password — Axon DevStash",
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#09090b;color:#fafafa;border-radius:8px;">
+        <h1 style="font-size:20px;font-weight:600;margin:0 0 8px;">Reset your password</h1>
+        <p style="color:#a1a1aa;margin:0 0 24px;font-size:14px;">Click the button below to reset your password. This link expires in 1 hour.</p>
+        <a href="${resetUrl}" style="display:inline-block;background:#fafafa;color:#09090b;font-weight:600;font-size:14px;padding:10px 20px;border-radius:6px;text-decoration:none;">Reset Password</a>
+        <p style="color:#52525b;font-size:12px;margin:24px 0 0;">If you didn't request a password reset, you can ignore this email.</p>
+      </div>
+    `,
+  })
+}
