@@ -15,6 +15,7 @@ export function SignInForm({
   verified,
   tokenError,
   passwordReset,
+  deleted,
 }: {
   callbackUrl: string
   registered?: boolean
@@ -22,16 +23,18 @@ export function SignInForm({
   verified?: boolean
   tokenError?: boolean
   passwordReset?: boolean
+  deleted?: boolean
 }) {
   const [error, formAction, isPending] = useActionState(credentialsSignIn, null)
 
   useEffect(() => {
     if (verified) toast.success("Email verified! You can now sign in.")
     else if (passwordReset) toast.success("Password reset! You can now sign in.")
+    else if (deleted) toast.info("Your account has been deleted.")
     else if (tokenError) toast.error("Verification link is invalid or expired.")
     else if (registered) toast.info("Account created! Check your email to verify your account.")
     else if (signedOut) toast.info("You've been signed out.")
-  }, [registered, signedOut, verified, tokenError, passwordReset])
+  }, [registered, signedOut, verified, tokenError, passwordReset, deleted])
 
   return (
     <div className="space-y-6">
