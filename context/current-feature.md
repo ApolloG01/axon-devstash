@@ -1,18 +1,16 @@
 # Current Feature
 
-_No active feature. Ready for next task._
-
 ## Status
 
-Completed
+Not Started
 
 ## Goals
 
-—
+<!-- Add goals here -->
 
 ## Notes
 
-—
+<!-- Add notes here -->
 
 ## History
 
@@ -40,3 +38,4 @@ Completed
 - **2026-04-29**: Completed Auth Setup — NextAuth v5 (next-auth@beta) installed with @auth/prisma-adapter, split auth config for edge compatibility (auth.config.ts + auth.ts), GitHub OAuth provider added, src/proxy.ts guards /dashboard/* routes with redirect to sign-in, Session extended with user.id, AUTH_SECRET generated and added to .env.
 - **2026-04-29**: Completed Auth Credentials — Credentials provider added to auth.config.ts (edge-safe placeholder) and auth.ts (bcrypt validation), POST /api/auth/register created with duplicate-email (409) and password-match (400) guards, both GitHub and email/password sign-in working on default NextAuth page.
 - **2026-04-30**: Completed Auth UI — Custom /sign-in and /register pages using Server Actions (secure POST, no credentials in URL), UserAvatar component (GitHub image or initials fallback), UserMenu sidebar dropdown with sign-out, sonner toasts for register/login/sign-out events (top-center, richColors).
+- **2026-05-03**: Completed Email Verification on Register — Resend integration for verification emails, VerificationToken stored in DB (24h expiry), GET /api/auth/verify-email endpoint, unverified accounts blocked from sign-in with clear error, verified/error/registered toasts on sign-in page, dev terminal URL logging for local testing.
