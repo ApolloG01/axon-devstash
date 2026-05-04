@@ -42,3 +42,9 @@ next-env.d.ts
 
 # prisma generated client
 /src/generated/
+
+# playwright MCP browser artifacts
+/.playwright-mcp/
+
+# screenshots
+*.png
