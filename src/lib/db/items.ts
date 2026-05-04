@@ -52,6 +52,14 @@ export async function getItemStats(userId: string) {
   return { total, favorites }
 }
 
+export async function getItemsByType(userId: string, typeName: string): Promise<ItemWithType[]> {
+  return prisma.item.findMany({
+    where: { userId, itemType: { name: typeName } },
+    select: itemSelect,
+    orderBy: { lastUsedAt: "desc" },
+  })
+}
+
 export async function getSystemItemTypes() {
   return prisma.itemType.findMany({
     where: { isSystem: true },
