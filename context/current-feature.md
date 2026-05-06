@@ -1,22 +1,14 @@
-# Current Feature: Item Delete
+# Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Add a `deleteItem` server action in `src/actions/items.ts` with auth and ownership validation
-- Add a `deleteItemById` query in `src/lib/db/items.ts`
-- Wire the existing Delete button in `ItemDrawer` action bar to trigger a shadcn `AlertDialog` confirmation modal
-- On confirm, call the `deleteItem` server action, close the drawer, show a sonner toast on success/error, and refresh the item list via `router.refresh()`
-- Write Vitest unit tests for the `deleteItem` server action (auth, ownership, not-found cases)
 
 ## Notes
-- The Delete button already exists in the `ItemDrawer` action bar — it just needs to be wired up
-- Use shadcn `AlertDialog` component (install if not already present) for the "Are you sure?" confirmation
-- Pattern should match the existing `updateItem` server action structure (Zod validation, ownership check, auth guard)
-- After successful delete the drawer should close and the item should disappear from the grid without a full page reload (use `router.refresh()`)
 
 ## History
+
+- **2026-05-06**: Completed Item Delete — `deleteItemById` query added to `src/lib/db/items.ts`, `deleteItem` server action in `src/actions/items.ts` with auth/ownership guard, Delete button in `ItemDrawer` wired to shadcn `AlertDialog` confirmation, sonner toast on success/error, `router.refresh()` removes item from grid. 3 Vitest tests covering auth, ownership, and success cases.
 
 - **2026-05-06**: Completed Item Drawer — Edit Mode — `updateItemById` query added to `lib/db/items.ts` (tag disconnect+reconnect), `updateItem` server action in `src/actions/items.ts` with Zod validation and ownership check, `DrawerBody` extended with controlled edit state (title/description/tags for all types; content/language for text types; url for link type), Save/Cancel replace action bar in edit mode, sonner toast on success/error, `router.refresh()` keeps card list in sync. 4 Vitest tests covering auth, validation, and ownership cases.
 
