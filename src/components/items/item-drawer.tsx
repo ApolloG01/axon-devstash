@@ -1,11 +1,14 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { Star, Pin, Copy, Pencil, Trash2, ExternalLink } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Star, Pin, Copy, Pencil, Trash2, ExternalLink, Save, X } from "lucide-react"
+import { toast } from "sonner"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
+import { updateItem } from "@/actions/items"
 
 type ItemFull = {
   id: string
@@ -71,10 +74,33 @@ function DrawerSkeleton() {
   )
 }
 
-function DrawerBody({ item }: { item: ItemFull }) {
+const TEXT_TYPES = new Set(["snippet", "prompt", "command", "note"])
+const LANGUAGE_TYPES = new Set(["snippet", "command"])
+
+interface DrawerBodyProps {
+  item: ItemFull
+  onItemUpdate: (updated: ItemFull) => void
+}
+
+function DrawerBody({ item, onItemUpdate }: DrawerBodyProps) {
+  const router = useRouter()
   const [copied, setCopied] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const [title, setTitle] = useState(item.title)
+  const [description, setDescription] = useState(item.description ?? "")
+  const [content, setContent] = useState(item.content ?? "")
+  const [language, setLanguage] = useState(item.language ?? "")
+  const [url, setUrl] = useState(item.url ?? "")
+  const [tags, setTags] = useState(item.tags.map((t) => t.name).join(", "))
+
   const IconComponent = ICON_MAP[item.itemType.icon]
   const copyText = item.contentType === "url" ? item.url : item.content
+  const typeName = item.itemType.name
+  const isTextType = TEXT_TYPES.has(typeName)
+  const isLanguageType = LANGUAGE_TYPES.has(typeName)
+  const isUrlType = typeName === "link"
 
   const handleCopy = useCallback(async () => {
     if (!copyText) return
@@ -82,6 +108,49 @@ function DrawerBody({ item }: { item: ItemFull }) {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [copyText])
+
+  const handleEdit = () => {
+    setTitle(item.title)
+    setDescription(item.description ?? "")
+    setContent(item.content ?? "")
+    setLanguage(item.language ?? "")
+    setUrl(item.url ?? "")
+    setTags(item.tags.map((t) => t.name).join(", "))
+    setEditing(true)
+  }
+
+  const handleCancel = () => {
+    setEditing(false)
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    const tagArray = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+
+    const result = await updateItem(item.id, {
+      title,
+      description: description || null,
+      content: isTextType ? content || null : null,
+      url: isUrlType ? url || null : null,
+      language: isLanguageType ? language || null : null,
+      tags: tagArray,
+    })
+
+    setSaving(false)
+
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to save changes")
+      return
+    }
+
+    toast.success("Changes saved")
+    onItemUpdate(result.data as unknown as ItemFull)
+    setEditing(false)
+    router.refresh()
+  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -95,84 +164,168 @@ function DrawerBody({ item }: { item: ItemFull }) {
             {item.itemType.name}
           </span>
         </div>
-        <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
-        {item.description && (
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.description}</p>
+        {editing ? (
+          <input
+            className="w-full text-base font-semibold leading-snug bg-transparent border-b border-border focus:outline-none focus:border-primary pb-0.5"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title"
+            autoFocus
+          />
+        ) : (
+          <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
+        )}
+        {editing ? (
+          <textarea
+            className="w-full mt-1.5 text-xs text-muted-foreground bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary resize-none"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Description (optional)"
+            rows={2}
+          />
+        ) : (
+          item.description && (
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.description}</p>
+          )
         )}
       </div>
 
       {/* Action bar */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2.5 text-xs gap-1.5"
-          onClick={handleCopy}
-          disabled={!copyText}
-        >
-          <Copy className="h-3.5 w-3.5" />
-          {copied ? "Copied!" : "Copy"}
-        </Button>
-        <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs gap-1.5">
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("h-7 px-2.5 text-xs gap-1.5", item.isFavorite && "text-amber-400 hover:text-amber-400")}
-        >
-          <Star className={cn("h-3.5 w-3.5", item.isFavorite && "fill-amber-400")} />
-          Favorite
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("h-7 px-2.5 text-xs gap-1.5", item.isPinned && "text-sky-400 hover:text-sky-400")}
-        >
-          <Pin className={cn("h-3.5 w-3.5", item.isPinned && "fill-sky-400")} />
-          Pin
-        </Button>
-        <div className="flex-1" />
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          <span className="sr-only">Delete</span>
-        </Button>
+        {editing ? (
+          <>
+            <Button
+              variant="default"
+              size="sm"
+              className="h-7 px-2.5 text-xs gap-1.5"
+              onClick={handleSave}
+              disabled={!title.trim() || saving}
+            >
+              <Save className="h-3.5 w-3.5" />
+              {saving ? "Saving…" : "Save"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2.5 text-xs gap-1.5"
+              onClick={handleCancel}
+              disabled={saving}
+            >
+              <X className="h-3.5 w-3.5" />
+              Cancel
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2.5 text-xs gap-1.5"
+              onClick={handleCopy}
+              disabled={!copyText}
+            >
+              <Copy className="h-3.5 w-3.5" />
+              {copied ? "Copied!" : "Copy"}
+            </Button>
+            <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs gap-1.5" onClick={handleEdit}>
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("h-7 px-2.5 text-xs gap-1.5", item.isFavorite && "text-amber-400 hover:text-amber-400")}
+            >
+              <Star className={cn("h-3.5 w-3.5", item.isFavorite && "fill-amber-400")} />
+              Favorite
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn("h-7 px-2.5 text-xs gap-1.5", item.isPinned && "text-sky-400 hover:text-sky-400")}
+            >
+              <Pin className={cn("h-3.5 w-3.5", item.isPinned && "fill-sky-400")} />
+              Pin
+            </Button>
+            <div className="flex-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </>
+        )}
       </div>
 
       {/* Content area */}
       <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4">
-        {item.contentType === "text" && item.content && (
-          <div className="rounded-md border border-border overflow-hidden">
-            {item.language && (
-              <div className="px-3 py-1.5 bg-muted/50 border-b border-border">
-                <span className="text-[11px] text-muted-foreground font-mono capitalize">
-                  {item.language}
-                </span>
+        {/* Text content */}
+        {isTextType && (
+          editing ? (
+            <div className="space-y-2">
+              {isLanguageType && (
+                <input
+                  className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  placeholder="Language (e.g. typescript)"
+                />
+              )}
+              <textarea
+                className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Content"
+                rows={10}
+              />
+            </div>
+          ) : (
+            item.content && (
+              <div className="rounded-md border border-border overflow-hidden">
+                {item.language && (
+                  <div className="px-3 py-1.5 bg-muted/50 border-b border-border">
+                    <span className="text-[11px] text-muted-foreground font-mono capitalize">
+                      {item.language}
+                    </span>
+                  </div>
+                )}
+                <pre className="p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
+                  {item.content}
+                </pre>
               </div>
-            )}
-            <pre className="p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
-              {item.content}
-            </pre>
-          </div>
+            )
+          )
         )}
 
-        {item.contentType === "url" && item.url && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-start gap-2 text-sm text-primary hover:underline break-all"
-          >
-            <ExternalLink className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            {item.url}
-          </a>
+        {/* URL content */}
+        {isUrlType && (
+          editing ? (
+            <input
+              className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://..."
+              type="url"
+            />
+          ) : (
+            item.url && (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2 text-sm text-primary hover:underline break-all"
+              >
+                <ExternalLink className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                {item.url}
+              </a>
+            )
+          )
         )}
 
+        {/* File content (non-editable) */}
         {item.contentType === "file" && (
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium">{item.fileName ?? "Untitled file"}</span>
@@ -183,25 +336,40 @@ function DrawerBody({ item }: { item: ItemFull }) {
         )}
 
         {/* Tags */}
-        {item.tags.length > 0 && (
+        {editing ? (
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
               Tags
             </p>
-            <div className="flex flex-wrap gap-1.5">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag.name}
-                  className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
-                >
-                  #{tag.name}
-                </span>
-              ))}
-            </div>
+            <input
+              className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="react, typescript, hooks"
+            />
+            <p className="text-[10px] text-muted-foreground mt-1">Comma-separated</p>
           </div>
+        ) : (
+          item.tags.length > 0 && (
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
+                Tags
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {item.tags.map((tag) => (
+                  <span
+                    key={tag.name}
+                    className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
         )}
 
-        {/* Collections */}
+        {/* Collections (non-editable) */}
         {item.collections.length > 0 && (
           <div>
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
@@ -220,7 +388,7 @@ function DrawerBody({ item }: { item: ItemFull }) {
           </div>
         )}
 
-        {/* Last updated */}
+        {/* Last updated (non-editable) */}
         <div>
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-0.5">
             Last Updated
@@ -269,7 +437,7 @@ export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
     >
       <SheetContent side="right" showCloseButton className="w-full sm:max-w-md p-0 gap-0 overflow-hidden">
         {loading && <DrawerSkeleton />}
-        {!loading && item && <DrawerBody item={item} />}
+        {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} />}
       </SheetContent>
     </Sheet>
   )
