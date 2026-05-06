@@ -1,10 +1,20 @@
-# Current Feature
+# Current Feature: Item Delete
 
 ## Status
+In Progress
 
 ## Goals
+- Add a `deleteItem` server action in `src/actions/items.ts` with auth and ownership validation
+- Add a `deleteItemById` query in `src/lib/db/items.ts`
+- Wire the existing Delete button in `ItemDrawer` action bar to trigger a shadcn `AlertDialog` confirmation modal
+- On confirm, call the `deleteItem` server action, close the drawer, show a sonner toast on success/error, and refresh the item list via `router.refresh()`
+- Write Vitest unit tests for the `deleteItem` server action (auth, ownership, not-found cases)
 
 ## Notes
+- The Delete button already exists in the `ItemDrawer` action bar — it just needs to be wired up
+- Use shadcn `AlertDialog` component (install if not already present) for the "Are you sure?" confirmation
+- Pattern should match the existing `updateItem` server action structure (Zod validation, ownership check, auth guard)
+- After successful delete the drawer should close and the item should disappear from the grid without a full page reload (use `router.refresh()`)
 
 ## History
 
