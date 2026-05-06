@@ -109,6 +109,59 @@ export async function getItemById(userId: string, id: string): Promise<ItemFull 
   })
 }
 
+export type UpdateItemData = {
+  title: string
+  description: string | null
+  content: string | null
+  url: string | null
+  language: string | null
+  tags: string[]
+}
+
+export async function updateItemById(userId: string, id: string, data: UpdateItemData): Promise<ItemFull | null> {
+  const item = await prisma.item.findUnique({ where: { id, userId }, select: { id: true } })
+  if (!item) return null
+
+  return prisma.item.update({
+    where: { id },
+    data: {
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      url: data.url,
+      language: data.language,
+      updatedAt: new Date(),
+      tags: {
+        set: [],
+        connectOrCreate: data.tags.map((name) => ({
+          where: { name },
+          create: { name },
+        })),
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      contentType: true,
+      content: true,
+      language: true,
+      fileUrl: true,
+      fileName: true,
+      fileSize: true,
+      url: true,
+      isFavorite: true,
+      isPinned: true,
+      lastUsedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      itemType: { select: { id: true, name: true, color: true, icon: true } },
+      tags: { select: { name: true } },
+      collections: { select: { collection: { select: { id: true, name: true } } } },
+    },
+  })
+}
+
 export async function getSystemItemTypes() {
   return prisma.itemType.findMany({
     where: { isSystem: true },
