@@ -1,20 +1,30 @@
-# Current Feature
+# Current Feature: Item Drawer
 
 ## Status
 
-<!-- Not Started | In Progress | Complete -->
+Complete
 
 ## Goals
 
-<!--  List goals here -->
+- Clicking any ItemCard (dashboard or items list) opens a right-side Sheet drawer with full item detail
+- Drawer fetches full item data on click via `GET /api/items/[id]` (skeleton shown while loading)
+- Action bar includes: Favorite (star, yellow when active), Pin, Copy, Edit (pencil), Delete (trash, right-aligned)
+- Client wrapper component manages drawer open/close state so server component pages stay unchanged
+- No page navigation — drawer feels snappy and in-place
 
 ## Notes
 
-<!--  Additional context, constraints, or implementation details -->
+- Use shadcn Sheet component, opens from the right
+- Card list data stays server-fetched as before; only the full detail (content, collections, language, url, fileUrl, etc.) is fetched on click
+- `getItemById(userId, id)` query lives in `lib/db/items.ts`; API route at `src/app/api/items/[id]/route.ts` calls it with auth check
+- Code editor / content rendering is out of scope for this feature — focus on drawer chrome, metadata display, and action bar
+- Works on both `/dashboard` and `/items/[type]` pages
+- Reference screenshot: `context/screenshots/dashboard-ui-drawer.png`
 
 ## History
 
 <!--  Keep this updated. Earliest to latest -->
+- **2026-05-06**: Completed Item Drawer — `ItemFull` type + `getItemById` query added to `lib/db/items.ts`, `GET /api/items/[id]` route with auth+ownership check, `ItemDrawer` Sheet component (skeleton loading, URL/text/file content display, action bar with Copy/Edit/Favorite/Pin/Delete, tags/collections/last-updated metadata), `ItemGrid` client wrapper managing drawer state. Dashboard and items list pages migrated from demo-user fallback to real `auth()` session. Both `/dashboard` and `/items/[type]` pages now open drawer on card click.
 
 - **2026-04-22**: Initial Next.js 15 + Tailwind CSS v4 setup. Scaffolded project, configured CLAUDE.md, added context files, pushed to GitHub.
 - **2026-04-22**: Started Dashboard UI Phase 1 — shadcn/ui init, dashboard route, top bar, layout placeholders.

@@ -1,10 +1,11 @@
 export const dynamic = "force-dynamic"
 
-import { getDemoUserCollections } from "@/lib/db/collections"
-import { getPinnedItems, getRecentItems, getItemStats, getDemoUserId } from "@/lib/db/items"
+import { getCollectionsByUserId } from "@/lib/db/collections"
+import { getPinnedItems, getRecentItems, getItemStats } from "@/lib/db/items"
+import { auth } from "@/auth"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { CollectionCard } from "@/components/dashboard/collection-card"
-import { ItemCard } from "@/components/dashboard/item-card"
+import { ItemGrid } from "@/components/items/item-grid"
 import { PageToast } from "@/components/shared/page-toast"
 
 export default async function DashboardPage({
@@ -13,13 +14,14 @@ export default async function DashboardPage({
   searchParams: Promise<{ welcome?: string }>
 }) {
   const { welcome } = await searchParams
-  const userId = await getDemoUserId()
+  const session = await auth()
+  const userId = session?.user?.id!
 
   const [collections, pinnedItems, recentItems, itemStats] = await Promise.all([
-    getDemoUserCollections(),
-    userId ? getPinnedItems(userId) : [],
-    userId ? getRecentItems(userId, 10) : [],
-    userId ? getItemStats(userId) : { total: 0, favorites: 0 },
+    getCollectionsByUserId(userId),
+    getPinnedItems(userId),
+    getRecentItems(userId, 10),
+    getItemStats(userId),
   ])
 
   const stats = {
@@ -54,11 +56,7 @@ export default async function DashboardPage({
       {pinnedItems.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold mb-4">Pinned</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {pinnedItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          <ItemGrid items={pinnedItems} />
         </section>
       )}
 
@@ -68,11 +66,7 @@ export default async function DashboardPage({
           <h2 className="text-sm font-semibold">Recent Items</h2>
           <span className="text-xs text-muted-foreground">See all</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {recentItems.map((item) => (
-            <ItemCard key={item.id} item={item} />
-          ))}
-        </div>
+        <ItemGrid items={recentItems} emptyMessage="No items yet. Create your first one." />
       </section>
     </div>
   )
