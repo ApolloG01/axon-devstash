@@ -1,32 +1,15 @@
-# Current Feature: Item Drawer — Edit Mode
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
-
-- Edit button in the drawer action bar toggles inline edit mode (same drawer stays open)
-- In edit mode, action bar replaced with Save and Cancel buttons
-- Cancel discards changes and returns to view mode
-- Save calls `updateItem` server action, shows toast on success/error, returns to view mode, and calls `router.refresh()`
-- Editable fields: title (required), description, tags (comma-separated input)
-- Type-specific fields: content textarea (snippet/prompt/command/note), language input (snippet/command), url input (link)
-- Non-editable in edit mode: item type, collections, dates
-- Zod validation in the server action — errors surfaced to the client via `{ success: false, error }`
 
 ## Notes
 
-- No form library — controlled inputs with local state in the drawer component
-- Save button disabled when title is empty (client-side UX guard only; Zod is the source of truth)
-- Server action: `updateItem(itemId, data)` in `src/actions/items.ts`, validates with Zod, checks ownership via `auth()`
-- DB query: `updateItemById` in `lib/db/items.ts` — disconnect all existing tags, connect-or-create new ones, return updated `ItemFull`
-- Content textarea stays plain (no code editor yet — that comes later)
-- After save, drawer refreshes from the returned updated item (no second fetch needed) and `router.refresh()` updates the card list
-
 ## History
 
-<!--  Keep this updated. Earliest to latest -->
+- **2026-05-06**: Completed Item Drawer — Edit Mode — `updateItemById` query added to `lib/db/items.ts` (tag disconnect+reconnect), `updateItem` server action in `src/actions/items.ts` with Zod validation and ownership check, `DrawerBody` extended with controlled edit state (title/description/tags for all types; content/language for text types; url for link type), Save/Cancel replace action bar in edit mode, sonner toast on success/error, `router.refresh()` keeps card list in sync. 4 Vitest tests covering auth, validation, and ownership cases.
+
 - **2026-05-06**: Completed Item Drawer — `ItemFull` type + `getItemById` query added to `lib/db/items.ts`, `GET /api/items/[id]` route with auth+ownership check, `ItemDrawer` Sheet component (skeleton loading, URL/text/file content display, action bar with Copy/Edit/Favorite/Pin/Delete, tags/collections/last-updated metadata), `ItemGrid` client wrapper managing drawer state. Dashboard and items list pages migrated from demo-user fallback to real `auth()` session. Both `/dashboard` and `/items/[type]` pages now open drawer on card click.
 
 - **2026-04-22**: Initial Next.js 15 + Tailwind CSS v4 setup. Scaffolded project, configured CLAUDE.md, added context files, pushed to GitHub.
