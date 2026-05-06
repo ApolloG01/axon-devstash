@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { updateItemById, deleteItemById } from "@/lib/db/items"
+import { updateItemById, deleteItemById, createItemInDb } from "@/lib/db/items"
 
 const updateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
@@ -31,6 +31,37 @@ export async function updateItem(itemId: string, data: UpdateItemInput) {
     return { success: true, data: updated }
   } catch {
     return { success: false, error: "Failed to save changes" }
+  }
+}
+
+const createItemSchema = z.object({
+  itemTypeId: z.string().min(1, "Type is required"),
+  contentType: z.enum(["text", "url", "file"]),
+  title: z.string().trim().min(1, "Title is required"),
+  description: z.string().trim().nullable().optional().transform((v) => v ?? null),
+  content: z.string().nullable().optional().transform((v) => v ?? null),
+  url: z.string().url("Invalid URL").nullable().optional().transform((v) => v ?? null),
+  language: z.string().trim().nullable().optional().transform((v) => v ?? null),
+  tags: z.array(z.string().trim().min(1)).default([]),
+})
+
+type CreateItemInput = z.input<typeof createItemSchema>
+
+export async function createItem(data: CreateItemInput) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+
+  const parsed = createItemSchema.safeParse(data)
+  if (!parsed.success) {
+    const message = parsed.error.issues.map((e) => e.message).join(", ")
+    return { success: false, error: message }
+  }
+
+  try {
+    const item = await createItemInDb(session.user.id, parsed.data)
+    return { success: true, data: item }
+  } catch {
+    return { success: false, error: "Failed to create item" }
   }
 }
 

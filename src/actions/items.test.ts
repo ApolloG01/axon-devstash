@@ -6,6 +6,7 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      create: vi.fn(),
     },
   },
 }))
@@ -15,7 +16,7 @@ vi.mock("@/auth", () => ({
 }))
 
 import { auth } from "@/auth"
-import { updateItem, deleteItem } from "@/actions/items"
+import { updateItem, deleteItem, createItem } from "@/actions/items"
 
 const mockAuth = vi.mocked(auth)
 
@@ -75,5 +76,52 @@ describe("deleteItem", () => {
     vi.mocked(prisma.item.delete).mockResolvedValue({} as never)
     const result = await deleteItem("item-1")
     expect(result).toEqual({ success: true })
+  })
+})
+
+const validCreateInput = {
+  itemTypeId: "type-1",
+  contentType: "text" as const,
+  title: "My Snippet",
+  tags: [],
+}
+
+describe("createItem", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never)
+    const result = await createItem(validCreateInput)
+    expect(result).toEqual({ success: false, error: "Unauthorized" })
+  })
+
+  it("returns validation error when title is empty", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never)
+    const result = await createItem({ ...validCreateInput, title: "" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Title is required")
+  })
+
+  it("returns validation error when itemTypeId is missing", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never)
+    const result = await createItem({ ...validCreateInput, itemTypeId: "" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Type is required")
+  })
+
+  it("returns validation error for invalid URL", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never)
+    const result = await createItem({ ...validCreateInput, contentType: "url", url: "not-a-url" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Invalid URL")
+  })
+
+  it("returns success with created item", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never)
+    const { prisma } = await import("@/lib/prisma")
+    const mockItem = { id: "item-1", title: "My Snippet" }
+    vi.mocked(prisma.item.create).mockResolvedValue(mockItem as never)
+    const result = await createItem(validCreateInput)
+    expect(result).toEqual({ success: true, data: mockItem })
   })
 })

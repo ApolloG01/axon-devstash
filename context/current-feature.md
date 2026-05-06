@@ -1,10 +1,26 @@
-# Current Feature
+# Current Feature: Item Create
 
 ## Status
+In Progress
 
 ## Goals
+- Add a `createItemInDb` query in `src/lib/db/items.ts` that inserts a new item with tags
+- Add a `createItem` server action in `src/actions/items.ts` with Zod validation and auth guard
+- Build a `NewItemDialog` component using shadcn `Dialog` with a type selector and dynamic fields:
+  - All types: title (required), description, tags
+  - snippet / command: content + language
+  - prompt / note: content
+  - link: URL (required)
+- Wire the "New Item" button in the top bar to open `NewItemDialog`
+- On success: close modal, sonner toast, `router.refresh()`
+- Write Vitest unit tests for the `createItem` server action (auth, validation, success cases)
 
 ## Notes
+- File and Image types are Pro-only and should be excluded from the type selector for now
+- Type selector should show all 5 text/link types: snippet, prompt, command, note, link
+- "New Item" button already exists in the top bar — just needs an `onClick` wired to open the dialog
+- Pattern matches existing `updateItem` / `deleteItem` server actions
+- Use the existing `getSystemItemTypes` query or a fixed list to populate the type selector
 
 ## History
 
