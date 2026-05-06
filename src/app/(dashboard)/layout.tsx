@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes } from "@/lib/db/items"
-import { getDemoUserCollections } from "@/lib/db/collections"
+import { getCollectionsByUserId } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
 import { Search, Plus } from "lucide-react"
@@ -13,13 +13,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [session, itemTypes, collections] = await Promise.all([
-    auth(),
-    getSystemItemTypes(),
-    getDemoUserCollections(),
-  ])
+  const [session, itemTypes] = await Promise.all([auth(), getSystemItemTypes()])
 
   if (!session?.user) redirect("/sign-in")
+
+  const collections = await getCollectionsByUserId(session.user.id!)
 
   const user = session.user
 

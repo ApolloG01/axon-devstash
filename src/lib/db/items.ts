@@ -14,6 +14,27 @@ export type ItemWithType = {
   tags: Array<{ name: string }>
 }
 
+export type ItemFull = {
+  id: string
+  title: string
+  description: string | null
+  contentType: string
+  content: string | null
+  language: string | null
+  fileUrl: string | null
+  fileName: string | null
+  fileSize: number | null
+  url: string | null
+  isFavorite: boolean
+  isPinned: boolean
+  lastUsedAt: Date
+  createdAt: Date
+  updatedAt: Date
+  itemType: { id: string; name: string; color: string; icon: string }
+  tags: Array<{ name: string }>
+  collections: Array<{ collection: { id: string; name: string } }>
+}
+
 const itemSelect = {
   id: true,
   title: true,
@@ -57,6 +78,34 @@ export async function getItemsByType(userId: string, typeName: string): Promise<
     where: { userId, itemType: { name: typeName } },
     select: itemSelect,
     orderBy: { lastUsedAt: "desc" },
+  })
+}
+
+export async function getItemById(userId: string, id: string): Promise<ItemFull | null> {
+  return prisma.item.findUnique({
+    where: { id, userId },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      contentType: true,
+      content: true,
+      language: true,
+      fileUrl: true,
+      fileName: true,
+      fileSize: true,
+      url: true,
+      isFavorite: true,
+      isPinned: true,
+      lastUsedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      itemType: { select: { id: true, name: true, color: true, icon: true } },
+      tags: { select: { name: true } },
+      collections: {
+        select: { collection: { select: { id: true, name: true } } },
+      },
+    },
   })
 }
 
