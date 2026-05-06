@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes } from "@/lib/db/items"
 import { getCollectionsByUserId } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
-import { Search, Plus } from "lucide-react"
+import { Search } from "lucide-react"
+import { NewItemButton } from "@/components/items/new-item-dialog"
 
 export default async function DashboardLayout({
   children,
@@ -49,10 +49,7 @@ export default async function DashboardLayout({
         </div>
 
         <div className="ml-auto">
-          <Button size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            New Item
-          </Button>
+          <NewItemButton itemTypes={itemTypes} />
         </div>
       </header>
 
