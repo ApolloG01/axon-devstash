@@ -5,10 +5,20 @@ import { useRouter } from "next/navigation"
 import { Star, Pin, Copy, Pencil, Trash2, ExternalLink, Save, X } from "lucide-react"
 import { toast } from "sonner"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
-import { updateItem } from "@/actions/items"
+import { updateItem, deleteItem } from "@/actions/items"
 
 type ItemFull = {
   id: string
@@ -80,13 +90,16 @@ const LANGUAGE_TYPES = new Set(["snippet", "command"])
 interface DrawerBodyProps {
   item: ItemFull
   onItemUpdate: (updated: ItemFull) => void
+  onClose: () => void
 }
 
-function DrawerBody({ item, onItemUpdate }: DrawerBodyProps) {
+function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const [title, setTitle] = useState(item.title)
   const [description, setDescription] = useState(item.description ?? "")
@@ -149,6 +162,19 @@ function DrawerBody({ item, onItemUpdate }: DrawerBodyProps) {
     toast.success("Changes saved")
     onItemUpdate(result.data as unknown as ItemFull)
     setEditing(false)
+    router.refresh()
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    const result = await deleteItem(item.id)
+    setDeleting(false)
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to delete item")
+      return
+    }
+    toast.success("Item deleted")
+    onClose()
     router.refresh()
   }
 
@@ -252,6 +278,7 @@ function DrawerBody({ item, onItemUpdate }: DrawerBodyProps) {
               variant="ghost"
               size="sm"
               className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+              onClick={() => setConfirmDeleteOpen(true)}
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span className="sr-only">Delete</span>
@@ -259,6 +286,27 @@ function DrawerBody({ item, onItemUpdate }: DrawerBodyProps) {
           </>
         )}
       </div>
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              &ldquo;{item.title}&rdquo; will be permanently deleted. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Content area */}
       <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4">
@@ -437,7 +485,7 @@ export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
     >
       <SheetContent side="right" showCloseButton className="w-full sm:max-w-md p-0 gap-0 overflow-hidden">
         {loading && <DrawerSkeleton />}
-        {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} />}
+        {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} onClose={onClose} />}
       </SheetContent>
     </Sheet>
   )

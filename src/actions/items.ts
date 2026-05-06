@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { updateItemById } from "@/lib/db/items"
+import { updateItemById, deleteItemById } from "@/lib/db/items"
 
 const updateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
@@ -31,5 +31,18 @@ export async function updateItem(itemId: string, data: UpdateItemInput) {
     return { success: true, data: updated }
   } catch {
     return { success: false, error: "Failed to save changes" }
+  }
+}
+
+export async function deleteItem(itemId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+
+  try {
+    const deleted = await deleteItemById(session.user.id, itemId)
+    if (!deleted) return { success: false, error: "Item not found" }
+    return { success: true }
+  } catch {
+    return { success: false, error: "Failed to delete item" }
   }
 }
