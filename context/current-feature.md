@@ -10,6 +10,10 @@ Not Started
 
 ## History
 
+- **2026-05-07**: Completed Image Gallery View — `ImageThumbnailCard` component (`src/components/items/image-thumbnail-card.tsx`) with `aspect-video`/`object-cover` thumbnail and `group-hover:scale-105 duration-300` zoom; `fileUrl` added to `ItemWithType` and `itemSelect` Prisma query; `ItemGrid` gains `variant` prop (`"default"` | `"image"`); `/items/images` page passes `variant="image"` for 3-column gallery grid.
+
+- **2026-05-07**: Completed File & Image Upload (Cloudflare R2) — `@aws-sdk/client-s3` installed; `src/lib/r2.ts` with `uploadToR2`/`deleteFromR2`; `POST /api/upload` validates MIME type + enforces 5 MB image / 10 MB file limits; `GET /api/download/[id]` proxy with `Content-Disposition: attachment`; `FileUpload` component with drag-and-drop zone and XHR progress bar; `NewItemDialog` updated to show file/image types with `FileUpload`; `deleteItem` action performs best-effort R2 cleanup; `ItemDrawer` shows image preview and download button for file items.
+
 - **2026-05-07**: Completed Markdown Editor — `MarkdownEditor` component (`src/components/items/markdown-editor.tsx`) with Write/Preview tabs, `react-markdown` + `remark-gfm`, `bg-[#1e1e1e]` container, `bg-[#2d2d2d]` header, copy button; custom `.markdown-preview` CSS class for dark-theme styling; replaces textarea in `ItemDrawer` and `NewItemDialog` for note/prompt types only; snippet/command keep `CodeEditor`, link keeps plain input; readonly mode shows Preview tab only.
 
 - **2026-05-07**: Completed Code Editor (Monaco) — `CodeEditor` component (`src/components/items/code-editor.tsx`) with `vs-dark` Monaco Editor, macOS window dots, language label, and inline copy button; fluid height auto-fits content up to 400px with slim dark scrollbars; replaces textarea in `ItemDrawer` view and edit modes for snippet/command types only; notes/prompts/links keep plain textarea. `NewItemButton` gains `defaultTypeId` + `label` props; items type page renders a "New {type}" button that opens the dialog with the matching type pre-selected.
