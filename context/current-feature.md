@@ -1,12 +1,26 @@
-# Current Feature
+# Current Feature: Add Item to Collections
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Collection multi-select input added to `NewItemDialog` — user can pick zero or more collections when creating an item
+- Collection multi-select input added to `ItemDrawer` edit mode — user can add/remove collections on an existing item
+- `createItem` server action wired to create `ItemCollection` join records for selected collections
+- `updateItem` server action updated to sync `ItemCollection` records (add new, remove deselected)
+- Collections currently assigned to an item pre-populated in the edit form
+- `getUserCollections(userId)` DB query available for populating the selector
+- No collection detail/page UI required — only the selector in create/edit flows
+
 ## Notes
+
+- The `ItemCollection` join table already exists in the schema (`itemId + collectionId` composite PK)
+- `createItemInDb` and `updateItemById` in `src/lib/db/items.ts` need to handle `collectionIds` array
+- Selector should be a searchable multi-select (combobox style) or a simple checkbox list — use shadcn Popover + Command for the picker
+- `NewItemDialog` receives item types from props already; collections will need to be fetched similarly (pass from parent server component or fetch inside dialog via a server action)
+- Collections are user-scoped, so only the signed-in user's collections appear in the list
 
 ## History
 

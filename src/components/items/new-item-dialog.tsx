@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { createItem } from "@/actions/items"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
 import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
+import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 
 type ItemType = {
   id: string
@@ -40,6 +41,7 @@ interface NewItemDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   itemTypes: ItemType[]
+  collections: CollectionOption[]
   defaultTypeId?: string
 }
 
@@ -53,6 +55,9 @@ interface NewItemFormFieldsProps {
   tags: string; setTags: (v: string) => void
   uploadedFile: UploadedFile | null
   setUploadedFile: (f: UploadedFile | null) => void
+  collections: CollectionOption[]
+  selectedCollectionIds: string[]
+  setSelectedCollectionIds: (ids: string[]) => void
 }
 
 function NewItemFormFields({
@@ -64,6 +69,7 @@ function NewItemFormFields({
   url, setUrl,
   tags, setTags,
   uploadedFile, setUploadedFile,
+  collections, selectedCollectionIds, setSelectedCollectionIds,
 }: NewItemFormFieldsProps) {
   const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
@@ -173,11 +179,24 @@ function NewItemFormFields({
         />
         <p className="text-[10px] text-muted-foreground">Comma-separated</p>
       </div>
+
+      {collections.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Collections
+          </label>
+          <CollectionPicker
+            collections={collections}
+            selectedIds={selectedCollectionIds}
+            onChange={setSelectedCollectionIds}
+          />
+        </div>
+      )}
     </div>
   )
 }
 
-export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
+export function NewItemDialog({ open, onOpenChange, itemTypes, collections, defaultTypeId }: NewItemDialogProps) {
   const router = useRouter()
 
   const initialTypeId = defaultTypeId ?? itemTypes[0]?.id ?? ""
@@ -188,6 +207,7 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: 
   const [language, setLanguage] = useState("")
   const [url, setUrl] = useState("")
   const [tags, setTags] = useState("")
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>([])
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -211,6 +231,7 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: 
     setLanguage("")
     setUrl("")
     setTags("")
+    setSelectedCollectionIds([])
     setUploadedFile(null)
   }
 
@@ -240,6 +261,7 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: 
       fileName: isFileType ? uploadedFile?.fileName ?? null : null,
       fileSize: isFileType ? uploadedFile?.fileSize ?? null : null,
       tags: tagArray,
+      collectionIds: selectedCollectionIds,
     })
 
     setSaving(false)
@@ -296,6 +318,9 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: 
           url={url} setUrl={setUrl}
           tags={tags} setTags={setTags}
           uploadedFile={uploadedFile} setUploadedFile={setUploadedFile}
+          collections={collections}
+          selectedCollectionIds={selectedCollectionIds}
+          setSelectedCollectionIds={setSelectedCollectionIds}
         />
 
         <DialogFooter>
@@ -314,11 +339,12 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: 
 
 interface NewItemButtonProps {
   itemTypes: ItemType[]
+  collections: CollectionOption[]
   defaultTypeId?: string
   label?: string
 }
 
-export function NewItemButton({ itemTypes, defaultTypeId, label = "New Item" }: NewItemButtonProps) {
+export function NewItemButton({ itemTypes, collections, defaultTypeId, label = "New Item" }: NewItemButtonProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -327,7 +353,7 @@ export function NewItemButton({ itemTypes, defaultTypeId, label = "New Item" }: 
         <Plus className="h-4 w-4" />
         {label}
       </Button>
-      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} defaultTypeId={defaultTypeId} />
+      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} collections={collections} defaultTypeId={defaultTypeId} />
     </>
   )
 }

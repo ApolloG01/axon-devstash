@@ -129,6 +129,7 @@ export type UpdateItemData = {
   url: string | null
   language: string | null
   tags: string[]
+  collectionIds: string[]
 }
 
 export async function updateItemById(userId: string, id: string, data: UpdateItemData): Promise<ItemFull | null> {
@@ -151,6 +152,10 @@ export async function updateItemById(userId: string, id: string, data: UpdateIte
           create: { name, userId },
         })),
       },
+      collections: {
+        deleteMany: {},
+        create: data.collectionIds.map((collectionId) => ({ collectionId })),
+      },
     },
     select: itemFullSelect,
   })
@@ -168,6 +173,7 @@ export type CreateItemData = {
   fileName: string | null
   fileSize: number | null
   tags: string[]
+  collectionIds: string[]
 }
 
 export async function createItemInDb(userId: string, data: CreateItemData): Promise<ItemFull> {
@@ -189,6 +195,9 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
           where: { userId_name: { userId, name } },
           create: { name, userId },
         })),
+      },
+      collections: {
+        create: data.collectionIds.map((collectionId) => ({ collectionId })),
       },
     },
     select: itemFullSelect,
