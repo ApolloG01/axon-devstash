@@ -19,31 +19,39 @@ export default async function ProfilePage({
 
   const { passwordChanged } = await searchParams
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      password: true,
-      createdAt: true,
-      _count: {
-        select: { items: true, collections: true },
+  const [user, typeGroups] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        password: true,
+        createdAt: true,
+        _count: { select: { items: true, collections: true } },
       },
-      items: {
-        select: { itemType: { select: { name: true } } },
-      },
-    },
-  })
+    }),
+    prisma.item.groupBy({
+      by: ["itemTypeId"],
+      where: { userId: session.user.id },
+      _count: { _all: true },
+    }),
+  ])
 
   if (!user) redirect("/sign-in")
 
-  const typeCounts = user.items.reduce<Record<string, number>>((acc, item) => {
-    const name = item.itemType.name
-    acc[name] = (acc[name] ?? 0) + 1
-    return acc
-  }, {})
+  const typeIds = typeGroups.map((g) => g.itemTypeId)
+  const itemTypes = typeIds.length
+    ? await prisma.itemType.findMany({ where: { id: { in: typeIds } }, select: { id: true, name: true } })
+    : []
+
+  const typeCounts = Object.fromEntries(
+    typeGroups.map((g) => {
+      const name = itemTypes.find((t) => t.id === g.itemTypeId)?.name ?? g.itemTypeId
+      return [name, g._count._all]
+    })
+  )
 
   const hasPassword = !!user.password
 

@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic"
 
+import { redirect } from "next/navigation"
 import { getCollectionsByUserId } from "@/lib/db/collections"
 import { getPinnedItems, getRecentItems, getItemStats } from "@/lib/db/items"
 import { auth } from "@/auth"
@@ -15,7 +16,8 @@ export default async function DashboardPage({
 }) {
   const { welcome } = await searchParams
   const session = await auth()
-  const userId = session?.user?.id!
+  if (!session?.user?.id) redirect("/sign-in")
+  const userId = session.user.id
 
   const [collections, pinnedItems, recentItems, itemStats] = await Promise.all([
     getCollectionsByUserId(userId),

@@ -18,30 +18,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
-import { updateItem, deleteItem } from "@/actions/items"
+import { updateItem, deleteItem, toggleFavorite, togglePin } from "@/actions/items"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
-
-type ItemFull = {
-  id: string
-  title: string
-  description: string | null
-  contentType: string
-  content: string | null
-  language: string | null
-  fileUrl: string | null
-  fileName: string | null
-  fileSize: number | null
-  url: string | null
-  isFavorite: boolean
-  isPinned: boolean
-  lastUsedAt: string
-  createdAt: string
-  updatedAt: string
-  itemType: { id: string; name: string; color: string; icon: string }
-  tags: Array<{ name: string }>
-  collections: Array<{ collection: { id: string; name: string } }>
-}
+import type { SerializedItemFull } from "@/lib/db/items"
 
 function formatRelativeTime(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime()
@@ -91,8 +71,8 @@ const LANGUAGE_TYPES = new Set(["snippet", "command"])
 const MARKDOWN_TYPES = new Set(["note", "prompt"])
 
 interface DrawerBodyProps {
-  item: ItemFull
-  onItemUpdate: (updated: ItemFull) => void
+  item: SerializedItemFull
+  onItemUpdate: (updated: SerializedItemFull) => void
   onClose: () => void
 }
 
@@ -101,6 +81,7 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
   const [copied, setCopied] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [toggling, setToggling] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -164,8 +145,32 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
     }
 
     toast.success("Changes saved")
-    onItemUpdate(result.data as unknown as ItemFull)
+    onItemUpdate(result.data as unknown as SerializedItemFull)
     setEditing(false)
+    router.refresh()
+  }
+
+  const handleToggleFavorite = async () => {
+    setToggling(true)
+    const result = await toggleFavorite(item.id)
+    setToggling(false)
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to update")
+      return
+    }
+    onItemUpdate(result.data as unknown as SerializedItemFull)
+    router.refresh()
+  }
+
+  const handleTogglePin = async () => {
+    setToggling(true)
+    const result = await togglePin(item.id)
+    setToggling(false)
+    if (!result.success) {
+      toast.error(result.error ?? "Failed to update")
+      return
+    }
+    onItemUpdate(result.data as unknown as SerializedItemFull)
     router.refresh()
   }
 
@@ -265,6 +270,8 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
               variant="ghost"
               size="sm"
               className={cn("h-7 px-2.5 text-xs gap-1.5", item.isFavorite && "text-amber-400 hover:text-amber-400")}
+              onClick={handleToggleFavorite}
+              disabled={toggling}
             >
               <Star className={cn("h-3.5 w-3.5", item.isFavorite && "fill-amber-400")} />
               Favorite
@@ -273,6 +280,8 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
               variant="ghost"
               size="sm"
               className={cn("h-7 px-2.5 text-xs gap-1.5", item.isPinned && "text-sky-400 hover:text-sky-400")}
+              onClick={handleTogglePin}
+              disabled={toggling}
             >
               <Pin className={cn("h-3.5 w-3.5", item.isPinned && "fill-sky-400")} />
               Pin
@@ -499,7 +508,7 @@ interface ItemDrawerProps {
 }
 
 export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
-  const [item, setItem] = useState<ItemFull | null>(null)
+  const [item, setItem] = useState<SerializedItemFull | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -514,7 +523,7 @@ export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
         if (!r.ok) throw new Error(`${r.status}`)
         return r.json()
       })
-      .then((data: ItemFull) => {
+      .then((data: SerializedItemFull) => {
         setItem(data)
         setLoading(false)
       })

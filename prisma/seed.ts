@@ -394,8 +394,8 @@ async function main() {
         userId: user.id,
         tags: {
           connectOrCreate: tags?.map((tag) => ({
-            where: { name: tag },
-            create: { name: tag },
+            where: { userId_name: { userId: user.id, name: tag } },
+            create: { name: tag, userId: user.id },
           })) ?? [],
         },
         collections: {

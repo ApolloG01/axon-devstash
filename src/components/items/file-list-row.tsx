@@ -7,6 +7,7 @@ import {
   Download,
 } from "lucide-react"
 import type { ItemWithType } from "@/lib/db/items"
+import { formatBytes } from "@/lib/utils"
 
 const EXT_ICON_MAP: Record<string, React.ElementType> = {
   pdf: FileType,
@@ -29,12 +30,6 @@ function FileExtIcon({ fileName }: { fileName: string }) {
   const ext = getExtension(fileName)
   const Icon = EXT_ICON_MAP[ext] ?? FileText
   return <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 function formatDate(date: Date): string {

@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getDemoUserId } from "@/lib/db/demo";
 
 export type CollectionWithTypes = {
   id: string;
@@ -68,9 +67,3 @@ export async function getCollectionsByUserId(
   });
 }
 
-// Temporary until auth is implemented — fetches for the demo user
-export async function getDemoUserCollections(): Promise<CollectionWithTypes[]> {
-  const userId = await getDemoUserId();
-  if (!userId) return [];
-  return getCollectionsByUserId(userId);
-}

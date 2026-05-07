@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl } from "@/lib/db/items"
+import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl, toggleFavoriteById, togglePinById } from "@/lib/db/items"
 import { deleteFromR2 } from "@/lib/r2"
 
 const updateItemSchema = z.object({
@@ -66,6 +66,30 @@ export async function createItem(data: CreateItemInput) {
     return { success: true, data: item }
   } catch {
     return { success: false, error: "Failed to create item" }
+  }
+}
+
+export async function toggleFavorite(itemId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+  try {
+    const item = await toggleFavoriteById(session.user.id, itemId)
+    if (!item) return { success: false, error: "Item not found" }
+    return { success: true, data: item }
+  } catch {
+    return { success: false, error: "Failed to update" }
+  }
+}
+
+export async function togglePin(itemId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+  try {
+    const item = await togglePinById(session.user.id, itemId)
+    if (!item) return { success: false, error: "Item not found" }
+    return { success: true, data: item }
+  } catch {
+    return { success: false, error: "Failed to update" }
   }
 }
 

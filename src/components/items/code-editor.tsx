@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useCallback } from "react"
 import Editor from "@monaco-editor/react"
 import { Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 interface CodeEditorProps {
   value: string
@@ -14,14 +14,7 @@ interface CodeEditorProps {
 }
 
 export function CodeEditor({ value, language, onChange, readOnly = false, className }: CodeEditorProps) {
-  const [copied, setCopied] = useState(false)
-
-  const handleCopy = useCallback(async () => {
-    if (!value) return
-    await navigator.clipboard.writeText(value)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }, [value])
+  const { copied, copy: handleCopy } = useCopyToClipboard()
 
   return (
     <div className={cn("rounded-md border border-border overflow-hidden", className)}>
@@ -36,7 +29,7 @@ export function CodeEditor({ value, language, onChange, readOnly = false, classN
           )}
         </div>
         <button
-          onClick={handleCopy}
+          onClick={() => handleCopy(value)}
           className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70 transition-colors"
         >
           {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}

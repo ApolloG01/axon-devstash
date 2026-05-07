@@ -16,6 +16,11 @@ export async function GET(
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 })
   if (!item.fileUrl) return NextResponse.json({ error: "No file" }, { status: 404 })
 
+  const r2PublicUrl = process.env.R2_PUBLIC_URL
+  if (r2PublicUrl && !item.fileUrl.startsWith(r2PublicUrl)) {
+    return NextResponse.json({ error: "Invalid file URL" }, { status: 400 })
+  }
+
   const upstream = await fetch(item.fileUrl)
   if (!upstream.ok) {
     return NextResponse.json({ error: "Failed to fetch file" }, { status: 502 })

@@ -2,40 +2,11 @@
 
 import { useCallback, useRef, useState } from "react"
 import { Upload, X, FileIcon, ImageIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatBytes } from "@/lib/utils"
+import { IMAGE_TYPES, FILE_TYPES, IMAGE_MAX, FILE_MAX } from "@/lib/upload-config"
 
 const IMAGE_ACCEPT = ".png,.jpg,.jpeg,.gif,.webp,.svg"
 const FILE_ACCEPT = ".pdf,.txt,.md,.json,.yaml,.yml,.xml,.csv,.toml,.ini"
-
-const IMAGE_TYPES = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-])
-
-const FILE_TYPES = new Set([
-  "application/pdf",
-  "text/plain",
-  "text/markdown",
-  "application/json",
-  "application/x-yaml",
-  "text/yaml",
-  "application/xml",
-  "text/xml",
-  "text/csv",
-  "application/toml",
-])
-
-const IMAGE_MAX = 5 * 1024 * 1024
-const FILE_MAX = 10 * 1024 * 1024
-
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 export type UploadedFile = {
   url: string

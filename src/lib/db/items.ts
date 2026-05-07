@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma"
-export { getDemoUserId } from "@/lib/db/demo"
 
 export type ItemWithType = {
   id: string
@@ -39,6 +38,12 @@ export type ItemFull = {
   collections: Array<{ collection: { id: string; name: string } }>
 }
 
+export type SerializedItemFull = Omit<ItemFull, "lastUsedAt" | "createdAt" | "updatedAt"> & {
+  lastUsedAt: string
+  createdAt: string
+  updatedAt: string
+}
+
 const itemSelect = {
   id: true,
   title: true,
@@ -54,6 +59,27 @@ const itemSelect = {
   createdAt: true,
   itemType: { select: { name: true, color: true, icon: true } },
   tags: { select: { name: true } },
+} as const
+
+const itemFullSelect = {
+  id: true,
+  title: true,
+  description: true,
+  contentType: true,
+  content: true,
+  language: true,
+  fileUrl: true,
+  fileName: true,
+  fileSize: true,
+  url: true,
+  isFavorite: true,
+  isPinned: true,
+  lastUsedAt: true,
+  createdAt: true,
+  updatedAt: true,
+  itemType: { select: { id: true, name: true, color: true, icon: true } },
+  tags: { select: { name: true } },
+  collections: { select: { collection: { select: { id: true, name: true } } } },
 } as const
 
 export async function getPinnedItems(userId: string): Promise<ItemWithType[]> {
@@ -92,28 +118,7 @@ export async function getItemsByType(userId: string, typeName: string): Promise<
 export async function getItemById(userId: string, id: string): Promise<ItemFull | null> {
   return prisma.item.findUnique({
     where: { id, userId },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      contentType: true,
-      content: true,
-      language: true,
-      fileUrl: true,
-      fileName: true,
-      fileSize: true,
-      url: true,
-      isFavorite: true,
-      isPinned: true,
-      lastUsedAt: true,
-      createdAt: true,
-      updatedAt: true,
-      itemType: { select: { id: true, name: true, color: true, icon: true } },
-      tags: { select: { name: true } },
-      collections: {
-        select: { collection: { select: { id: true, name: true } } },
-      },
-    },
+    select: itemFullSelect,
   })
 }
 
@@ -142,31 +147,12 @@ export async function updateItemById(userId: string, id: string, data: UpdateIte
       tags: {
         set: [],
         connectOrCreate: data.tags.map((name) => ({
-          where: { name },
-          create: { name },
+          where: { userId_name: { userId, name } },
+          create: { name, userId },
         })),
       },
     },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      contentType: true,
-      content: true,
-      language: true,
-      fileUrl: true,
-      fileName: true,
-      fileSize: true,
-      url: true,
-      isFavorite: true,
-      isPinned: true,
-      lastUsedAt: true,
-      createdAt: true,
-      updatedAt: true,
-      itemType: { select: { id: true, name: true, color: true, icon: true } },
-      tags: { select: { name: true } },
-      collections: { select: { collection: { select: { id: true, name: true } } } },
-    },
+    select: itemFullSelect,
   })
 }
 
@@ -200,31 +186,12 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
       fileSize: data.fileSize,
       tags: {
         connectOrCreate: data.tags.map((name) => ({
-          where: { name },
-          create: { name },
+          where: { userId_name: { userId, name } },
+          create: { name, userId },
         })),
       },
     },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      contentType: true,
-      content: true,
-      language: true,
-      fileUrl: true,
-      fileName: true,
-      fileSize: true,
-      url: true,
-      isFavorite: true,
-      isPinned: true,
-      lastUsedAt: true,
-      createdAt: true,
-      updatedAt: true,
-      itemType: { select: { id: true, name: true, color: true, icon: true } },
-      tags: { select: { name: true } },
-      collections: { select: { collection: { select: { id: true, name: true } } } },
-    },
+    select: itemFullSelect,
   })
 }
 
@@ -238,6 +205,26 @@ export async function deleteItemById(userId: string, id: string): Promise<boolea
   if (!item) return false
   await prisma.item.delete({ where: { id } })
   return true
+}
+
+export async function toggleFavoriteById(userId: string, id: string): Promise<ItemFull | null> {
+  const item = await prisma.item.findUnique({ where: { id, userId }, select: { id: true, isFavorite: true } })
+  if (!item) return null
+  return prisma.item.update({
+    where: { id },
+    data: { isFavorite: !item.isFavorite, updatedAt: new Date() },
+    select: itemFullSelect,
+  })
+}
+
+export async function togglePinById(userId: string, id: string): Promise<ItemFull | null> {
+  const item = await prisma.item.findUnique({ where: { id, userId }, select: { id: true, isPinned: true } })
+  if (!item) return null
+  return prisma.item.update({
+    where: { id },
+    data: { isPinned: !item.isPinned, updatedAt: new Date() },
+    select: itemFullSelect,
+  })
 }
 
 export async function getSystemItemTypes() {
