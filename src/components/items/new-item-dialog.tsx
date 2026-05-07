@@ -43,6 +43,140 @@ interface NewItemDialogProps {
   defaultTypeId?: string
 }
 
+interface NewItemFormFieldsProps {
+  typeName: string
+  title: string; setTitle: (v: string) => void
+  description: string; setDescription: (v: string) => void
+  content: string; setContent: (v: string) => void
+  language: string; setLanguage: (v: string) => void
+  url: string; setUrl: (v: string) => void
+  tags: string; setTags: (v: string) => void
+  uploadedFile: UploadedFile | null
+  setUploadedFile: (f: UploadedFile | null) => void
+}
+
+function NewItemFormFields({
+  typeName,
+  title, setTitle,
+  description, setDescription,
+  content, setContent,
+  language, setLanguage,
+  url, setUrl,
+  tags, setTags,
+  uploadedFile, setUploadedFile,
+}: NewItemFormFieldsProps) {
+  const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
+  const isLanguageType = LANGUAGE_TYPES.has(typeName)
+  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
+  const isUrlType = typeName === "link"
+  const isFileType = FILE_TYPES.has(typeName)
+  const fileKind = typeName === "image" ? "image" : "file"
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Title <span className="text-destructive">*</span>
+        </label>
+        <input
+          className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter a title"
+          autoFocus
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Description
+        </label>
+        <input
+          className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Optional description"
+        />
+      </div>
+
+      {isLanguageType && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Language
+          </label>
+          <input
+            className="w-full text-sm font-mono bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            placeholder="e.g. typescript"
+          />
+        </div>
+      )}
+
+      {isTextContent && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Content
+          </label>
+          {isMarkdownType ? (
+            <MarkdownEditor value={content} onChange={setContent} />
+          ) : (
+            <textarea
+              className="w-full text-sm font-mono bg-muted/30 border border-border rounded px-2.5 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Paste or type your content here"
+              rows={6}
+            />
+          )}
+        </div>
+      )}
+
+      {isUrlType && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            URL <span className="text-destructive">*</span>
+          </label>
+          <input
+            className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://..."
+            type="url"
+          />
+        </div>
+      )}
+
+      {isFileType && (
+        <div className="flex flex-col gap-1">
+          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            {typeName === "image" ? "Image" : "File"} <span className="text-destructive">*</span>
+          </label>
+          <FileUpload
+            kind={fileKind}
+            uploaded={uploadedFile}
+            onUpload={setUploadedFile}
+            onClear={() => setUploadedFile(null)}
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Tags
+        </label>
+        <input
+          className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="react, typescript, hooks"
+        />
+        <p className="text-[10px] text-muted-foreground">Comma-separated</p>
+      </div>
+    </div>
+  )
+}
+
 function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
   const router = useRouter()
 
@@ -61,10 +195,8 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
   const typeName = selectedType?.name ?? ""
   const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
-  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
   const isUrlType = typeName === "link"
   const isFileType = FILE_TYPES.has(typeName)
-  const fileKind = typeName === "image" ? "image" : "file"
 
   const canSubmit =
     title.trim().length > 0 &&
@@ -155,115 +287,16 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
           })}
         </div>
 
-        {/* Form fields */}
-        <div className="flex flex-col gap-3">
-          {/* Title */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Title <span className="text-destructive">*</span>
-            </label>
-            <input
-              className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter a title"
-              autoFocus
-            />
-          </div>
-
-          {/* Description */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Description
-            </label>
-            <input
-              className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional description"
-            />
-          </div>
-
-          {/* Language (snippet / command) */}
-          {isLanguageType && (
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Language
-              </label>
-              <input
-                className="w-full text-sm font-mono bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                placeholder="e.g. typescript"
-              />
-            </div>
-          )}
-
-          {/* Content (text types) */}
-          {isTextContent && (
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Content
-              </label>
-              {isMarkdownType ? (
-                <MarkdownEditor value={content} onChange={setContent} />
-              ) : (
-                <textarea
-                  className="w-full text-sm font-mono bg-muted/30 border border-border rounded px-2.5 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Paste or type your content here"
-                  rows={6}
-                />
-              )}
-            </div>
-          )}
-
-          {/* URL (link type) */}
-          {isUrlType && (
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                URL <span className="text-destructive">*</span>
-              </label>
-              <input
-                className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://..."
-                type="url"
-              />
-            </div>
-          )}
-
-          {/* File / Image upload */}
-          {isFileType && (
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                {typeName === "image" ? "Image" : "File"} <span className="text-destructive">*</span>
-              </label>
-              <FileUpload
-                kind={fileKind}
-                uploaded={uploadedFile}
-                onUpload={setUploadedFile}
-                onClear={() => setUploadedFile(null)}
-              />
-            </div>
-          )}
-
-          {/* Tags */}
-          <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Tags
-            </label>
-            <input
-              className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="react, typescript, hooks"
-            />
-            <p className="text-[10px] text-muted-foreground">Comma-separated</p>
-          </div>
-        </div>
+        <NewItemFormFields
+          typeName={typeName}
+          title={title} setTitle={setTitle}
+          description={description} setDescription={setDescription}
+          content={content} setContent={setContent}
+          language={language} setLanguage={setLanguage}
+          url={url} setUrl={setUrl}
+          tags={tags} setTags={setTags}
+          uploadedFile={uploadedFile} setUploadedFile={setUploadedFile}
+        />
 
         <DialogFooter>
           <Button

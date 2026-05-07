@@ -35,6 +35,56 @@ interface SidebarContentProps {
   user: SidebarUser;
 }
 
+interface SidebarCollectionListProps {
+  collections: SidebarCollection[]
+  collapsed: boolean
+  label: string
+  variant: "favorites" | "recent"
+}
+
+function SidebarCollectionList({ collections, collapsed, label, variant }: SidebarCollectionListProps) {
+  if (collections.length === 0) return null
+  return (
+    <div className="px-2">
+      {!collapsed && (
+        <div className="flex items-center gap-1.5 px-2 mb-1.5">
+          {variant === "favorites" && <Star className="h-3 w-3 text-muted-foreground" />}
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            {label}
+          </span>
+        </div>
+      )}
+      <div className="space-y-0.5">
+        {collections.map((col) => (
+          <Link
+            key={col.id}
+            href={`/collections/${col.id}`}
+            className={cn(
+              "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
+              collapsed ? "justify-center" : "truncate",
+            )}
+          >
+            {variant === "favorites" ? (
+              <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+            ) : (
+              <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: col.accentColor }} />
+            )}
+            {!collapsed && <span className="truncate">{col.name}</span>}
+          </Link>
+        ))}
+      </div>
+      {variant === "recent" && !collapsed && (
+        <Link
+          href="/collections"
+          className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          View all collections →
+        </Link>
+      )}
+    </div>
+  )
+}
+
 export function SidebarContent({
   collapsed = false,
   itemTypes,
@@ -96,73 +146,18 @@ export function SidebarContent({
           </p>
         )}
 
-        {/* Favorites */}
-        {favoriteCollections.length > 0 && (
-          <div className="px-2">
-            {!collapsed && (
-              <div className="flex items-center gap-1.5 px-2 mb-1.5">
-                <Star className="h-3 w-3 text-muted-foreground" />
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  Favorites
-                </span>
-              </div>
-            )}
-            <div className="space-y-0.5">
-              {favoriteCollections.map((col) => (
-                <Link
-                  key={col.id}
-                  href={`/collections/${col.id}`}
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                    collapsed ? "justify-center" : "truncate",
-                  )}
-                >
-                  <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-                  {!collapsed && <span className="truncate">{col.name}</span>}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recent */}
-        {recentCollections.length > 0 && (
-          <div className="px-2">
-            {!collapsed && (
-              <div className="flex items-center gap-1.5 px-2 mb-1.5">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  Recent
-                </span>
-              </div>
-            )}
-            <div className="space-y-0.5">
-              {recentCollections.map((col) => (
-                <Link
-                  key={col.id}
-                  href={`/collections/${col.id}`}
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                    collapsed ? "justify-center" : "truncate",
-                  )}
-                >
-                  <div
-                    className="h-2 w-2 rounded-full shrink-0"
-                    style={{ backgroundColor: col.accentColor }}
-                  />
-                  {!collapsed && <span className="truncate">{col.name}</span>}
-                </Link>
-              ))}
-            </div>
-            {!collapsed && (
-              <Link
-                href="/collections"
-                className="flex items-center px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                View all collections →
-              </Link>
-            )}
-          </div>
-        )}
+        <SidebarCollectionList
+          collections={favoriteCollections}
+          collapsed={collapsed}
+          label="Favorites"
+          variant="favorites"
+        />
+        <SidebarCollectionList
+          collections={recentCollections}
+          collapsed={collapsed}
+          label="Recent"
+          variant="recent"
+        />
       </div>
 
       {/* User area */}

@@ -70,6 +70,226 @@ const TEXT_TYPES = new Set(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set(["snippet", "command"])
 const MARKDOWN_TYPES = new Set(["note", "prompt"])
 
+// ─── Action bar ────────────────────────────────────────────────────────────
+
+interface DrawerActionBarProps {
+  editing: boolean
+  saving: boolean
+  toggling: boolean
+  copied: boolean
+  isFavorite: boolean
+  isPinned: boolean
+  hasCopyText: boolean
+  titleIsEmpty: boolean
+  onCopy: () => void
+  onEdit: () => void
+  onSave: () => void
+  onCancel: () => void
+  onToggleFavorite: () => void
+  onTogglePin: () => void
+  onDeleteClick: () => void
+}
+
+function DrawerActionBar({
+  editing, saving, toggling, copied,
+  isFavorite, isPinned, hasCopyText, titleIsEmpty,
+  onCopy, onEdit, onSave, onCancel, onToggleFavorite, onTogglePin, onDeleteClick,
+}: DrawerActionBarProps) {
+  return (
+    <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border">
+      {editing ? (
+        <>
+          <Button
+            variant="default"
+            size="sm"
+            className="h-7 px-2.5 text-xs gap-1.5"
+            onClick={onSave}
+            disabled={titleIsEmpty || saving}
+          >
+            <Save className="h-3.5 w-3.5" />
+            {saving ? "Saving…" : "Save"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2.5 text-xs gap-1.5"
+            onClick={onCancel}
+            disabled={saving}
+          >
+            <X className="h-3.5 w-3.5" />
+            Cancel
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2.5 text-xs gap-1.5"
+            onClick={onCopy}
+            disabled={!hasCopyText}
+          >
+            <Copy className="h-3.5 w-3.5" />
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs gap-1.5" onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-7 px-2.5 text-xs gap-1.5", isFavorite && "text-amber-400 hover:text-amber-400")}
+            onClick={onToggleFavorite}
+            disabled={toggling}
+          >
+            <Star className={cn("h-3.5 w-3.5", isFavorite && "fill-amber-400")} />
+            Favorite
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn("h-7 px-2.5 text-xs gap-1.5", isPinned && "text-sky-400 hover:text-sky-400")}
+            onClick={onTogglePin}
+            disabled={toggling}
+          >
+            <Pin className={cn("h-3.5 w-3.5", isPinned && "fill-sky-400")} />
+            Pin
+          </Button>
+          <div className="flex-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            onClick={onDeleteClick}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Content section ────────────────────────────────────────────────────────
+
+interface ItemContentSectionProps {
+  item: SerializedItemFull
+  editing: boolean
+  content: string
+  language: string
+  url: string
+  setContent: (v: string) => void
+  setLanguage: (v: string) => void
+  setUrl: (v: string) => void
+}
+
+function ItemContentSection({ item, editing, content, language, url, setContent, setLanguage, setUrl }: ItemContentSectionProps) {
+  const typeName = item.itemType.name
+  const isTextType = TEXT_TYPES.has(typeName)
+  const isLanguageType = LANGUAGE_TYPES.has(typeName)
+  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
+  const isUrlType = typeName === "link"
+
+  return (
+    <>
+      {isTextType && (
+        editing ? (
+          <div className="space-y-2">
+            {isLanguageType ? (
+              <>
+                <input
+                  className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  placeholder="Language (e.g. typescript)"
+                />
+                <CodeEditor value={content} language={language || undefined} onChange={setContent} readOnly={false} />
+              </>
+            ) : isMarkdownType ? (
+              <MarkdownEditor value={content} onChange={setContent} />
+            ) : (
+              <textarea
+                className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Content"
+                rows={10}
+              />
+            )}
+          </div>
+        ) : (
+          item.content && (
+            isLanguageType ? (
+              <CodeEditor value={item.content} language={item.language ?? undefined} readOnly />
+            ) : isMarkdownType ? (
+              <MarkdownEditor value={item.content} readOnly />
+            ) : (
+              <pre className="p-3 text-xs font-mono bg-muted/30 border border-border rounded overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
+                {item.content}
+              </pre>
+            )
+          )
+        )
+      )}
+
+      {isUrlType && (
+        editing ? (
+          <input
+            className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://..."
+            type="url"
+          />
+        ) : (
+          item.url && (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2 text-sm text-primary hover:underline break-all"
+            >
+              <ExternalLink className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              {item.url}
+            </a>
+          )
+        )
+      )}
+
+      {item.contentType === "file" && (
+        <div className="space-y-3">
+          {typeName === "image" && item.fileUrl && (
+            <div className="rounded-md overflow-hidden border border-border bg-muted/20">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.fileUrl} alt={item.fileName ?? "Image"} className="w-full max-h-72 object-contain" />
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium truncate flex-1">{item.fileName ?? "Untitled file"}</span>
+            {item.fileSize != null && (
+              <span className="text-xs text-muted-foreground shrink-0">{formatFileSize(item.fileSize)}</span>
+            )}
+            {item.fileUrl && (
+              <a
+                href={`/api/download/${item.id}`}
+                download={item.fileName ?? undefined}
+                className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ─── Drawer body ─────────────────────────────────────────────────────────────
+
 interface DrawerBodyProps {
   item: SerializedItemFull
   onItemUpdate: (updated: SerializedItemFull) => void
@@ -92,13 +312,12 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
   const [url, setUrl] = useState(item.url ?? "")
   const [tags, setTags] = useState(item.tags.map((t) => t.name).join(", "))
 
-  const IconComponent = ICON_MAP[item.itemType.icon]
-  const copyText = item.contentType === "url" ? item.url : item.content
   const typeName = item.itemType.name
   const isTextType = TEXT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
-  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
   const isUrlType = typeName === "link"
+  const copyText = item.contentType === "url" ? item.url : item.content
+  const IconComponent = ICON_MAP[item.itemType.icon]
 
   const handleCopy = useCallback(async () => {
     if (!copyText) return
@@ -117,17 +336,9 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
     setEditing(true)
   }
 
-  const handleCancel = () => {
-    setEditing(false)
-  }
-
   const handleSave = async () => {
     setSaving(true)
-    const tagArray = tags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean)
-
+    const tagArray = tags.split(",").map((t) => t.trim()).filter(Boolean)
     const result = await updateItem(item.id, {
       title,
       description: description || null,
@@ -136,14 +347,11 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
       language: isLanguageType ? language || null : null,
       tags: tagArray,
     })
-
     setSaving(false)
-
     if (!result.success) {
       toast.error(result.error ?? "Failed to save changes")
       return
     }
-
     toast.success("Changes saved")
     onItemUpdate(result.data as unknown as SerializedItemFull)
     setEditing(false)
@@ -225,80 +433,23 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
         )}
       </div>
 
-      {/* Action bar */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border">
-        {editing ? (
-          <>
-            <Button
-              variant="default"
-              size="sm"
-              className="h-7 px-2.5 text-xs gap-1.5"
-              onClick={handleSave}
-              disabled={!title.trim() || saving}
-            >
-              <Save className="h-3.5 w-3.5" />
-              {saving ? "Saving…" : "Save"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2.5 text-xs gap-1.5"
-              onClick={handleCancel}
-              disabled={saving}
-            >
-              <X className="h-3.5 w-3.5" />
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2.5 text-xs gap-1.5"
-              onClick={handleCopy}
-              disabled={!copyText}
-            >
-              <Copy className="h-3.5 w-3.5" />
-              {copied ? "Copied!" : "Copy"}
-            </Button>
-            <Button variant="ghost" size="sm" className="h-7 px-2.5 text-xs gap-1.5" onClick={handleEdit}>
-              <Pencil className="h-3.5 w-3.5" />
-              Edit
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("h-7 px-2.5 text-xs gap-1.5", item.isFavorite && "text-amber-400 hover:text-amber-400")}
-              onClick={handleToggleFavorite}
-              disabled={toggling}
-            >
-              <Star className={cn("h-3.5 w-3.5", item.isFavorite && "fill-amber-400")} />
-              Favorite
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("h-7 px-2.5 text-xs gap-1.5", item.isPinned && "text-sky-400 hover:text-sky-400")}
-              onClick={handleTogglePin}
-              disabled={toggling}
-            >
-              <Pin className={cn("h-3.5 w-3.5", item.isPinned && "fill-sky-400")} />
-              Pin
-            </Button>
-            <div className="flex-1" />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-              onClick={() => setConfirmDeleteOpen(true)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only">Delete</span>
-            </Button>
-          </>
-        )}
-      </div>
+      <DrawerActionBar
+        editing={editing}
+        saving={saving}
+        toggling={toggling}
+        copied={copied}
+        isFavorite={item.isFavorite}
+        isPinned={item.isPinned}
+        hasCopyText={!!copyText}
+        titleIsEmpty={!title.trim()}
+        onCopy={handleCopy}
+        onEdit={handleEdit}
+        onSave={handleSave}
+        onCancel={() => setEditing(false)}
+        onToggleFavorite={handleToggleFavorite}
+        onTogglePin={handleTogglePin}
+        onDeleteClick={() => setConfirmDeleteOpen(true)}
+      />
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
         <AlertDialogContent>
@@ -321,128 +472,23 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Content area */}
+      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4">
-        {/* Text content */}
-        {isTextType && (
-          editing ? (
-            <div className="space-y-2">
-              {isLanguageType ? (
-                <>
-                  <input
-                    className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    placeholder="Language (e.g. typescript)"
-                  />
-                  <CodeEditor
-                    value={content}
-                    language={language || undefined}
-                    onChange={setContent}
-                    readOnly={false}
-                  />
-                </>
-              ) : isMarkdownType ? (
-                <MarkdownEditor value={content} onChange={setContent} />
-              ) : (
-                <textarea
-                  className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Content"
-                  rows={10}
-                />
-              )}
-            </div>
-          ) : (
-            item.content && (
-              isLanguageType ? (
-                <CodeEditor
-                  value={item.content}
-                  language={item.language ?? undefined}
-                  readOnly
-                />
-              ) : isMarkdownType ? (
-                <MarkdownEditor value={item.content} readOnly />
-              ) : (
-                <pre className="p-3 text-xs font-mono bg-muted/30 border border-border rounded overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
-                  {item.content}
-                </pre>
-              )
-            )
-          )
-        )}
-
-        {/* URL content */}
-        {isUrlType && (
-          editing ? (
-            <input
-              className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
-              type="url"
-            />
-          ) : (
-            item.url && (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-start gap-2 text-sm text-primary hover:underline break-all"
-              >
-                <ExternalLink className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                {item.url}
-              </a>
-            )
-          )
-        )}
-
-        {/* File / Image content (non-editable) */}
-        {item.contentType === "file" && (
-          <div className="space-y-3">
-            {/* Image preview */}
-            {typeName === "image" && item.fileUrl && (
-              <div className="rounded-md overflow-hidden border border-border bg-muted/20">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.fileUrl}
-                  alt={item.fileName ?? "Image"}
-                  className="w-full max-h-72 object-contain"
-                />
-              </div>
-            )}
-
-            {/* File info + download */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium truncate flex-1">
-                {item.fileName ?? "Untitled file"}
-              </span>
-              {item.fileSize != null && (
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {formatFileSize(item.fileSize)}
-                </span>
-              )}
-              {item.fileUrl && (
-                <a
-                  href={`/api/download/${item.id}`}
-                  download={item.fileName ?? undefined}
-                  className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Download
-                </a>
-              )}
-            </div>
-          </div>
-        )}
+        <ItemContentSection
+          item={item}
+          editing={editing}
+          content={content}
+          language={language}
+          url={url}
+          setContent={setContent}
+          setLanguage={setLanguage}
+          setUrl={setUrl}
+        />
 
         {/* Tags */}
         {editing ? (
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-              Tags
-            </p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Tags</p>
             <input
               className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
               value={tags}
@@ -454,15 +500,10 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
         ) : (
           item.tags.length > 0 && (
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-                Tags
-              </p>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Tags</p>
               <div className="flex flex-wrap gap-1.5">
                 {item.tags.map((tag) => (
-                  <span
-                    key={tag.name}
-                    className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full"
-                  >
+                  <span key={tag.name} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                     #{tag.name}
                   </span>
                 ))}
@@ -471,18 +512,13 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
           )
         )}
 
-        {/* Collections (non-editable) */}
+        {/* Collections */}
         {item.collections.length > 0 && (
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">
-              Collections
-            </p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
             <div className="flex flex-wrap gap-1.5">
               {item.collections.map(({ collection }) => (
-                <span
-                  key={collection.id}
-                  className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded"
-                >
+                <span key={collection.id} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   {collection.name}
                 </span>
               ))}
@@ -490,17 +526,17 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
           </div>
         )}
 
-        {/* Last updated (non-editable) */}
+        {/* Last updated */}
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-0.5">
-            Last Updated
-          </p>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-0.5">Last Updated</p>
           <p className="text-xs text-muted-foreground">{formatRelativeTime(item.updatedAt)}</p>
         </div>
       </div>
     </div>
   )
 }
+
+// ─── Public export ────────────────────────────────────────────────────────────
 
 interface ItemDrawerProps {
   itemId: string | null
@@ -531,12 +567,7 @@ export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
   }, [itemId])
 
   return (
-    <Sheet
-      open={!!itemId}
-      onOpenChange={(open: boolean) => {
-        if (!open) onClose()
-      }}
-    >
+    <Sheet open={!!itemId} onOpenChange={(open: boolean) => { if (!open) onClose() }}>
       <SheetContent side="right" showCloseButton className="w-full sm:max-w-md p-0 gap-0 overflow-hidden">
         {loading && <DrawerSkeleton />}
         {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} onClose={onClose} />}
