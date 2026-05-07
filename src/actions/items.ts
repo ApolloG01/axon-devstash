@@ -12,6 +12,7 @@ const updateItemSchema = z.object({
   url: z.string().url("Invalid URL").or(z.literal(null)).optional().transform((v) => v ?? null),
   language: z.string().trim().nullable().optional().transform((v) => v ?? null),
   tags: z.array(z.string().trim().min(1)).default([]),
+  collectionIds: z.array(z.string()).default([]),
 })
 
 type UpdateItemInput = z.input<typeof updateItemSchema>
@@ -47,6 +48,7 @@ const createItemSchema = z.object({
   fileName: z.string().nullable().optional().transform((v) => v ?? null),
   fileSize: z.number().nullable().optional().transform((v) => v ?? null),
   tags: z.array(z.string().trim().min(1)).default([]),
+  collectionIds: z.array(z.string()).default([]),
 })
 
 type CreateItemInput = z.input<typeof createItemSchema>

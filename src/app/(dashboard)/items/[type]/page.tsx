@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic"
 import { notFound } from "next/navigation"
 import { auth } from "@/auth"
 import { getItemsByType, getSystemItemTypes } from "@/lib/db/items"
+import { getUserCollectionsList } from "@/lib/db/collections"
 import { ItemGrid } from "@/components/items/item-grid"
 import { NewItemButton } from "@/components/items/new-item-dialog"
 
@@ -28,9 +29,10 @@ export default async function ItemTypePage({
   const session = await auth()
   if (!session?.user?.id) notFound()
 
-  const [items, itemTypes] = await Promise.all([
+  const [items, itemTypes, collections] = await Promise.all([
     getItemsByType(session.user.id, typeName),
     getSystemItemTypes(),
+    getUserCollectionsList(session.user.id),
   ])
 
   const currentType = itemTypes.find((t) => t.name === typeName)
@@ -47,6 +49,7 @@ export default async function ItemTypePage({
         {currentType && (
           <NewItemButton
             itemTypes={itemTypes}
+            collections={collections}
             defaultTypeId={currentType.id}
             label={`New ${typeName}`}
           />

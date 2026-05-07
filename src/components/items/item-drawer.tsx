@@ -19,8 +19,10 @@ import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { updateItem, deleteItem, toggleFavorite, togglePin } from "@/actions/items"
+import { getCollectionsForPicker } from "@/actions/collections"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
+import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 import type { SerializedItemFull } from "@/lib/db/items"
 
 function formatRelativeTime(dateStr: string): string {
@@ -311,6 +313,10 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
   const [language, setLanguage] = useState(item.language ?? "")
   const [url, setUrl] = useState(item.url ?? "")
   const [tags, setTags] = useState(item.tags.map((t) => t.name).join(", "))
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(
+    item.collections.map((c) => c.collection.id)
+  )
+  const [availableCollections, setAvailableCollections] = useState<CollectionOption[]>([])
 
   const typeName = item.itemType.name
   const isTextType = TEXT_TYPES.has(typeName)
@@ -326,14 +332,19 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
     setTimeout(() => setCopied(false), 2000)
   }, [copyText])
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     setTitle(item.title)
     setDescription(item.description ?? "")
     setContent(item.content ?? "")
     setLanguage(item.language ?? "")
     setUrl(item.url ?? "")
     setTags(item.tags.map((t) => t.name).join(", "))
+    setSelectedCollectionIds(item.collections.map((c) => c.collection.id))
     setEditing(true)
+    if (availableCollections.length === 0) {
+      const cols = await getCollectionsForPicker()
+      setAvailableCollections(cols)
+    }
   }
 
   const handleSave = async () => {
@@ -346,6 +357,7 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
       url: isUrlType ? url || null : null,
       language: isLanguageType ? language || null : null,
       tags: tagArray,
+      collectionIds: selectedCollectionIds,
     })
     setSaving(false)
     if (!result.success) {
@@ -513,17 +525,30 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
         )}
 
         {/* Collections */}
-        {item.collections.length > 0 && (
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
-            <div className="flex flex-wrap gap-1.5">
-              {item.collections.map(({ collection }) => (
-                <span key={collection.id} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                  {collection.name}
-                </span>
-              ))}
+        {editing ? (
+          availableCollections.length > 0 && (
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
+              <CollectionPicker
+                collections={availableCollections}
+                selectedIds={selectedCollectionIds}
+                onChange={setSelectedCollectionIds}
+              />
             </div>
-          </div>
+          )
+        ) : (
+          item.collections.length > 0 && (
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
+              <div className="flex flex-wrap gap-1.5">
+                {item.collections.map(({ collection }) => (
+                  <span key={collection.id} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                    {collection.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
         )}
 
         {/* Last updated */}

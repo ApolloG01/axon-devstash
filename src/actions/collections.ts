@@ -2,7 +2,13 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { createCollectionInDb } from "@/lib/db/collections"
+import { createCollectionInDb, getUserCollectionsList } from "@/lib/db/collections"
+
+export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
+  const session = await auth()
+  if (!session?.user?.id) return []
+  return getUserCollectionsList(session.user.id)
+}
 
 const createCollectionSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),

@@ -53,7 +53,7 @@ export default async function DashboardLayout({
         </div>
 
         <div className="ml-auto">
-          <DashboardNewItemButton itemTypes={itemTypes} />
+          <DashboardNewItemButton itemTypes={itemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} />
         </div>
       </header>
 

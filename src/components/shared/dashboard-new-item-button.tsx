@@ -10,8 +10,16 @@ type ItemType = {
   color: string
 }
 
-export function DashboardNewItemButton({ itemTypes }: { itemTypes: ItemType[] }) {
+type Collection = { id: string; name: string }
+
+export function DashboardNewItemButton({
+  itemTypes,
+  collections,
+}: {
+  itemTypes: ItemType[]
+  collections: Collection[]
+}) {
   const pathname = usePathname()
   if (pathname !== "/dashboard") return null
-  return <NewItemButton itemTypes={itemTypes} />
+  return <NewItemButton itemTypes={itemTypes} collections={collections} />
 }
