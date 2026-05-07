@@ -1,27 +1,12 @@
-# Current Feature: Collection Create
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- "New Collection" button in the top bar opens a modal dialog
-- Modal has fields: name (required) and description (optional)
-- On submit, creates a new collection scoped to the authenticated user
-- Server action in `src/actions/collections.ts` with Zod validation and auth guard
-- `createCollectionInDb` query in `src/lib/db/collections.ts`
-- Success toast shown and collection list refreshed via `router.refresh()`
-- Error toast on failure
-- New collection appears immediately in the sidebar and dashboard collections grid
-
 ## Notes
-
-- Follow the same patterns as item create (`NewItemDialog` / `NewItemButton`)
-- Collections are user-scoped — always pass `userId` from `auth()` session
-- Data fetching stays in server components via `lib/db` functions; mutations go through server actions
-- Dashboard collections grid and sidebar collections list must both reflect the new collection after creation
-- No API route needed — server action is sufficient for this mutation
 
 ## History
 
@@ -64,3 +49,4 @@ In Progress
 - **2026-05-07**: Completed Image Gallery View — `ImageThumbnailCard` component (`src/components/items/image-thumbnail-card.tsx`) with `aspect-video`/`object-cover` thumbnail and `group-hover:scale-105 duration-300` zoom; `fileUrl` added to `ItemWithType` and `itemSelect` Prisma query; `ItemGrid` gains `variant` prop (`"default"` | `"image"`); `/items/images` page passes `variant="image"` for 3-column gallery grid.
 - **2026-05-07**: Completed File List View — `FileListRow` component (`src/components/items/file-list-row.tsx`) with extension-derived icon (`FileJson`, `FileSpreadsheet`, `FileCode`, `FileType`, `FileText`), file name, size, upload date, hover-reveal download button with `stopPropagation`; responsive (inline on sm+, stacked on mobile); `ItemGrid` gains `variant="file"` rendering a single-column flex list; `/items/files` passes `variant="file"`; `fileName`, `fileSize`, `createdAt` added to `ItemWithType` and `itemSelect`.
 - **2026-05-07**: Completed Code Audit Fixes — 13 findings resolved: `toggleFavorite`/`togglePin` server actions wired in `ItemDrawer`; `force-dynamic` added to `/items/[type]`; profile page switched to `groupBy` query; Tag model migrated to per-user scope (`userId + @@unique([userId,name])`); download route R2 SSRF guard; `itemFullSelect` extracted as constant; `SerializedItemFull` type added; `upload-config.ts` shared across upload route + `FileUpload`; `formatBytes` centralized in `utils.ts`; dashboard non-null assertion replaced with explicit redirect; `useCopyToClipboard` hook extracted; `resend.ts` lazy init; `demo.ts` deleted.
+- **2026-05-07**: Completed Collection Create — `createCollectionInDb` query + `createCollection` server action (Zod + auth); `NewCollectionDialog` and `NewCollectionInlineButton` components; `NewButton` dropdown in top bar consolidates New Item + New Collection into a single button; dashboard landing page enhanced with greeting, counts in section headers, and improved empty states for collections and items.
