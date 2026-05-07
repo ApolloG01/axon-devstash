@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ICON_MAP } from "@/constants/icon-map";
 import { cn } from "@/lib/utils";
+import { NewCollectionIconButton } from "@/components/collections/new-collection-button";
 
 const PRO_TYPES = new Set(["file", "image"]);
 
@@ -141,9 +142,12 @@ export function SidebarContent({
 
         {/* Collections */}
         {!collapsed && (
-          <p className="px-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-            Collections
-          </p>
+          <div className="px-4 flex items-center justify-between">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Collections
+            </p>
+            <NewCollectionIconButton />
+          </div>
         )}
 
         <SidebarCollectionList

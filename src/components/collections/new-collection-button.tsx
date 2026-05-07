@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { FolderPlus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -103,15 +103,18 @@ export function NewCollectionDialog({
   )
 }
 
-export function NewCollectionButton() {
+export function NewCollectionIconButton() {
   const [open, setOpen] = useState(false)
 
   return (
     <>
-      <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
-        <FolderPlus className="h-4 w-4" />
-        New Collection
-      </Button>
+      <button
+        onClick={() => setOpen(true)}
+        className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        title="New Collection"
+      >
+        <Plus className="h-3 w-3" />
+      </button>
       <NewCollectionDialog open={open} onOpenChange={setOpen} />
     </>
   )

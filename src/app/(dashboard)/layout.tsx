@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes } from "@/lib/db/items"
@@ -6,7 +7,7 @@ import { getCollectionsByUserId } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
 import { Search } from "lucide-react"
-import { NewButton } from "@/components/shared/new-button"
+import { DashboardNewItemButton } from "@/components/shared/dashboard-new-item-button"
 
 export default async function DashboardLayout({
   children,
@@ -34,9 +35,12 @@ export default async function DashboardLayout({
           user={user}
         />
 
-        <span className="text-sm font-semibold tracking-tight w-40 shrink-0">
+        <Link
+          href="/dashboard"
+          className="text-sm font-semibold tracking-tight w-40 shrink-0 hover:opacity-75 transition-opacity"
+        >
           {APP_NAME}
-        </span>
+        </Link>
 
         <div className="flex-1 max-w-lg">
           <div className="relative">
@@ -49,7 +53,7 @@ export default async function DashboardLayout({
         </div>
 
         <div className="ml-auto">
-          <NewButton itemTypes={itemTypes} />
+          <DashboardNewItemButton itemTypes={itemTypes} />
         </div>
       </header>
 
