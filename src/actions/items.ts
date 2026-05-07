@@ -2,13 +2,14 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { updateItemById, deleteItemById, createItemInDb } from "@/lib/db/items"
+import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl } from "@/lib/db/items"
+import { deleteFromR2 } from "@/lib/r2"
 
 const updateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().nullable().optional().transform((v) => v ?? null),
   content: z.string().nullable().optional().transform((v) => v ?? null),
-  url: z.string().url("Invalid URL").nullable().optional().transform((v) => v ?? null),
+  url: z.string().url("Invalid URL").or(z.literal(null)).optional().transform((v) => v ?? null),
   language: z.string().trim().nullable().optional().transform((v) => v ?? null),
   tags: z.array(z.string().trim().min(1)).default([]),
 })
@@ -40,8 +41,11 @@ const createItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().nullable().optional().transform((v) => v ?? null),
   content: z.string().nullable().optional().transform((v) => v ?? null),
-  url: z.string().url("Invalid URL").nullable().optional().transform((v) => v ?? null),
+  url: z.string().url("Invalid URL").or(z.literal(null)).optional().transform((v) => v ?? null),
   language: z.string().trim().nullable().optional().transform((v) => v ?? null),
+  fileUrl: z.string().nullable().optional().transform((v) => v ?? null),
+  fileName: z.string().nullable().optional().transform((v) => v ?? null),
+  fileSize: z.number().nullable().optional().transform((v) => v ?? null),
   tags: z.array(z.string().trim().min(1)).default([]),
 })
 
@@ -70,8 +74,17 @@ export async function deleteItem(itemId: string) {
   if (!session?.user?.id) return { success: false, error: "Unauthorized" }
 
   try {
+    // Fetch fileUrl before deletion so we can clean up R2
+    const fileUrl = await getItemFileUrl(session.user.id, itemId)
+
     const deleted = await deleteItemById(session.user.id, itemId)
     if (!deleted) return { success: false, error: "Item not found" }
+
+    // Best-effort R2 cleanup — don't fail the delete if this errors
+    if (fileUrl) {
+      deleteFromR2(fileUrl).catch(() => null)
+    }
+
     return { success: true }
   } catch {
     return { success: false, error: "Failed to delete item" }

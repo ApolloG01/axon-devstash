@@ -16,6 +16,7 @@ import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { createItem } from "@/actions/items"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
+import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
 
 type ItemType = {
   id: string
@@ -27,10 +28,12 @@ type ItemType = {
 const TEXT_CONTENT_TYPES = new Set(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set(["snippet", "command"])
 const MARKDOWN_TYPES = new Set(["note", "prompt"])
-const EXCLUDED_TYPES = new Set(["file", "image"])
+const FILE_TYPES = new Set(["file", "image"])
 
 function getContentType(typeName: string) {
-  return typeName === "link" ? "url" : "text"
+  if (typeName === "link") return "url"
+  if (FILE_TYPES.has(typeName)) return "file"
+  return "text"
 }
 
 interface NewItemDialogProps {
@@ -42,9 +45,8 @@ interface NewItemDialogProps {
 
 function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
   const router = useRouter()
-  const selectableTypes = itemTypes.filter((t) => !EXCLUDED_TYPES.has(t.name))
 
-  const initialTypeId = defaultTypeId ?? selectableTypes[0]?.id ?? ""
+  const initialTypeId = defaultTypeId ?? itemTypes[0]?.id ?? ""
   const [selectedTypeId, setSelectedTypeId] = useState<string>(initialTypeId)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -52,16 +54,22 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
   const [language, setLanguage] = useState("")
   const [url, setUrl] = useState("")
   const [tags, setTags] = useState("")
+  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const selectedType = selectableTypes.find((t) => t.id === selectedTypeId)
+  const selectedType = itemTypes.find((t) => t.id === selectedTypeId)
   const typeName = selectedType?.name ?? ""
   const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
   const isMarkdownType = MARKDOWN_TYPES.has(typeName)
   const isUrlType = typeName === "link"
+  const isFileType = FILE_TYPES.has(typeName)
+  const fileKind = typeName === "image" ? "image" : "file"
 
-  const canSubmit = title.trim().length > 0 && (!isUrlType || url.trim().length > 0)
+  const canSubmit =
+    title.trim().length > 0 &&
+    (!isUrlType || url.trim().length > 0) &&
+    (!isFileType || uploadedFile !== null)
 
   function resetForm() {
     setSelectedTypeId(initialTypeId)
@@ -71,6 +79,7 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
     setLanguage("")
     setUrl("")
     setTags("")
+    setUploadedFile(null)
   }
 
   function handleOpenChange(next: boolean) {
@@ -95,6 +104,9 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
       content: isTextContent ? content || null : null,
       url: isUrlType ? url.trim() || null : null,
       language: isLanguageType ? language.trim() || null : null,
+      fileUrl: isFileType ? uploadedFile?.url ?? null : null,
+      fileName: isFileType ? uploadedFile?.fileName ?? null : null,
+      fileSize: isFileType ? uploadedFile?.fileSize ?? null : null,
       tags: tagArray,
     })
 
@@ -119,13 +131,16 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
 
         {/* Type selector */}
         <div className="flex flex-wrap gap-1.5">
-          {selectableTypes.map((type) => {
+          {itemTypes.map((type) => {
             const Icon = ICON_MAP[type.icon]
             const isSelected = type.id === selectedTypeId
             return (
               <button
                 key={type.id}
-                onClick={() => setSelectedTypeId(type.id)}
+                onClick={() => {
+                  setSelectedTypeId(type.id)
+                  setUploadedFile(null)
+                }}
                 className={cn(
                   "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors",
                   isSelected
@@ -216,6 +231,21 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://..."
                 type="url"
+              />
+            </div>
+          )}
+
+          {/* File / Image upload */}
+          {isFileType && (
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {typeName === "image" ? "Image" : "File"} <span className="text-destructive">*</span>
+              </label>
+              <FileUpload
+                kind={fileKind}
+                uploaded={uploadedFile}
+                onUpload={setUploadedFile}
+                onClear={() => setUploadedFile(null)}
               />
             </div>
           )}
