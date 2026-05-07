@@ -54,7 +54,7 @@ export default async function ItemTypePage({
       <ItemGrid
         items={items}
         emptyMessage={`No ${typeName}s yet.`}
-        variant={typeName === "image" ? "image" : "default"}
+        variant={typeName === "image" ? "image" : typeName === "file" ? "file" : "default"}
       />
     </div>
   )

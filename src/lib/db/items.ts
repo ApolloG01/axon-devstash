@@ -8,9 +8,12 @@ export type ItemWithType = {
   content: string | null
   language: string | null
   fileUrl: string | null
+  fileName: string | null
+  fileSize: number | null
   isFavorite: boolean
   isPinned: boolean
   lastUsedAt: Date
+  createdAt: Date
   itemType: { name: string; color: string; icon: string }
   tags: Array<{ name: string }>
 }
@@ -43,9 +46,12 @@ const itemSelect = {
   content: true,
   language: true,
   fileUrl: true,
+  fileName: true,
+  fileSize: true,
   isFavorite: true,
   isPinned: true,
   lastUsedAt: true,
+  createdAt: true,
   itemType: { select: { name: true, color: true, icon: true } },
   tags: { select: { name: true } },
 } as const
