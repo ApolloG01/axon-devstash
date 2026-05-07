@@ -1,12 +1,23 @@
-# Current Feature
+# Current Feature: Collections Pages
 
 ## Status
 
-Not Started
+Complete
 
 ## Goals
 
+- Create `/collections` page listing all of the user's collections using the existing collection cards
+- Create `/collections/[id]` page showing the items inside a specific collection using existing item cards
+- Link the "View all collections" text/button in the sidebar to `/collections`
+- Link each collection card (on dashboard and `/collections`) to `/collections/[id]`
+
 ## Notes
+
+- Reuse existing `CollectionCard` component for the collections grid
+- Reuse existing `ItemGrid` / `ItemCard` components for the items inside a collection
+- The `/collections/[id]` page should show collection metadata (name, description, item count) and a grid of its items
+- Auth via `auth()` — only show the signed-in user's collections/items
+- Add `/collections` and `/collections/*` to the middleware matcher if not already covered
 
 ## History
 

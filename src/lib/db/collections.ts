@@ -1,4 +1,66 @@
 import { prisma } from "@/lib/prisma";
+import type { ItemWithType } from "@/lib/db/items";
+
+const itemSelect = {
+  id: true,
+  title: true,
+  description: true,
+  content: true,
+  language: true,
+  fileUrl: true,
+  fileName: true,
+  fileSize: true,
+  isFavorite: true,
+  isPinned: true,
+  lastUsedAt: true,
+  createdAt: true,
+  itemType: { select: { name: true, color: true, icon: true } },
+  tags: { select: { name: true } },
+} as const
+
+export type CollectionDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  isFavorite: boolean;
+  itemCount: number;
+};
+
+export async function getCollectionById(
+  userId: string,
+  collectionId: string,
+): Promise<CollectionDetail | null> {
+  const col = await prisma.collection.findUnique({
+    where: { id: collectionId, userId },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      isFavorite: true,
+      _count: { select: { items: true } },
+    },
+  });
+  if (!col) return null;
+  return {
+    id: col.id,
+    name: col.name,
+    description: col.description,
+    isFavorite: col.isFavorite,
+    itemCount: col._count.items,
+  };
+}
+
+export async function getItemsByCollectionId(
+  userId: string,
+  collectionId: string,
+): Promise<ItemWithType[]> {
+  const rows = await prisma.itemCollection.findMany({
+    where: { collectionId, item: { userId } },
+    select: { item: { select: itemSelect } },
+    orderBy: { addedAt: "desc" },
+  });
+  return rows.map((r) => r.item);
+}
 
 export async function getUserCollectionsList(userId: string): Promise<{ id: string; name: string }[]> {
   return prisma.collection.findMany({
