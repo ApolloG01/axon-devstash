@@ -7,6 +7,7 @@ export type ItemWithType = {
   description: string | null
   content: string | null
   language: string | null
+  fileUrl: string | null
   isFavorite: boolean
   isPinned: boolean
   lastUsedAt: Date
@@ -41,6 +42,7 @@ const itemSelect = {
   description: true,
   content: true,
   language: true,
+  fileUrl: true,
   isFavorite: true,
   isPinned: true,
   lastUsedAt: true,
@@ -170,6 +172,9 @@ export type CreateItemData = {
   content: string | null
   url: string | null
   language: string | null
+  fileUrl: string | null
+  fileName: string | null
+  fileSize: number | null
   tags: string[]
 }
 
@@ -184,6 +189,9 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
       content: data.content,
       url: data.url,
       language: data.language,
+      fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      fileSize: data.fileSize,
       tags: {
         connectOrCreate: data.tags.map((name) => ({
           where: { name },
@@ -212,6 +220,11 @@ export async function createItemInDb(userId: string, data: CreateItemData): Prom
       collections: { select: { collection: { select: { id: true, name: true } } } },
     },
   })
+}
+
+export async function getItemFileUrl(userId: string, id: string): Promise<string | null> {
+  const item = await prisma.item.findUnique({ where: { id, userId }, select: { fileUrl: true } })
+  return item?.fileUrl ?? null
 }
 
 export async function deleteItemById(userId: string, id: string): Promise<boolean> {

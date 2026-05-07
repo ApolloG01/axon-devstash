@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Star, Pin, Copy, Pencil, Trash2, ExternalLink, Save, X } from "lucide-react"
+import { Star, Pin, Copy, Pencil, Trash2, ExternalLink, Save, X, Download } from "lucide-react"
 import { toast } from "sonner"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
@@ -389,13 +389,42 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
           )
         )}
 
-        {/* File content (non-editable) */}
+        {/* File / Image content (non-editable) */}
         {item.contentType === "file" && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium">{item.fileName ?? "Untitled file"}</span>
-            {item.fileSize != null && (
-              <span className="text-xs text-muted-foreground">({formatFileSize(item.fileSize)})</span>
+          <div className="space-y-3">
+            {/* Image preview */}
+            {typeName === "image" && item.fileUrl && (
+              <div className="rounded-md overflow-hidden border border-border bg-muted/20">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.fileUrl}
+                  alt={item.fileName ?? "Image"}
+                  className="w-full max-h-72 object-contain"
+                />
+              </div>
             )}
+
+            {/* File info + download */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium truncate flex-1">
+                {item.fileName ?? "Untitled file"}
+              </span>
+              {item.fileSize != null && (
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {formatFileSize(item.fileSize)}
+                </span>
+              )}
+              {item.fileUrl && (
+                <a
+                  href={`/api/download/${item.id}`}
+                  download={item.fileName ?? undefined}
+                  className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download
+                </a>
+              )}
+            </div>
           </div>
         )}
 
