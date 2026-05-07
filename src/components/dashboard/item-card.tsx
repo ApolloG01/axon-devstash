@@ -44,6 +44,15 @@ export function ItemCard({ item }: { item: ItemWithType }) {
             </div>
           </div>
 
+          {item.fileUrl && item.itemType.name === "image" && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.fileUrl}
+              alt={item.title}
+              className="w-full h-24 object-cover rounded-sm mb-2 bg-muted"
+            />
+          )}
+
           {item.description && (
             <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
               {item.description}
