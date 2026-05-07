@@ -2,11 +2,15 @@
 
 ## Status
 
+Not Started
+
 ## Goals
 
 ## Notes
 
 ## History
+
+- **2026-05-07**: Completed Markdown Editor — `MarkdownEditor` component (`src/components/items/markdown-editor.tsx`) with Write/Preview tabs, `react-markdown` + `remark-gfm`, `bg-[#1e1e1e]` container, `bg-[#2d2d2d]` header, copy button; custom `.markdown-preview` CSS class for dark-theme styling; replaces textarea in `ItemDrawer` and `NewItemDialog` for note/prompt types only; snippet/command keep `CodeEditor`, link keeps plain input; readonly mode shows Preview tab only.
 
 - **2026-05-07**: Completed Code Editor (Monaco) — `CodeEditor` component (`src/components/items/code-editor.tsx`) with `vs-dark` Monaco Editor, macOS window dots, language label, and inline copy button; fluid height auto-fits content up to 400px with slim dark scrollbars; replaces textarea in `ItemDrawer` view and edit modes for snippet/command types only; notes/prompts/links keep plain textarea. `NewItemButton` gains `defaultTypeId` + `label` props; items type page renders a "New {type}" button that opens the dialog with the matching type pre-selected.
 
