@@ -8,6 +8,8 @@
 
 ## History
 
+- **2026-05-07**: Completed Code Editor (Monaco) — `CodeEditor` component (`src/components/items/code-editor.tsx`) with `vs-dark` Monaco Editor, macOS window dots, language label, and inline copy button; fluid height auto-fits content up to 400px with slim dark scrollbars; replaces textarea in `ItemDrawer` view and edit modes for snippet/command types only; notes/prompts/links keep plain textarea. `NewItemButton` gains `defaultTypeId` + `label` props; items type page renders a "New {type}" button that opens the dialog with the matching type pre-selected.
+
 - **2026-05-06**: Completed Item Create — `createItemInDb` query added to `src/lib/db/items.ts`, `createItem` server action in `src/actions/items.ts` with Zod validation and auth guard, `NewItemDialog` (shadcn Dialog) with type selector and dynamic fields per type, `NewItemButton` client component wired to top bar, sonner toast + `router.refresh()` on success. 5 Vitest tests covering auth, validation, and success cases.
 
 - **2026-05-06**: Completed Item Delete — `deleteItemById` query added to `src/lib/db/items.ts`, `deleteItem` server action in `src/actions/items.ts` with auth/ownership guard, Delete button in `ItemDrawer` wired to shadcn `AlertDialog` confirmation, sonner toast on success/error, `router.refresh()` removes item from grid. 3 Vitest tests covering auth, ownership, and success cases.
