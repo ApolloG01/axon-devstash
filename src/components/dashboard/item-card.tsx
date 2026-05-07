@@ -1,9 +1,21 @@
-import { Star } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import { Star, Copy, Check } from "lucide-react"
 import type { ItemWithType } from "@/lib/db/items"
 
 export function ItemCard({ item }: { item: ItemWithType }) {
   const { itemType, tags } = item
   const accentColor = itemType.color
+  const [copied, setCopied] = useState(false)
+
+  async function handleCopy(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!item.content) return
+    await navigator.clipboard.writeText(item.content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   return (
     <div className="group rounded-lg border border-border bg-card hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer">
@@ -12,9 +24,24 @@ export function ItemCard({ item }: { item: ItemWithType }) {
         <div className="flex-1 p-4 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <h3 className="text-sm font-medium truncate">{item.title}</h3>
-            {item.isFavorite && (
-              <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />
-            )}
+            <div className="flex items-center gap-1 shrink-0">
+              {item.content && (
+                <button
+                  onClick={handleCopy}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-muted-foreground hover:text-foreground"
+                  title="Copy content"
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              )}
+              {item.isFavorite && (
+                <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+              )}
+            </div>
           </div>
 
           {item.description && (
