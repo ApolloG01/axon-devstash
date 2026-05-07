@@ -6,7 +6,7 @@ import { getCollectionsByUserId } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
 import { Search } from "lucide-react"
-import { NewItemButton } from "@/components/items/new-item-dialog"
+import { NewButton } from "@/components/shared/new-button"
 
 export default async function DashboardLayout({
   children,
@@ -49,7 +49,7 @@ export default async function DashboardLayout({
         </div>
 
         <div className="ml-auto">
-          <NewItemButton itemTypes={itemTypes} />
+          <NewButton itemTypes={itemTypes} />
         </div>
       </header>
 
