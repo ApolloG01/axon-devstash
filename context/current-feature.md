@@ -1,26 +1,12 @@
-# Current Feature: Add Item to Collections
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Collection multi-select input added to `NewItemDialog` — user can pick zero or more collections when creating an item
-- Collection multi-select input added to `ItemDrawer` edit mode — user can add/remove collections on an existing item
-- `createItem` server action wired to create `ItemCollection` join records for selected collections
-- `updateItem` server action updated to sync `ItemCollection` records (add new, remove deselected)
-- Collections currently assigned to an item pre-populated in the edit form
-- `getUserCollections(userId)` DB query available for populating the selector
-- No collection detail/page UI required — only the selector in create/edit flows
-
 ## Notes
-
-- The `ItemCollection` join table already exists in the schema (`itemId + collectionId` composite PK)
-- `createItemInDb` and `updateItemById` in `src/lib/db/items.ts` need to handle `collectionIds` array
-- Selector should be a searchable multi-select (combobox style) or a simple checkbox list — use shadcn Popover + Command for the picker
-- `NewItemDialog` receives item types from props already; collections will need to be fetched similarly (pass from parent server component or fetch inside dialog via a server action)
-- Collections are user-scoped, so only the signed-in user's collections appear in the list
 
 ## History
 
@@ -65,3 +51,4 @@ In Progress
 - **2026-05-07**: Completed Code Audit Fixes — 13 findings resolved: `toggleFavorite`/`togglePin` server actions wired in `ItemDrawer`; `force-dynamic` added to `/items/[type]`; profile page switched to `groupBy` query; Tag model migrated to per-user scope (`userId + @@unique([userId,name])`); download route R2 SSRF guard; `itemFullSelect` extracted as constant; `SerializedItemFull` type added; `upload-config.ts` shared across upload route + `FileUpload`; `formatBytes` centralized in `utils.ts`; dashboard non-null assertion replaced with explicit redirect; `useCopyToClipboard` hook extracted; `resend.ts` lazy init; `demo.ts` deleted.
 - **2026-05-07**: Completed Collection Create — `createCollectionInDb` query + `createCollection` server action (Zod + auth); `NewCollectionDialog` and `NewCollectionInlineButton` components; `NewButton` dropdown in top bar consolidates New Item + New Collection into a single button; dashboard landing page enhanced with greeting, counts in section headers, and improved empty states for collections and items.
 - **2026-05-07**: Refined top bar and create UX — logo links to `/dashboard`; `+ New Item` button only appears on `/dashboard` via `DashboardNewItemButton` (pathname check); `+ New Collection` icon button moved to sidebar Collections heading; dropdown `new-button.tsx` removed.
+- **2026-05-07**: Completed Add Item to Collections — `CollectionPicker` component (Base UI Popover + cmdk Command multi-select); `getUserCollectionsList` DB query + `getCollectionsForPicker` server action; `createItemInDb` and `updateItemById` accept `collectionIds[]` and sync `ItemCollection` join records; picker added to `NewItemDialog` (collections passed from server component) and `ItemDrawer` edit mode (collections fetched lazily on first edit, pre-populated from item's existing assignments); shadcn `popover`, `command`, `input-group`, and `textarea` components installed.
