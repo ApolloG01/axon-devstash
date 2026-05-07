@@ -177,7 +177,7 @@ function NewItemFormFields({
   )
 }
 
-function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
+export function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
   const router = useRouter()
 
   const initialTypeId = defaultTypeId ?? itemTypes[0]?.id ?? ""
