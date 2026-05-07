@@ -35,13 +35,15 @@ interface NewItemDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   itemTypes: ItemType[]
+  defaultTypeId?: string
 }
 
-function NewItemDialog({ open, onOpenChange, itemTypes }: NewItemDialogProps) {
+function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItemDialogProps) {
   const router = useRouter()
   const selectableTypes = itemTypes.filter((t) => !EXCLUDED_TYPES.has(t.name))
 
-  const [selectedTypeId, setSelectedTypeId] = useState<string>(selectableTypes[0]?.id ?? "")
+  const initialTypeId = defaultTypeId ?? selectableTypes[0]?.id ?? ""
+  const [selectedTypeId, setSelectedTypeId] = useState<string>(initialTypeId)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [content, setContent] = useState("")
@@ -59,7 +61,7 @@ function NewItemDialog({ open, onOpenChange, itemTypes }: NewItemDialogProps) {
   const canSubmit = title.trim().length > 0 && (!isUrlType || url.trim().length > 0)
 
   function resetForm() {
-    setSelectedTypeId(selectableTypes[0]?.id ?? "")
+    setSelectedTypeId(initialTypeId)
     setTitle("")
     setDescription("")
     setContent("")
@@ -242,18 +244,20 @@ function NewItemDialog({ open, onOpenChange, itemTypes }: NewItemDialogProps) {
 
 interface NewItemButtonProps {
   itemTypes: ItemType[]
+  defaultTypeId?: string
+  label?: string
 }
 
-export function NewItemButton({ itemTypes }: NewItemButtonProps) {
+export function NewItemButton({ itemTypes, defaultTypeId, label = "New Item" }: NewItemButtonProps) {
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <Button size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" />
-        New Item
+        {label}
       </Button>
-      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} />
+      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} defaultTypeId={defaultTypeId} />
     </>
   )
 }

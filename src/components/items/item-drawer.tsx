@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { updateItem, deleteItem } from "@/actions/items"
+import { CodeEditor } from "@/components/items/code-editor"
 
 type ItemFull = {
   id: string
@@ -314,36 +315,44 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
         {isTextType && (
           editing ? (
             <div className="space-y-2">
-              {isLanguageType && (
-                <input
-                  className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  placeholder="Language (e.g. typescript)"
+              {isLanguageType ? (
+                <>
+                  <input
+                    className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    placeholder="Language (e.g. typescript)"
+                  />
+                  <CodeEditor
+                    value={content}
+                    language={language || undefined}
+                    onChange={setContent}
+                    readOnly={false}
+                  />
+                </>
+              ) : (
+                <textarea
+                  className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Content"
+                  rows={10}
                 />
               )}
-              <textarea
-                className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Content"
-                rows={10}
-              />
             </div>
           ) : (
             item.content && (
-              <div className="rounded-md border border-border overflow-hidden">
-                {item.language && (
-                  <div className="px-3 py-1.5 bg-muted/50 border-b border-border">
-                    <span className="text-[11px] text-muted-foreground font-mono capitalize">
-                      {item.language}
-                    </span>
-                  </div>
-                )}
-                <pre className="p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
+              isLanguageType ? (
+                <CodeEditor
+                  value={item.content}
+                  language={item.language ?? undefined}
+                  readOnly
+                />
+              ) : (
+                <pre className="p-3 text-xs font-mono bg-muted/30 border border-border rounded overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
                   {item.content}
                 </pre>
-              </div>
+              )
             )
           )
         )}
