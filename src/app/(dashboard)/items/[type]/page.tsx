@@ -42,7 +42,7 @@ export default async function ItemTypePage({
             {items.length} {items.length === 1 ? typeName : `${typeName}s`}
           </p>
         </div>
-        {currentType && !["file", "image"].includes(typeName) && (
+        {currentType && (
           <NewItemButton
             itemTypes={itemTypes}
             defaultTypeId={currentType.id}
@@ -51,7 +51,11 @@ export default async function ItemTypePage({
         )}
       </div>
 
-      <ItemGrid items={items} emptyMessage={`No ${typeName}s yet.`} />
+      <ItemGrid
+        items={items}
+        emptyMessage={`No ${typeName}s yet.`}
+        variant={typeName === "image" ? "image" : "default"}
+      />
     </div>
   )
 }
