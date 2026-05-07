@@ -127,3 +127,96 @@
     @apply font-sans;
     }
 }
+
+/* Markdown preview styles — dark theme */
+.markdown-preview {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.markdown-preview > *:last-child { margin-bottom: 0; }
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+  line-height: 1.3;
+}
+.markdown-preview h1 { font-size: 1.4em; }
+.markdown-preview h2 { font-size: 1.2em; }
+.markdown-preview h3 { font-size: 1.05em; }
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 { font-size: 1em; }
+.markdown-preview p { margin-bottom: 0.65em; }
+.markdown-preview code {
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.88);
+}
+.markdown-preview pre {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  padding: 0.75em 1em;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a transparent;
+}
+.markdown-preview pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.8125em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.markdown-preview ul,
+.markdown-preview ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.65em;
+}
+.markdown-preview ul { list-style: disc; }
+.markdown-preview ol { list-style: decimal; }
+.markdown-preview li { margin-bottom: 0.2em; }
+.markdown-preview blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.18);
+  padding-left: 0.9em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.65em;
+}
+.markdown-preview a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+.markdown-preview a:hover { text-decoration: underline; }
+.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.75em;
+  font-size: 0.875em;
+}
+.markdown-preview th,
+.markdown-preview td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.35em 0.75em;
+  text-align: left;
+}
+.markdown-preview th {
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+.markdown-preview hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0.9em 0;
+}
+.markdown-preview strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
+.markdown-preview em { color: rgba(255, 255, 255, 0.75); }

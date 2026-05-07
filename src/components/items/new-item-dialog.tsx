@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { createItem } from "@/actions/items"
+import { MarkdownEditor } from "@/components/items/markdown-editor"
 
 type ItemType = {
   id: string
@@ -25,6 +26,7 @@ type ItemType = {
 
 const TEXT_CONTENT_TYPES = new Set(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set(["snippet", "command"])
+const MARKDOWN_TYPES = new Set(["note", "prompt"])
 const EXCLUDED_TYPES = new Set(["file", "image"])
 
 function getContentType(typeName: string) {
@@ -56,6 +58,7 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
   const typeName = selectedType?.name ?? ""
   const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
+  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
   const isUrlType = typeName === "link"
 
   const canSubmit = title.trim().length > 0 && (!isUrlType || url.trim().length > 0)
@@ -187,13 +190,17 @@ function NewItemDialog({ open, onOpenChange, itemTypes, defaultTypeId }: NewItem
               <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Content
               </label>
-              <textarea
-                className="w-full text-sm font-mono bg-muted/30 border border-border rounded px-2.5 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Paste or type your content here"
-                rows={6}
-              />
+              {isMarkdownType ? (
+                <MarkdownEditor value={content} onChange={setContent} />
+              ) : (
+                <textarea
+                  className="w-full text-sm font-mono bg-muted/30 border border-border rounded px-2.5 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Paste or type your content here"
+                  rows={6}
+                />
+              )}
             </div>
           )}
 

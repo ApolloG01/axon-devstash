@@ -20,6 +20,7 @@ import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { updateItem, deleteItem } from "@/actions/items"
 import { CodeEditor } from "@/components/items/code-editor"
+import { MarkdownEditor } from "@/components/items/markdown-editor"
 
 type ItemFull = {
   id: string
@@ -87,6 +88,7 @@ function DrawerSkeleton() {
 
 const TEXT_TYPES = new Set(["snippet", "prompt", "command", "note"])
 const LANGUAGE_TYPES = new Set(["snippet", "command"])
+const MARKDOWN_TYPES = new Set(["note", "prompt"])
 
 interface DrawerBodyProps {
   item: ItemFull
@@ -114,6 +116,7 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
   const typeName = item.itemType.name
   const isTextType = TEXT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
+  const isMarkdownType = MARKDOWN_TYPES.has(typeName)
   const isUrlType = typeName === "link"
 
   const handleCopy = useCallback(async () => {
@@ -330,6 +333,8 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
                     readOnly={false}
                   />
                 </>
+              ) : isMarkdownType ? (
+                <MarkdownEditor value={content} onChange={setContent} />
               ) : (
                 <textarea
                   className="w-full text-xs font-mono bg-muted/30 border border-border rounded px-3 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"
@@ -348,6 +353,8 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
                   language={item.language ?? undefined}
                   readOnly
                 />
+              ) : isMarkdownType ? (
+                <MarkdownEditor value={item.content} readOnly />
               ) : (
                 <pre className="p-3 text-xs font-mono bg-muted/30 border border-border rounded overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
                   {item.content}
