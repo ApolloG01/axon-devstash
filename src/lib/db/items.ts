@@ -243,3 +243,29 @@ export async function getSystemItemTypes() {
     orderBy: { createdAt: "asc" },
   })
 }
+
+export type SearchItem = {
+  id: string
+  title: string
+  contentPreview: string | null
+  itemType: { name: string; color: string; icon: string }
+}
+
+export async function getSearchableItems(userId: string): Promise<SearchItem[]> {
+  const rows = await prisma.item.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      itemType: { select: { name: true, color: true, icon: true } },
+    },
+    orderBy: { lastUsedAt: "desc" },
+  })
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    contentPreview: row.content ? row.content.slice(0, 80) : null,
+    itemType: row.itemType,
+  }))
+}
