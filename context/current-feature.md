@@ -1,12 +1,25 @@
-# Current Feature
+# Current Feature — Favorites Page
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Add star icon button to TopBar linking to `/favorites`
+- Create `/favorites` route (protected, inside dashboard layout)
+- Fetch all user favorited items and collections from DB
+- Compact VS Code/terminal-style list view (no cards)
+- Each row: type icon, title, type badge, date
+- Separate sections for Items and Collections with counts
+- Clicking an item opens `ItemDrawer`; clicking a collection navigates to `/collections/[id]`
+- Empty state when no favorites exist
+- Sort by most recently favorited (`updatedAt` desc)
+
 ## Notes
+
+- UI style: monospace/semi-monospace font, minimal padding, high density, subtle hover states, clean lines only
+- No cards or heavy borders
 
 ## History
 

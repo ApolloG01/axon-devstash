@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { Star } from "lucide-react"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes, getSearchableItems } from "@/lib/db/items"
 import { getCollectionsByUserId, getSearchableCollections } from "@/lib/db/collections"
@@ -55,7 +56,14 @@ export default async function DashboardLayout({
           <CommandPalette items={searchItems} collections={searchCollections} />
         </div>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          <Link
+            href="/favorites"
+            className="flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            title="Favorites"
+          >
+            <Star className="h-4 w-4" />
+          </Link>
           <DashboardNewItemButton itemTypes={itemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} />
         </div>
       </header>
