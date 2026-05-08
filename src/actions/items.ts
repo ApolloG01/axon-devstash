@@ -4,6 +4,7 @@ import { z } from "zod"
 import { auth } from "@/auth"
 import { updateItemById, deleteItemById, createItemInDb, getItemFileUrl, toggleFavoriteById, togglePinById } from "@/lib/db/items"
 import { deleteFromR2 } from "@/lib/r2"
+import { checkItemLimit } from "@/lib/usage-limits"
 
 const updateItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
@@ -62,6 +63,9 @@ export async function createItem(data: CreateItemInput) {
     const message = parsed.error.issues.map((e) => e.message).join(", ")
     return { success: false, error: message }
   }
+
+  const limitError = await checkItemLimit(session.user.id, session.user.isPro)
+  if (limitError) return { success: false, error: limitError }
 
   try {
     const item = await createItemInDb(session.user.id, parsed.data)

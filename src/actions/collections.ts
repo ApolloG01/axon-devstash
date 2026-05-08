@@ -3,6 +3,7 @@
 import { z } from "zod"
 import { auth } from "@/auth"
 import { createCollectionInDb, getUserCollectionsList, updateCollectionInDb, deleteCollectionInDb, toggleCollectionFavoriteInDb } from "@/lib/db/collections"
+import { checkCollectionLimit } from "@/lib/usage-limits"
 
 export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
   const session = await auth()
@@ -26,6 +27,9 @@ export async function createCollection(data: CreateCollectionInput) {
     const message = parsed.error.issues.map((e) => e.message).join(", ")
     return { success: false, error: message }
   }
+
+  const limitError = await checkCollectionLimit(session.user.id, session.user.isPro)
+  if (limitError) return { success: false, error: limitError }
 
   try {
     const collection = await createCollectionInDb(session.user.id, parsed.data)

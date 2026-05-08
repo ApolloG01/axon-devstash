@@ -7,6 +7,7 @@ vi.mock("@/lib/prisma", () => ({
       update: vi.fn(),
       delete: vi.fn(),
       create: vi.fn(),
+      count: vi.fn(),
     },
   },
 }))
@@ -117,8 +118,9 @@ describe("createItem", () => {
   })
 
   it("returns success with created item", async () => {
-    mockAuth.mockResolvedValue({ user: { id: "user-1" } } as never)
+    mockAuth.mockResolvedValue({ user: { id: "user-1", isPro: false } } as never)
     const { prisma } = await import("@/lib/prisma")
+    vi.mocked(prisma.item.count).mockResolvedValue(0)
     const mockItem = { id: "item-1", title: "My Snippet" }
     vi.mocked(prisma.item.create).mockResolvedValue(mockItem as never)
     const result = await createItem(validCreateInput)
