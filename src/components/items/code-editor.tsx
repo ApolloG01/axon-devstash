@@ -4,6 +4,7 @@ import Editor from "@monaco-editor/react"
 import { Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { useEditorPreferences } from "@/context/editor-preferences-context"
 
 interface CodeEditorProps {
   value: string
@@ -15,6 +16,7 @@ interface CodeEditorProps {
 
 export function CodeEditor({ value, language, onChange, readOnly = false, className }: CodeEditorProps) {
   const { copied, copy: handleCopy } = useCopyToClipboard()
+  const { prefs } = useEditorPreferences()
 
   return (
     <div className={cn("rounded-md border border-border overflow-hidden", className)}>
@@ -41,14 +43,15 @@ export function CodeEditor({ value, language, onChange, readOnly = false, classN
       <Editor
         value={value}
         language={language ?? "plaintext"}
-        theme="vs-dark"
+        theme={prefs.theme}
         options={{
           readOnly,
-          minimap: { enabled: false },
+          minimap: { enabled: prefs.minimap },
           scrollBeyondLastLine: false,
-          wordWrap: "on",
-          fontSize: 12,
-          lineHeight: 20,
+          wordWrap: prefs.wordWrap ? "on" : "off",
+          fontSize: prefs.fontSize,
+          tabSize: prefs.tabSize,
+          lineHeight: Math.round(prefs.fontSize * 1.6),
           padding: { top: 12, bottom: 12 },
           scrollbar: {
             verticalScrollbarSize: 6,
@@ -74,7 +77,6 @@ export function CodeEditor({ value, language, onChange, readOnly = false, classN
           </div>
         }
         onMount={(editor) => {
-          // Fit height to content up to max
           const updateHeight = () => {
             const contentHeight = Math.min(360, editor.getContentHeight())
             const domNode = editor.getDomNode()

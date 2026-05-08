@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { ChangePasswordForm } from "@/components/profile/change-password-form"
 import { DeleteAccountDialog } from "@/components/profile/delete-account-dialog"
 import { PageToast } from "@/components/shared/page-toast"
+import { EditorPreferencesForm } from "@/components/settings/editor-preferences-form"
 
 export default async function SettingsPage({
   searchParams,
@@ -32,6 +33,19 @@ export default async function SettingsPage({
       {passwordChanged === "1" && <PageToast message="Password changed successfully!" />}
 
       <h1 className="text-lg font-semibold">Settings</h1>
+
+      {/* Editor Preferences */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold">Editor</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Customize the code editor appearance and behavior.
+          </p>
+        </div>
+        <EditorPreferencesForm />
+      </section>
+
+      <Separator />
 
       {/* Change Password */}
       {hasPassword && (
