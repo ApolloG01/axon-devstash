@@ -390,6 +390,8 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
       toast.error(result.error ?? "Failed to update")
       return
     }
+    const pinned = (result.data as unknown as SerializedItemFull).isPinned
+    toast.success(pinned ? "Item pinned" : "Item unpinned")
     onItemUpdate(result.data as unknown as SerializedItemFull)
     router.refresh()
   }

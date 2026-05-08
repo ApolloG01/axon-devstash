@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Star, Copy, Check } from "lucide-react"
+import { Star, Pin, Copy, Check } from "lucide-react"
 import type { ItemWithType } from "@/lib/db/items"
 
 export function ItemCard({ item }: { item: ItemWithType }) {
@@ -37,6 +37,9 @@ export function ItemCard({ item }: { item: ItemWithType }) {
                     <Copy className="h-3.5 w-3.5" />
                   )}
                 </button>
+              )}
+              {item.isPinned && (
+                <Pin className="h-3.5 w-3.5 text-sky-400 fill-sky-400" />
               )}
               {item.isFavorite && (
                 <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />

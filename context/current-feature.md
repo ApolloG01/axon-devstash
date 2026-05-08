@@ -1,12 +1,26 @@
-# Current Feature
+# Current Feature: Pinned Items
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Create `toggleItemPin` server action (mirrors `toggleFavorite` pattern)
+- Wire the Pin button in `ItemDrawer` action bar — currently has no `onClick`
+- Optimistic UI: local `isPinned` state toggles instantly, server action runs in background
+- Show a sonner toast on success and error
+- Pinned items sort to the top of item listings (`/items/[type]`) and remain at the top of the dashboard Pinned Items section
+- Items only — no collections pinning
+- `ItemCard` pin icon stays as a static read-only indicator (no change needed)
+
 ## Notes
+
+- Follow the `toggleFavorite` / `toggleCollectionFavorite` pattern already in the codebase
+- `toggleItemPin` server action goes in `src/actions/items.ts`; DB query `toggleItemPinInDb` goes in `src/lib/db/items.ts`
+- `ItemDrawer` already has a Pin button — find where `toggleFavorite` was wired and do the same for pin
+- For listings sort: `getItemsByType` currently orders by `lastUsedAt` desc — pinned items should float to top (add a secondary sort or use `isPinned desc, lastUsedAt desc`)
+- Dashboard pinned section already queries `isPinned: true` via `getPinnedItems` — no change needed there beyond `router.refresh()` after toggle
 
 ## History
 

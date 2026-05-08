@@ -61,7 +61,7 @@ export async function getItemsByCollectionId(
     prisma.itemCollection.findMany({
       where,
       select: { item: { select: itemSelect } },
-      orderBy: { addedAt: "desc" },
+      orderBy: [{ item: { isPinned: "desc" } }, { addedAt: "desc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

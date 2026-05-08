@@ -117,7 +117,7 @@ export async function getItemsByType(
     prisma.item.findMany({
       where: { userId, itemType: { name: typeName } },
       select: itemSelect,
-      orderBy: { lastUsedAt: "desc" },
+      orderBy: [{ isPinned: "desc" }, { lastUsedAt: "desc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
