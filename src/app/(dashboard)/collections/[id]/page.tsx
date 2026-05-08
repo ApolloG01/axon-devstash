@@ -7,6 +7,8 @@ import { getCollectionById, getItemsByCollectionId, getUserCollectionsList } fro
 import { getSystemItemTypes } from "@/lib/db/items"
 import { ItemGrid } from "@/components/items/item-grid"
 import { NewItemButton } from "@/components/items/new-item-dialog"
+import { CollectionDetailActions } from "@/components/collections/collection-detail-actions"
+import { NewCollectionButton } from "@/components/collections/new-collection-button"
 import { ChevronRight, Layers } from "lucide-react"
 
 export default async function CollectionDetailPage({
@@ -49,11 +51,19 @@ export default async function CollectionDetailPage({
             <span>{collection.itemCount} item{collection.itemCount !== 1 ? "s" : ""}</span>
           </div>
         </div>
-        <NewItemButton
-          itemTypes={itemTypes}
-          collections={collections}
-          label="New Item"
-        />
+        <div className="flex items-center gap-2">
+          <CollectionDetailActions
+            collectionId={collection.id}
+            initialName={collection.name}
+            initialDescription={collection.description}
+          />
+          <NewCollectionButton />
+          <NewItemButton
+            itemTypes={itemTypes}
+            collections={collections}
+            label="New Item"
+          />
+        </div>
       </div>
 
       <ItemGrid
