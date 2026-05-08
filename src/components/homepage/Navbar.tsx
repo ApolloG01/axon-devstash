@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-
-const LogoMark = () => (
-  <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none">
-    <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke="#3b82f6" strokeWidth="1.8" fill="#3b82f615" />
-    <path d="M12 8v8M8 10l4-2 4 2" stroke="#3b82f6" strokeWidth="1.4" strokeLinecap="round" />
-  </svg>
-);
+import { LogoMark } from "@/components/shared/logo-mark";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,13 +36,13 @@ export default function Navbar() {
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center gap-8">
           <a
-            href="#features"
+            href="/#features"
             className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] transition-colors"
           >
             Features
           </a>
           <a
-            href="#pricing"
+            href="/#pricing"
             className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] transition-colors"
           >
             Pricing
@@ -85,14 +79,14 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden bg-[#141414] border-b border-[#2a2a2a] px-6 py-5 flex flex-col gap-4">
           <a
-            href="#features"
+            href="/#features"
             className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] py-2"
             onClick={() => setMobileOpen(false)}
           >
             Features
           </a>
           <a
-            href="#pricing"
+            href="/#pricing"
             className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] py-2"
             onClick={() => setMobileOpen(false)}
           >

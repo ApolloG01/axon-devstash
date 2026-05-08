@@ -1,10 +1,20 @@
-# Current Feature
+# Current Feature: Auth Nav + Dashboard Logo
 
 ## Status
+In Progress
 
 ## Goals
+- Add the homepage Navbar to all auth pages (sign-in, register, forgot-password, reset-password) via the auth layout
+- Update homepage anchor links (#features, #pricing) to root-relative (/#features, /#pricing) so they work from any page
+- Add the LogoMark folder icon (hexagon SVG from homepage Navbar) to the dashboard top bar logo link
+- Extract LogoMark to a shared component so Navbar and dashboard header can both use it
+- Remove the redundant app-name heading box from the sign-in form and register page (becomes "the box with DS" once navbar provides branding)
 
 ## Notes
+- Navbar is fixed at top with z-50; auth layout needs pt-[60px] so form doesn't sit behind it
+- LogoMark is currently a local const inside Navbar.tsx — extract to src/components/shared/logo-mark.tsx
+- On auth pages, the Navbar "Sign In" / "Get Started" CTAs are mildly redundant but acceptable per user request
+- forgot-password and reset-password pages in the (auth) group will automatically inherit the navbar
 
 ## History
 
