@@ -1,10 +1,28 @@
-# Current Feature
+# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Install `stripe` and `@stripe/stripe-js` packages
+- Extend `Session` and `JWT` types with `isPro: boolean`
+- Add always-sync JWT + session callbacks to `src/auth.ts` so `isPro` reflects DB state on every page load
+- Create `src/lib/stripe.ts` — Stripe client singleton + `STRIPE_PRICES` constants
+- Create `src/actions/billing.ts` — `createCheckoutSession(interval)` + `createBillingPortalSession()`
+- Create `src/lib/usage-limits.ts` — pure `checkItemLimit` / `checkCollectionLimit` helpers
+- Enforce 50-item Free limit in `createItem`
+- Enforce 3-collection Free limit in `createCollection`
+- Add `NEXT_PUBLIC_APP_URL` to `.env`
+- Write and pass 6 Vitest unit tests for `usage-limits.ts`
+
 ## Notes
+
+- All logic this phase is testable without Stripe CLI — no webhook, no UI billing section
+- `usage-limits.ts` takes `userId` + `isPro` as params so Prisma can be mocked cleanly in tests
+- JWT callback always syncs `isPro` from DB (not just on first login) — page reload picks up webhook upgrades in Phase 2
+- Spec: `context/features/stripe-phase-1-spec.md`
 
 ## History
 
