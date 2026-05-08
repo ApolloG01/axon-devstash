@@ -70,6 +70,25 @@ export async function getUserCollectionsList(userId: string): Promise<{ id: stri
   });
 }
 
+export type SearchCollection = {
+  id: string
+  name: string
+  itemCount: number
+}
+
+export async function getSearchableCollections(userId: string): Promise<SearchCollection[]> {
+  const rows = await prisma.collection.findMany({
+    where: { userId },
+    select: { id: true, name: true, _count: { select: { items: true } } },
+    orderBy: { name: "asc" },
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    itemCount: row._count.items,
+  }));
+}
+
 export async function createCollectionInDb(
   userId: string,
   data: { name: string; description?: string | null },

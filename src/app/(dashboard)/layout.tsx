@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Input } from "@/components/ui/input"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
-import { getSystemItemTypes } from "@/lib/db/items"
-import { getCollectionsByUserId } from "@/lib/db/collections"
+import { getSystemItemTypes, getSearchableItems } from "@/lib/db/items"
+import { getCollectionsByUserId, getSearchableCollections } from "@/lib/db/collections"
 import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
-import { Search } from "lucide-react"
 import { DashboardNewItemButton } from "@/components/shared/dashboard-new-item-button"
+import { CommandPalette } from "@/components/shared/command-palette"
 
 export default async function DashboardLayout({
   children,
@@ -18,7 +17,13 @@ export default async function DashboardLayout({
 
   if (!session?.user) redirect("/sign-in")
 
-  const collections = await getCollectionsByUserId(session.user.id!)
+  const userId = session.user.id!
+
+  const [collections, searchItems, searchCollections] = await Promise.all([
+    getCollectionsByUserId(userId),
+    getSearchableItems(userId),
+    getSearchableCollections(userId),
+  ])
 
   const user = session.user
 
@@ -43,13 +48,7 @@ export default async function DashboardLayout({
         </Link>
 
         <div className="flex-1 max-w-lg">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search items, collections, tags..."
-              className="pl-8 h-8 bg-muted/40 border-border text-sm"
-            />
-          </div>
+          <CommandPalette items={searchItems} collections={searchCollections} />
         </div>
 
         <div className="ml-auto">
