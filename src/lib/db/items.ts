@@ -247,6 +247,26 @@ export async function togglePinById(userId: string, id: string): Promise<ItemFul
   })
 }
 
+export type FavoriteItem = {
+  id: string
+  title: string
+  updatedAt: Date
+  itemType: { name: string; color: string; icon: string }
+}
+
+export async function getFavoriteItems(userId: string): Promise<FavoriteItem[]> {
+  return prisma.item.findMany({
+    where: { userId, isFavorite: true },
+    select: {
+      id: true,
+      title: true,
+      updatedAt: true,
+      itemType: { select: { name: true, color: true, icon: true } },
+    },
+    orderBy: { updatedAt: "desc" },
+  })
+}
+
 export async function getSystemItemTypes() {
   return prisma.itemType.findMany({
     where: { isSystem: true },
