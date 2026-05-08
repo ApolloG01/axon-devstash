@@ -4,7 +4,8 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Pencil, Trash2, Star } from "lucide-react"
 import { toast } from "sonner"
-import { updateCollection, deleteCollection } from "@/actions/collections"
+import { cn } from "@/lib/utils"
+import { updateCollection, deleteCollection, toggleCollectionFavorite } from "@/actions/collections"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,15 +32,29 @@ type Props = {
   collectionId: string
   initialName: string
   initialDescription: string | null
+  initialIsFavorite: boolean
 }
 
-export function CollectionDetailActions({ collectionId, initialName, initialDescription }: Props) {
+export function CollectionDetailActions({ collectionId, initialName, initialDescription, initialIsFavorite }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [name, setName] = useState(initialName)
   const [description, setDescription] = useState(initialDescription ?? "")
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite)
+
+  function handleToggleFavorite() {
+    startTransition(async () => {
+      const result = await toggleCollectionFavorite(collectionId)
+      if (result.success) {
+        setIsFavorite(result.data.isFavorite)
+        router.refresh()
+      } else {
+        toast.error(result.error ?? "Failed to update")
+      }
+    })
+  }
 
   function handleSave() {
     startTransition(async () => {
@@ -72,11 +87,12 @@ export function CollectionDetailActions({ collectionId, initialName, initialDesc
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-          aria-label="Favorite collection"
-          disabled
+          className={cn("h-8 w-8", isFavorite ? "text-amber-400 hover:text-amber-400" : "text-muted-foreground hover:text-foreground")}
+          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          onClick={handleToggleFavorite}
+          disabled={isPending}
         >
-          <Star className="h-4 w-4" />
+          <Star className={cn("h-4 w-4", isFavorite && "fill-amber-400")} />
         </Button>
         <Button
           variant="ghost"

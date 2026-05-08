@@ -64,6 +64,7 @@ export default async function CollectionDetailPage({
             collectionId={collection.id}
             initialName={collection.name}
             initialDescription={collection.description}
+            initialIsFavorite={collection.isFavorite}
           />
           <NewCollectionButton />
           <NewItemButton
