@@ -107,12 +107,23 @@ export async function getItemStats(userId: string) {
   return { total, favorites }
 }
 
-export async function getItemsByType(userId: string, typeName: string): Promise<ItemWithType[]> {
-  return prisma.item.findMany({
-    where: { userId, itemType: { name: typeName } },
-    select: itemSelect,
-    orderBy: { lastUsedAt: "desc" },
-  })
+export async function getItemsByType(
+  userId: string,
+  typeName: string,
+  page: number,
+  pageSize: number,
+): Promise<{ items: ItemWithType[]; total: number }> {
+  const [items, total] = await Promise.all([
+    prisma.item.findMany({
+      where: { userId, itemType: { name: typeName } },
+      select: itemSelect,
+      orderBy: { lastUsedAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.item.count({ where: { userId, itemType: { name: typeName } } }),
+  ])
+  return { items, total }
 }
 
 export async function getItemById(userId: string, id: string): Promise<ItemFull | null> {

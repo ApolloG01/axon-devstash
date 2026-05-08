@@ -6,6 +6,8 @@ import { getItemsByType, getSystemItemTypes } from "@/lib/db/items"
 import { getUserCollectionsList } from "@/lib/db/collections"
 import { ItemGrid } from "@/components/items/item-grid"
 import { NewItemButton } from "@/components/items/new-item-dialog"
+import { Pagination } from "@/components/shared/pagination"
+import { ITEMS_PER_PAGE } from "@/constants"
 
 const TYPE_SLUG_MAP: Record<string, string> = {
   snippets: "snippet",
@@ -19,22 +21,27 @@ const TYPE_SLUG_MAP: Record<string, string> = {
 
 export default async function ItemTypePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ type: string }>
+  searchParams: Promise<{ page?: string }>
 }) {
-  const { type: slug } = await params
+  const [{ type: slug }, { page: pageParam }] = await Promise.all([params, searchParams])
   const typeName = TYPE_SLUG_MAP[slug]
   if (!typeName) notFound()
 
   const session = await auth()
   if (!session?.user?.id) notFound()
 
-  const [items, itemTypes, collections] = await Promise.all([
-    getItemsByType(session.user.id, typeName),
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1)
+
+  const [{ items, total }, itemTypes, collections] = await Promise.all([
+    getItemsByType(session.user.id, typeName, page, ITEMS_PER_PAGE),
     getSystemItemTypes(),
     getUserCollectionsList(session.user.id),
   ])
 
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
   const currentType = itemTypes.find((t) => t.name === typeName)
 
   return (
@@ -43,7 +50,7 @@ export default async function ItemTypePage({
         <div>
           <h1 className="text-lg font-semibold capitalize">{slug}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {items.length} {items.length === 1 ? typeName : `${typeName}s`}
+            {total} {total === 1 ? typeName : `${typeName}s`}
           </p>
         </div>
         {currentType && (
@@ -61,6 +68,8 @@ export default async function ItemTypePage({
         emptyMessage={`No ${typeName}s yet.`}
         variant={typeName === "image" ? "image" : typeName === "file" ? "file" : "default"}
       />
+
+      <Pagination page={page} totalPages={totalPages} />
     </div>
   )
 }

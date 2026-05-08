@@ -53,13 +53,21 @@ export async function getCollectionById(
 export async function getItemsByCollectionId(
   userId: string,
   collectionId: string,
-): Promise<ItemWithType[]> {
-  const rows = await prisma.itemCollection.findMany({
-    where: { collectionId, item: { userId } },
-    select: { item: { select: itemSelect } },
-    orderBy: { addedAt: "desc" },
-  });
-  return rows.map((r) => r.item);
+  page: number,
+  pageSize: number,
+): Promise<{ items: ItemWithType[]; total: number }> {
+  const where = { collectionId, item: { userId } };
+  const [rows, total] = await Promise.all([
+    prisma.itemCollection.findMany({
+      where,
+      select: { item: { select: itemSelect } },
+      orderBy: { addedAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.itemCollection.count({ where }),
+  ]);
+  return { items: rows.map((r) => r.item), total };
 }
 
 export async function getUserCollectionsList(userId: string): Promise<{ id: string; name: string }[]> {
