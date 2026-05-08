@@ -1,12 +1,34 @@
-# Current Feature
+# Current Feature: Homepage (Next.js)
 
 ## Status
 
-Not Started
+Complete
 
 ## Goals
 
+- Root route `/` serves the homepage (not `/dashboard` redirect) — public, no auth required
+- All sections: hero, features, AI section, pricing, CTA, footer
+- `src/app/page.tsx` + component tree under `src/components/homepage/`
+- `Navbar.tsx` — fixed top nav with scroll-based opacity, logo + nav links + Sign In / Get Started
+- `Hero.tsx` + `ChaosAnimation.tsx` — headline with gradient text, two CTAs, three-column visual with animated chaos icons
+- `Features.tsx` — 6-card grid (Code Snippets, AI Prompts, Instant Search, Commands, Files & Docs, Collections) with type accent colors
+- `AISection.tsx` — Pro badge + checklist (left), code editor mockup (right)
+- `Pricing.tsx` + `PricingToggle.tsx` — Free vs Pro cards, "Most Popular" highlight, monthly/yearly toggle
+- `CTA.tsx` + `Footer.tsx` — final CTA and footer with link columns
+- `ScrollAnimation.tsx` — Intersection Observer fade-in on viewport entry
+- `src/lib/homepage-data.ts` — FEATURES, PRICING_TIERS, FOOTER_LINKS data
+- Responsive: hero stacks on mobile, features 3→2→1 col, arrow rotates 90°
+- Buttons route to `/sign-in` and `/sign-up`; nav links scroll to `#features`, `#pricing`
+
 ## Notes
+
+- Use Tailwind CSS v4 + shadcn/ui to match dashboard aesthetic
+- Dark theme: `bg-slate-950`, `text-slate-200`; blue accent `#3b82f6`
+- Chaos animation via `requestAnimationFrame` (needs mouse tracking, no CSS-only)
+- Use lucide-react icons for feature cards
+- Design reference: `prototypes/homepage/index.html` and `styles.css`
+- `Sign In` → `/sign-in`, `Get Started` → `/sign-up` (note: route is `/sign-up` not `/register`)
+- Root `/` must not redirect; remove or guard the existing redirect in `src/app/page.tsx`
 
 ## History
 
