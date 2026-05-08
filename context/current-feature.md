@@ -1,26 +1,12 @@
-# Current Feature: Pinned Items
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `toggleItemPin` server action (mirrors `toggleFavorite` pattern)
-- Wire the Pin button in `ItemDrawer` action bar — currently has no `onClick`
-- Optimistic UI: local `isPinned` state toggles instantly, server action runs in background
-- Show a sonner toast on success and error
-- Pinned items sort to the top of item listings (`/items/[type]`) and remain at the top of the dashboard Pinned Items section
-- Items only — no collections pinning
-- `ItemCard` pin icon stays as a static read-only indicator (no change needed)
-
 ## Notes
-
-- Follow the `toggleFavorite` / `toggleCollectionFavorite` pattern already in the codebase
-- `toggleItemPin` server action goes in `src/actions/items.ts`; DB query `toggleItemPinInDb` goes in `src/lib/db/items.ts`
-- `ItemDrawer` already has a Pin button — find where `toggleFavorite` was wired and do the same for pin
-- For listings sort: `getItemsByType` currently orders by `lastUsedAt` desc — pinned items should float to top (add a secondary sort or use `isPinned desc, lastUsedAt desc`)
-- Dashboard pinned section already queries `isPinned: true` via `getPinnedItems` — no change needed there beyond `router.refresh()` after toggle
 
 ## History
 
@@ -74,3 +60,4 @@ In Progress
 - **2026-05-08**: Completed Favorites Page — `getFavoriteItems`/`getFavoriteCollections` DB queries; `/favorites` route added to proxy guard; `FavoritesList` client component with dense monospace list, type icon + title + type badge + date per row, two sections (Items/Collections) with counts, `ItemDrawer` for items and router navigation for collections, empty state; star icon button added to TopBar linking to `/favorites`.
 - **2026-05-08**: Completed Favorite Toggle Buttons — `toggleCollectionFavoriteInDb` DB query + `toggleCollectionFavorite` server action; `CollectionDetailActions` star button wired with local `isFavorite` state (filled amber when on); `CollectionCard` gains a hover-reveal star button (always visible when favorited) and wired dropdown "Favorite/Unfavorite" item; `router.refresh()` keeps sidebar and `/favorites` in sync after every toggle.
 - **2026-05-08**: Completed Favorites Page Sorting — `FavoritesList` updated with `itemSort` (`date` | `name` | `type`) and `collectionSort` (`date` | `name`) state; sorted arrays derived via `useMemo`; inline `SortSelect` native `<select>` component added to each section header; pure client-side, no new DB queries.
+- **2026-05-08**: Completed Pinned Items — `togglePin` server action and `togglePinById` DB query wired in `ItemDrawer` with optimistic state and "Item pinned/unpinned" toasts; filled sky-blue `Pin` icon added to `ItemCard`; `getItemsByType` and `getItemsByCollectionId` updated to sort `isPinned desc` before recency.
