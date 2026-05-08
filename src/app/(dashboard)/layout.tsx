@@ -7,6 +7,8 @@ import { APP_NAME } from "@/constants"
 import { auth } from "@/auth"
 import { DashboardNewItemButton } from "@/components/shared/dashboard-new-item-button"
 import { CommandPalette } from "@/components/shared/command-palette"
+import { EditorPreferencesProvider } from "@/context/editor-preferences-context"
+import { getEditorPreferences } from "@/actions/editor-preferences"
 
 export default async function DashboardLayout({
   children,
@@ -19,11 +21,13 @@ export default async function DashboardLayout({
 
   const userId = session.user.id!
 
-  const [collections, searchItems, searchCollections] = await Promise.all([
-    getCollectionsByUserId(userId),
-    getSearchableItems(userId),
-    getSearchableCollections(userId),
-  ])
+  const [collections, searchItems, searchCollections, editorPreferences] =
+    await Promise.all([
+      getCollectionsByUserId(userId),
+      getSearchableItems(userId),
+      getSearchableCollections(userId),
+      getEditorPreferences(),
+    ])
 
   const user = session.user
 
@@ -63,7 +67,11 @@ export default async function DashboardLayout({
           recentCollections={recentCollections}
           user={user}
         />
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <EditorPreferencesProvider initial={editorPreferences}>
+            {children}
+          </EditorPreferencesProvider>
+        </main>
       </div>
     </div>
   )
