@@ -1,20 +1,10 @@
-# Current Feature: Auth Nav + Dashboard Logo
+# Current Feature
 
 ## Status
-In Progress
 
 ## Goals
-- Add the homepage Navbar to all auth pages (sign-in, register, forgot-password, reset-password) via the auth layout
-- Update homepage anchor links (#features, #pricing) to root-relative (/#features, /#pricing) so they work from any page
-- Add the LogoMark folder icon (hexagon SVG from homepage Navbar) to the dashboard top bar logo link
-- Extract LogoMark to a shared component so Navbar and dashboard header can both use it
-- Remove the redundant app-name heading box from the sign-in form and register page (becomes "the box with DS" once navbar provides branding)
 
 ## Notes
-- Navbar is fixed at top with z-50; auth layout needs pt-[60px] so form doesn't sit behind it
-- LogoMark is currently a local const inside Navbar.tsx — extract to src/components/shared/logo-mark.tsx
-- On auth pages, the Navbar "Sign In" / "Get Started" CTAs are mildly redundant but acceptable per user request
-- forgot-password and reset-password pages in the (auth) group will automatically inherit the navbar
 
 ## History
 
@@ -70,3 +60,4 @@ In Progress
 - **2026-05-08**: Completed Favorites Page Sorting — `FavoritesList` updated with `itemSort` (`date` | `name` | `type`) and `collectionSort` (`date` | `name`) state; sorted arrays derived via `useMemo`; inline `SortSelect` native `<select>` component added to each section header; pure client-side, no new DB queries.
 - **2026-05-08**: Completed Pinned Items — `togglePin` server action and `togglePinById` DB query wired in `ItemDrawer` with optimistic state and "Item pinned/unpinned" toasts; filled sky-blue `Pin` icon added to `ItemCard`; `getItemsByType` and `getItemsByCollectionId` updated to sort `isPinned desc` before recency.
 - **2026-05-08**: Completed Homepage (Next.js) — root `/` now serves a full marketing homepage (no more `/dashboard` redirect); `Navbar` (scroll-based opacity, mobile hamburger), `Hero` with `requestAnimationFrame` chaos animation + dashboard mockup visual, `Features` 6-card grid with lucide-react icons and type accent colors, `AISection` with syntax-highlighted code mockup and AI tag demo, `Pricing` with monthly/yearly toggle ($8→$6/mo), `CTA`, `Footer` with 3 link columns; `ScrollAnimation` Intersection Observer fade-in; `src/lib/homepage-data.ts` for static data; `scroll-behavior: smooth` added globally.
+- **2026-05-08**: Completed Auth Nav + Dashboard Logo — `LogoMark` SVG extracted to `src/components/shared/logo-mark.tsx`; homepage `Navbar` added to `(auth)` layout so all auth pages get the top nav (anchor links updated to root-relative `/#features`/`/#pricing`); `LogoMark` icon added to dashboard header logo link; redundant app-name headings removed from sign-in form and register page.
