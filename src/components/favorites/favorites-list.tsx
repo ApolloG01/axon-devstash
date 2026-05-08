@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FolderOpen, Star } from "lucide-react"
 import { ItemDrawer } from "@/components/items/item-drawer"
 import { ICON_MAP } from "@/constants/icon-map"
 import type { FavoriteItem } from "@/lib/db/items"
 import type { FavoriteCollection } from "@/lib/db/collections"
+
+type ItemSortKey = "name" | "date" | "type"
+type CollectionSortKey = "name" | "date"
 
 interface FavoritesListProps {
   items: FavoriteItem[]
@@ -17,9 +20,48 @@ function formatDate(date: Date) {
   return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
+function SortSelect<T extends string>({
+  value,
+  onChange,
+  options,
+}: {
+  value: T
+  onChange: (v: T) => void
+  options: { value: T; label: string }[]
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as T)}
+      className="text-[10px] font-mono bg-transparent text-muted-foreground border border-border/50 rounded px-1.5 py-0.5 cursor-pointer hover:border-border focus:outline-none"
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
 export function FavoritesList({ items, collections }: FavoritesListProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+  const [itemSort, setItemSort] = useState<ItemSortKey>("date")
+  const [collectionSort, setCollectionSort] = useState<CollectionSortKey>("date")
   const router = useRouter()
+
+  const sortedItems = useMemo(() => {
+    const copy = [...items]
+    if (itemSort === "name") return copy.sort((a, b) => a.title.localeCompare(b.title))
+    if (itemSort === "type") return copy.sort((a, b) => a.itemType.name.localeCompare(b.itemType.name))
+    return copy.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+  }, [items, itemSort])
+
+  const sortedCollections = useMemo(() => {
+    const copy = [...collections]
+    if (collectionSort === "name") return copy.sort((a, b) => a.name.localeCompare(b.name))
+    return copy.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+  }, [collections, collectionSort])
 
   const hasAny = items.length > 0 || collections.length > 0
 
@@ -40,11 +82,22 @@ export function FavoritesList({ items, collections }: FavoritesListProps) {
       <div className="space-y-6">
         {items.length > 0 && (
           <section>
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 font-mono px-1">
-              Items ({items.length})
-            </h2>
+            <div className="flex items-center justify-between mb-1 px-1">
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                Items ({items.length})
+              </h2>
+              <SortSelect
+                value={itemSort}
+                onChange={setItemSort}
+                options={[
+                  { value: "date", label: "Date" },
+                  { value: "name", label: "Name" },
+                  { value: "type", label: "Type" },
+                ]}
+              />
+            </div>
             <div className="divide-y divide-border/50">
-              {items.map((item) => {
+              {sortedItems.map((item) => {
                 const Icon = ICON_MAP[item.itemType.icon]
                 return (
                   <button
@@ -76,11 +129,21 @@ export function FavoritesList({ items, collections }: FavoritesListProps) {
 
         {collections.length > 0 && (
           <section>
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 font-mono px-1">
-              Collections ({collections.length})
-            </h2>
+            <div className="flex items-center justify-between mb-1 px-1">
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                Collections ({collections.length})
+              </h2>
+              <SortSelect
+                value={collectionSort}
+                onChange={setCollectionSort}
+                options={[
+                  { value: "date", label: "Date" },
+                  { value: "name", label: "Name" },
+                ]}
+              />
+            </div>
             <div className="divide-y divide-border/50">
-              {collections.map((col) => (
+              {sortedCollections.map((col) => (
                 <button
                   key={col.id}
                   onClick={() => router.push(`/collections/${col.id}`)}

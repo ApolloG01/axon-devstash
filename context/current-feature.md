@@ -1,12 +1,23 @@
-# Current Feature
+# Current Feature: Favorites Page Sorting
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Add a sort control to the Favorites page header (or section headers) allowing the user to sort the items and collections lists independently
+- Support three sort options: **Name** (A→Z), **Date** (newest first), and **Item Type** (grouped by type name A→Z)
+- Sorting is client-side — no new DB queries or page reloads; the existing data fetched on the server is re-ordered in the `FavoritesList` client component
+- Sort state persists within the session (resets on page reload is acceptable)
+- Both the Items section and the Collections section should have their own sort control (collections only need Name and Date since they have no item type)
+
 ## Notes
+
+- `FavoritesList` is already a client component (`src/components/favorites/favorites-list.tsx`) — add `useState` for sort key, derive sorted arrays with `useMemo`
+- Items have `itemType.name` and `itemType.color` for type sorting; collections have `name` and `createdAt`
+- Use a `<select>` or shadcn `Select` component styled to match the existing monospace list aesthetic
+- No new server actions or DB queries needed — pure UI change
 
 ## History
 
