@@ -1,23 +1,12 @@
-# Current Feature: Favorites Page Sorting
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add a sort control to the Favorites page header (or section headers) allowing the user to sort the items and collections lists independently
-- Support three sort options: **Name** (A→Z), **Date** (newest first), and **Item Type** (grouped by type name A→Z)
-- Sorting is client-side — no new DB queries or page reloads; the existing data fetched on the server is re-ordered in the `FavoritesList` client component
-- Sort state persists within the session (resets on page reload is acceptable)
-- Both the Items section and the Collections section should have their own sort control (collections only need Name and Date since they have no item type)
-
 ## Notes
-
-- `FavoritesList` is already a client component (`src/components/favorites/favorites-list.tsx`) — add `useState` for sort key, derive sorted arrays with `useMemo`
-- Items have `itemType.name` and `itemType.color` for type sorting; collections have `name` and `createdAt`
-- Use a `<select>` or shadcn `Select` component styled to match the existing monospace list aesthetic
-- No new server actions or DB queries needed — pure UI change
 
 ## History
 
@@ -70,3 +59,4 @@ In Progress
 - **2026-05-08**: Completed Editor Preferences Settings — `editorPreferences` JSONB column added to `users` table via migration; `EditorPreferences` type + defaults in `src/types/editor-preferences.ts`; `updateEditorPreferences`/`getEditorPreferences` server actions; `EditorPreferencesContext` wraps dashboard layout (fetched server-side, passed as initial state); `EditorPreferencesForm` in `/settings` with theme/font-size/tab-size dropdowns and word-wrap/minimap toggles (auto-save on change, success toast); `CodeEditor` reads theme, fontSize, tabSize, wordWrap, minimap from context.
 - **2026-05-08**: Completed Favorites Page — `getFavoriteItems`/`getFavoriteCollections` DB queries; `/favorites` route added to proxy guard; `FavoritesList` client component with dense monospace list, type icon + title + type badge + date per row, two sections (Items/Collections) with counts, `ItemDrawer` for items and router navigation for collections, empty state; star icon button added to TopBar linking to `/favorites`.
 - **2026-05-08**: Completed Favorite Toggle Buttons — `toggleCollectionFavoriteInDb` DB query + `toggleCollectionFavorite` server action; `CollectionDetailActions` star button wired with local `isFavorite` state (filled amber when on); `CollectionCard` gains a hover-reveal star button (always visible when favorited) and wired dropdown "Favorite/Unfavorite" item; `router.refresh()` keeps sidebar and `/favorites` in sync after every toggle.
+- **2026-05-08**: Completed Favorites Page Sorting — `FavoritesList` updated with `itemSort` (`date` | `name` | `type`) and `collectionSort` (`date` | `name`) state; sorted arrays derived via `useMemo`; inline `SortSelect` native `<select>` component added to each section header; pure client-side, no new DB queries.
