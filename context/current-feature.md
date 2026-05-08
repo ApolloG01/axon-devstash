@@ -1,27 +1,12 @@
-# Current Feature: Collection Actions (Edit, Delete, Favorite)
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- `/collections/[id]` page has Edit, Delete, and Favorite buttons in the header area
-- Favorite button is UI-only (icon/button present, no action yet)
-- Edit opens a modal to update collection name and description
-- Delete shows a confirmation dialog; on confirm, the collection is deleted but its items are NOT deleted — only the `ItemCollection` join records are removed
-- Collection cards on `/collections` and `/dashboard` show a 3-dot dropdown menu with Edit, Delete, and Favorite options
-- Clicking anywhere else on the card navigates to `/collections/[id]`
-
 ## Notes
-
-- Favorite is placeholder only — render the icon/button but wire no action
-- Delete removes the collection and its `ItemCollection` join rows; items themselves remain untouched
-- Edit dialog fields: name (required), description (optional)
-- Reuse `AlertDialog` (shadcn) for delete confirmation, consistent with item delete pattern
-- Reuse `Dialog` (shadcn) for edit modal, consistent with existing create/edit patterns
-- 3-dot dropdown on cards: use shadcn `DropdownMenu`; `stopPropagation` on the trigger so the card click-to-navigate doesn't fire
-- Server actions: `updateCollection` and `deleteCollection` (auth + ownership guards, Zod validation)
 
 ## History
 
@@ -67,3 +52,4 @@ In Progress
 - **2026-05-07**: Completed Collection Create — `createCollectionInDb` query + `createCollection` server action (Zod + auth); `NewCollectionDialog` and `NewCollectionInlineButton` components; `NewButton` dropdown in top bar consolidates New Item + New Collection into a single button; dashboard landing page enhanced with greeting, counts in section headers, and improved empty states for collections and items.
 - **2026-05-07**: Refined top bar and create UX — logo links to `/dashboard`; `+ New Item` button only appears on `/dashboard` via `DashboardNewItemButton` (pathname check); `+ New Collection` icon button moved to sidebar Collections heading; dropdown `new-button.tsx` removed.
 - **2026-05-07**: Completed Add Item to Collections — `CollectionPicker` component (Base UI Popover + cmdk Command multi-select); `getUserCollectionsList` DB query + `getCollectionsForPicker` server action; `createItemInDb` and `updateItemById` accept `collectionIds[]` and sync `ItemCollection` join records; picker added to `NewItemDialog` (collections passed from server component) and `ItemDrawer` edit mode (collections fetched lazily on first edit, pre-populated from item's existing assignments); shadcn `popover`, `command`, `input-group`, and `textarea` components installed.
+- **2026-05-08**: Completed Collection Actions (Edit, Delete, Favorite) — `updateCollectionInDb`/`deleteCollectionInDb` DB queries + `updateCollection`/`deleteCollection` server actions (Zod + auth + ownership); `CollectionCard` converted to client component with 3-dot `DropdownMenu` (Edit, Delete, Favorite placeholder) and card-click navigation; `CollectionDetailActions` component with Edit modal, delete `AlertDialog`, and Favorite icon button for `/collections/[id]` header; `NewCollectionButton` added to `/dashboard` top bar and `/collections` page header.
