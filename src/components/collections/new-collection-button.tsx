@@ -135,3 +135,17 @@ export function NewCollectionInlineButton() {
     </>
   )
 }
+
+export function NewCollectionButton() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Plus className="h-3.5 w-3.5 mr-1.5" />
+        New Collection
+      </Button>
+      <NewCollectionDialog open={open} onOpenChange={setOpen} />
+    </>
+  )
+}

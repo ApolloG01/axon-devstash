@@ -1,12 +1,27 @@
-# Current Feature
+# Current Feature: Collection Actions (Edit, Delete, Favorite)
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- `/collections/[id]` page has Edit, Delete, and Favorite buttons in the header area
+- Favorite button is UI-only (icon/button present, no action yet)
+- Edit opens a modal to update collection name and description
+- Delete shows a confirmation dialog; on confirm, the collection is deleted but its items are NOT deleted — only the `ItemCollection` join records are removed
+- Collection cards on `/collections` and `/dashboard` show a 3-dot dropdown menu with Edit, Delete, and Favorite options
+- Clicking anywhere else on the card navigates to `/collections/[id]`
+
 ## Notes
+
+- Favorite is placeholder only — render the icon/button but wire no action
+- Delete removes the collection and its `ItemCollection` join rows; items themselves remain untouched
+- Edit dialog fields: name (required), description (optional)
+- Reuse `AlertDialog` (shadcn) for delete confirmation, consistent with item delete pattern
+- Reuse `Dialog` (shadcn) for edit modal, consistent with existing create/edit patterns
+- 3-dot dropdown on cards: use shadcn `DropdownMenu`; `stopPropagation` on the trigger so the card click-to-navigate doesn't fire
+- Server actions: `updateCollection` and `deleteCollection` (auth + ownership guards, Zod validation)
 
 ## History
 

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { getCollectionsByUserId } from "@/lib/db/collections"
 import { CollectionCard } from "@/components/dashboard/collection-card"
-import { NewCollectionInlineButton } from "@/components/collections/new-collection-button"
+import { NewCollectionButton, NewCollectionInlineButton } from "@/components/collections/new-collection-button"
 import { FolderOpen } from "lucide-react"
 
 export default async function CollectionsPage() {
@@ -22,7 +22,7 @@ export default async function CollectionsPage() {
             {collections.length} collection{collections.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <NewCollectionInlineButton />
+        <NewCollectionButton />
       </div>
 
       {collections.length === 0 ? (

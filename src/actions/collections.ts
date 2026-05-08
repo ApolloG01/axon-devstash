@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { createCollectionInDb, getUserCollectionsList } from "@/lib/db/collections"
+import { createCollectionInDb, getUserCollectionsList, updateCollectionInDb, deleteCollectionInDb } from "@/lib/db/collections"
 
 export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
   const session = await auth()
@@ -32,5 +32,44 @@ export async function createCollection(data: CreateCollectionInput) {
     return { success: true, data: collection }
   } catch {
     return { success: false, error: "Failed to create collection" }
+  }
+}
+
+const updateCollectionSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  description: z.string().trim().nullable().optional().transform((v) => v || null),
+})
+
+type UpdateCollectionInput = z.input<typeof updateCollectionSchema>
+
+export async function updateCollection(collectionId: string, data: UpdateCollectionInput) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+
+  const parsed = updateCollectionSchema.safeParse(data)
+  if (!parsed.success) {
+    const message = parsed.error.issues.map((e) => e.message).join(", ")
+    return { success: false, error: message }
+  }
+
+  try {
+    const result = await updateCollectionInDb(session.user.id, collectionId, parsed.data)
+    if (result.count === 0) return { success: false, error: "Collection not found" }
+    return { success: true }
+  } catch {
+    return { success: false, error: "Failed to update collection" }
+  }
+}
+
+export async function deleteCollection(collectionId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+
+  try {
+    const result = await deleteCollectionInDb(session.user.id, collectionId)
+    if (result.count === 0) return { success: false, error: "Collection not found" }
+    return { success: true }
+  } catch {
+    return { success: false, error: "Failed to delete collection" }
   }
 }

@@ -83,6 +83,29 @@ export async function createCollectionInDb(
   });
 }
 
+export async function updateCollectionInDb(
+  userId: string,
+  collectionId: string,
+  data: { name: string; description?: string | null },
+) {
+  return prisma.collection.updateMany({
+    where: { id: collectionId, userId },
+    data: {
+      name: data.name,
+      description: data.description ?? null,
+    },
+  });
+}
+
+export async function deleteCollectionInDb(
+  userId: string,
+  collectionId: string,
+) {
+  return prisma.collection.deleteMany({
+    where: { id: collectionId, userId },
+  });
+}
+
 export type CollectionWithTypes = {
   id: string;
   name: string;

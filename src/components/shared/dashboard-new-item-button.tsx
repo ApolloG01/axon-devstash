@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { NewItemButton } from "@/components/items/new-item-dialog"
+import { NewCollectionButton } from "@/components/collections/new-collection-button"
 
 type ItemType = {
   id: string
@@ -21,5 +22,10 @@ export function DashboardNewItemButton({
 }) {
   const pathname = usePathname()
   if (pathname !== "/dashboard") return null
-  return <NewItemButton itemTypes={itemTypes} collections={collections} />
+  return (
+    <div className="flex items-center gap-2">
+      <NewCollectionButton />
+      <NewItemButton itemTypes={itemTypes} collections={collections} />
+    </div>
+  )
 }
