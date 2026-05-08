@@ -1,28 +1,10 @@
-# Current Feature: Stripe Integration — Phase 1: Core Infrastructure
+# Current Feature
 
 ## Status
 
-In Progress
-
 ## Goals
 
-- Install `stripe` and `@stripe/stripe-js` packages
-- Extend `Session` and `JWT` types with `isPro: boolean`
-- Add always-sync JWT + session callbacks to `src/auth.ts` so `isPro` reflects DB state on every page load
-- Create `src/lib/stripe.ts` — Stripe client singleton + `STRIPE_PRICES` constants
-- Create `src/actions/billing.ts` — `createCheckoutSession(interval)` + `createBillingPortalSession()`
-- Create `src/lib/usage-limits.ts` — pure `checkItemLimit` / `checkCollectionLimit` helpers
-- Enforce 50-item Free limit in `createItem`
-- Enforce 3-collection Free limit in `createCollection`
-- Add `NEXT_PUBLIC_APP_URL` to `.env`
-- Write and pass 6 Vitest unit tests for `usage-limits.ts`
-
 ## Notes
-
-- All logic this phase is testable without Stripe CLI — no webhook, no UI billing section
-- `usage-limits.ts` takes `userId` + `isPro` as params so Prisma can be mocked cleanly in tests
-- JWT callback always syncs `isPro` from DB (not just on first login) — page reload picks up webhook upgrades in Phase 2
-- Spec: `context/features/stripe-phase-1-spec.md`
 
 ## History
 
@@ -79,3 +61,4 @@ In Progress
 - **2026-05-08**: Completed Pinned Items — `togglePin` server action and `togglePinById` DB query wired in `ItemDrawer` with optimistic state and "Item pinned/unpinned" toasts; filled sky-blue `Pin` icon added to `ItemCard`; `getItemsByType` and `getItemsByCollectionId` updated to sort `isPinned desc` before recency.
 - **2026-05-08**: Completed Homepage (Next.js) — root `/` now serves a full marketing homepage (no more `/dashboard` redirect); `Navbar` (scroll-based opacity, mobile hamburger), `Hero` with `requestAnimationFrame` chaos animation + dashboard mockup visual, `Features` 6-card grid with lucide-react icons and type accent colors, `AISection` with syntax-highlighted code mockup and AI tag demo, `Pricing` with monthly/yearly toggle ($8→$6/mo), `CTA`, `Footer` with 3 link columns; `ScrollAnimation` Intersection Observer fade-in; `src/lib/homepage-data.ts` for static data; `scroll-behavior: smooth` added globally.
 - **2026-05-08**: Completed Auth Nav + Dashboard Logo — `LogoMark` SVG extracted to `src/components/shared/logo-mark.tsx`; homepage `Navbar` added to `(auth)` layout so all auth pages get the top nav (anchor links updated to root-relative `/#features`/`/#pricing`); `LogoMark` icon added to dashboard header logo link; redundant app-name headings removed from sign-in form and register page.
+- **2026-05-08**: Completed Stripe Integration Phase 1 — `stripe` + `@stripe/stripe-js` installed; `Session`/`JWT` types extended with `isPro: boolean`; always-sync JWT callback reads `isPro` from DB on every session validation; `src/lib/stripe.ts` (client singleton, `STRIPE_PRICES`, API v2026-04-22.dahlia); `src/lib/usage-limits.ts` (`checkItemLimit`/`checkCollectionLimit` pure helpers); `src/actions/billing.ts` (`createCheckoutSession`, `createBillingPortalSession`); 50-item Free limit in `createItem`, 3-collection Free limit in `createCollection`; `NEXT_PUBLIC_APP_URL` added to `.env`; 6 Vitest unit tests for usage-limits all passing.
