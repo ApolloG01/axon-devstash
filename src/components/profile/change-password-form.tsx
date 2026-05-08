@@ -15,7 +15,7 @@ export function ChangePasswordForm() {
   useEffect(() => {
     if (error === "PASSWORD_CHANGED") {
       setOpen(false)
-      router.push("/profile?passwordChanged=1")
+      router.push("/settings?passwordChanged=1")
     }
   }, [error, router])
 
