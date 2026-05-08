@@ -1,28 +1,12 @@
-# Current Feature: Editor Preferences Settings
+# Current Feature
 
 ## Status
 
-Complete
+Not Started
 
 ## Goals
 
-- Font size dropdown in settings page
-- Tab size dropdown in settings page
-- Word wrap toggle (default: on)
-- Minimap toggle (default: off)
-- Theme dropdown: vs-dark, monokai, github-dark (default: vs-dark)
-- `editorPreferences` JSON column on User model with migration
-- Server action to update preferences (auto-save on change, no save button)
-- Success toast on save
-- `EditorPreferencesContext` consumed by `CodeEditor` component
-- Settings applied live to Monaco editor
-
 ## Notes
-
-- Store preferences as JSON in `editorPreferences` column on User (nullable, defaults applied in code)
-- Never use `db push` — always `prisma migrate dev` then `prisma migrate deploy`
-- Context must be client-side; settings page and CodeEditor are both client consumers
-- Auto-save means each control calls the server action on change (debounce if needed)
 
 ## History
 
@@ -72,3 +56,4 @@ Complete
 - **2026-05-08**: Completed Global Search / Command Palette — `CommandPalette` client component (`src/components/shared/command-palette.tsx`) with Cmd+K / Ctrl+K binding, `CommandDialog` with Items and Collections grouped results, type icon + color per item, collection item count, title-only matching to prevent over-broad fuzzy results; item selection opens `ItemDrawer`, collection selection navigates to `/collections/[id]`; `getSearchableItems` + `getSearchableCollections` DB queries added; dashboard layout fetches search data server-side and passes as props; top bar static search input replaced with palette trigger showing ⌘K hint.
 - **2026-05-08**: Completed Pagination — `Pagination` server component (`src/components/shared/pagination.tsx`) with numbered page links, prev/next chevrons, smart ellipsis for large page counts, greyed-out controls at boundaries; `getItemsByType` and `getItemsByCollectionId` updated to accept `page`/`pageSize` and return `{ items, total }` via parallel `findMany` + `count`; `/items/[type]` and `/collections/[id]` read `?page` search param and render `<Pagination>`; `ITEMS_PER_PAGE=21`, `COLLECTIONS_PER_PAGE=21`, `DASHBOARD_COLLECTIONS_LIMIT=6`, `DASHBOARD_RECENT_ITEMS_LIMIT=10` added to constants; dashboard applies limits via slice and constant.
 - **2026-05-08**: Completed Settings Page — `/settings` route created inside `(dashboard)` layout (protected via proxy middleware); Change Password and Delete Account moved from `/profile` to `/settings`; Settings link added to user icon dropdown in sidebar; `/profile` now shows only user info and usage stats.
+- **2026-05-08**: Completed Editor Preferences Settings — `editorPreferences` JSONB column added to `users` table via migration; `EditorPreferences` type + defaults in `src/types/editor-preferences.ts`; `updateEditorPreferences`/`getEditorPreferences` server actions; `EditorPreferencesContext` wraps dashboard layout (fetched server-side, passed as initial state); `EditorPreferencesForm` in `/settings` with theme/font-size/tab-size dropdowns and word-wrap/minimap toggles (auto-save on change, success toast); `CodeEditor` reads theme, fontSize, tabSize, wordWrap, minimap from context.
