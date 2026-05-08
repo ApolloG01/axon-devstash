@@ -1,25 +1,12 @@
-# Current Feature — Favorites Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add star icon button to TopBar linking to `/favorites`
-- Create `/favorites` route (protected, inside dashboard layout)
-- Fetch all user favorited items and collections from DB
-- Compact VS Code/terminal-style list view (no cards)
-- Each row: type icon, title, type badge, date
-- Separate sections for Items and Collections with counts
-- Clicking an item opens `ItemDrawer`; clicking a collection navigates to `/collections/[id]`
-- Empty state when no favorites exist
-- Sort by most recently favorited (`updatedAt` desc)
-
 ## Notes
-
-- UI style: monospace/semi-monospace font, minimal padding, high density, subtle hover states, clean lines only
-- No cards or heavy borders
 
 ## History
 
@@ -70,3 +57,4 @@ In Progress
 - **2026-05-08**: Completed Pagination — `Pagination` server component (`src/components/shared/pagination.tsx`) with numbered page links, prev/next chevrons, smart ellipsis for large page counts, greyed-out controls at boundaries; `getItemsByType` and `getItemsByCollectionId` updated to accept `page`/`pageSize` and return `{ items, total }` via parallel `findMany` + `count`; `/items/[type]` and `/collections/[id]` read `?page` search param and render `<Pagination>`; `ITEMS_PER_PAGE=21`, `COLLECTIONS_PER_PAGE=21`, `DASHBOARD_COLLECTIONS_LIMIT=6`, `DASHBOARD_RECENT_ITEMS_LIMIT=10` added to constants; dashboard applies limits via slice and constant.
 - **2026-05-08**: Completed Settings Page — `/settings` route created inside `(dashboard)` layout (protected via proxy middleware); Change Password and Delete Account moved from `/profile` to `/settings`; Settings link added to user icon dropdown in sidebar; `/profile` now shows only user info and usage stats.
 - **2026-05-08**: Completed Editor Preferences Settings — `editorPreferences` JSONB column added to `users` table via migration; `EditorPreferences` type + defaults in `src/types/editor-preferences.ts`; `updateEditorPreferences`/`getEditorPreferences` server actions; `EditorPreferencesContext` wraps dashboard layout (fetched server-side, passed as initial state); `EditorPreferencesForm` in `/settings` with theme/font-size/tab-size dropdowns and word-wrap/minimap toggles (auto-save on change, success toast); `CodeEditor` reads theme, fontSize, tabSize, wordWrap, minimap from context.
+- **2026-05-08**: Completed Favorites Page — `getFavoriteItems`/`getFavoriteCollections` DB queries; `/favorites` route added to proxy guard; `FavoritesList` client component with dense monospace list, type icon + title + type badge + date per row, two sections (Items/Collections) with counts, `ItemDrawer` for items and router navigation for collections, empty state; star icon button added to TopBar linking to `/favorites`.
