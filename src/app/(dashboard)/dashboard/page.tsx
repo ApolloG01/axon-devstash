@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { getCollectionsByUserId } from "@/lib/db/collections"
 import { getPinnedItems, getRecentItems, getItemStats } from "@/lib/db/items"
 import { auth } from "@/auth"
+import { DASHBOARD_COLLECTIONS_LIMIT, DASHBOARD_RECENT_ITEMS_LIMIT } from "@/constants"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { CollectionCard } from "@/components/dashboard/collection-card"
 import { ItemGrid } from "@/components/items/item-grid"
@@ -25,7 +26,7 @@ export default async function DashboardPage({
   const [collections, pinnedItems, recentItems, itemStats] = await Promise.all([
     getCollectionsByUserId(userId),
     getPinnedItems(userId),
-    getRecentItems(userId, 10),
+    getRecentItems(userId, DASHBOARD_RECENT_ITEMS_LIMIT),
     getItemStats(userId),
   ])
 
@@ -80,7 +81,7 @@ export default async function DashboardPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {collections.map((col) => (
+            {collections.slice(0, DASHBOARD_COLLECTIONS_LIMIT).map((col) => (
               <CollectionCard key={col.id} collection={col} />
             ))}
           </div>
