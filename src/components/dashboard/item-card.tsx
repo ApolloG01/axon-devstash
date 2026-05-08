@@ -28,7 +28,7 @@ export function ItemCard({ item }: { item: ItemWithType }) {
               {item.content && (
                 <button
                   onClick={handleCopy}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-muted-foreground hover:text-foreground"
+                  className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-0.5 rounded text-muted-foreground hover:text-foreground"
                   title="Copy content"
                 >
                   {copied ? (

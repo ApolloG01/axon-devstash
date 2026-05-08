@@ -8,6 +8,7 @@ import { ChangePasswordForm } from "@/components/profile/change-password-form"
 import { DeleteAccountDialog } from "@/components/profile/delete-account-dialog"
 import { PageToast } from "@/components/shared/page-toast"
 import { EditorPreferencesForm } from "@/components/settings/editor-preferences-form"
+import { ThemeToggle } from "@/components/settings/theme-toggle"
 
 export default async function SettingsPage({
   searchParams,
@@ -34,6 +35,19 @@ export default async function SettingsPage({
 
       <h1 className="text-lg font-semibold">Settings</h1>
 
+      {/* Appearance */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold">Appearance</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Choose your preferred color theme.
+          </p>
+        </div>
+        <ThemeToggle />
+      </section>
+
+      <Separator />
+
       {/* Editor Preferences */}
       <section className="space-y-4">
         <div>
@@ -59,8 +73,13 @@ export default async function SettingsPage({
       )}
 
       {/* Danger Zone */}
-      <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Danger Zone</h2>
+      <section className="space-y-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+        <div>
+          <h2 className="text-sm font-semibold text-destructive">Danger Zone</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Irreversible actions. Proceed with caution.
+          </p>
+        </div>
         <DeleteAccountDialog />
       </section>
     </div>

@@ -29,6 +29,7 @@ export function Sidebar({ itemTypes, favoriteCollections, recentCollections, use
           variant="ghost"
           size="icon-sm"
           onClick={() => setCollapsed((c) => !c)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
             <PanelLeftOpen className="h-4 w-4" />

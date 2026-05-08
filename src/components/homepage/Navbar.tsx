@@ -86,21 +86,21 @@ export default function Navbar() {
         <div className="md:hidden bg-[#141414] border-b border-[#2a2a2a] px-6 py-5 flex flex-col gap-4">
           <a
             href="#features"
-            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5]"
+            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] py-2"
             onClick={() => setMobileOpen(false)}
           >
             Features
           </a>
           <a
             href="#pricing"
-            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5]"
+            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] py-2"
             onClick={() => setMobileOpen(false)}
           >
             Pricing
           </a>
           <Link
             href="/sign-in"
-            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5]"
+            className="text-sm text-[#a3a3a3] hover:text-[#e5e5e5] py-2"
             onClick={() => setMobileOpen(false)}
           >
             Sign In

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FOOTER_LINKS } from "@/lib/homepage-data";
+import { APP_NAME } from "@/constants";
 
 const LogoMark = () => (
   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
@@ -34,7 +35,7 @@ export default function Footer() {
               className="flex items-center gap-2 font-semibold text-[#e5e5e5] mb-3 hover:text-white transition-colors"
             >
               <LogoMark />
-              DevStash
+              {APP_NAME}
             </Link>
             <p className="text-sm text-[#525252] leading-relaxed">
               Developer knowledge hub for snippets, prompts, commands, notes,
@@ -69,20 +70,20 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-[#1c1c1c] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#525252]">
-            © {year} DevStash. All rights reserved.
+            © {year} {APP_NAME}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             <a
               href="#"
               aria-label="GitHub"
-              className="text-[#525252] hover:text-[#a3a3a3] transition-colors"
+              className="text-[#525252] hover:text-[#a3a3a3] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
             >
               <GitHubIcon />
             </a>
             <a
               href="#"
               aria-label="Twitter / X"
-              className="text-[#525252] hover:text-[#a3a3a3] transition-colors"
+              className="text-[#525252] hover:text-[#a3a3a3] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
             >
               <XIcon />
             </a>

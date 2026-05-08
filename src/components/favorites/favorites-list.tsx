@@ -117,7 +117,7 @@ export function FavoritesList({ items, collections }: FavoritesListProps) {
                     >
                       {item.itemType.name}
                     </span>
-                    <span className="shrink-0 text-[11px] font-mono text-muted-foreground w-24 text-right">
+                    <span className="hidden sm:block shrink-0 text-[11px] font-mono text-muted-foreground w-24 text-right">
                       {formatDate(item.updatedAt)}
                     </span>
                   </button>
@@ -156,7 +156,7 @@ export function FavoritesList({ items, collections }: FavoritesListProps) {
                   <span className="shrink-0 text-[10px] font-mono text-muted-foreground">
                     {col.itemCount} {col.itemCount === 1 ? "item" : "items"}
                   </span>
-                  <span className="shrink-0 text-[11px] font-mono text-muted-foreground w-24 text-right">
+                  <span className="hidden sm:block shrink-0 text-[11px] font-mono text-muted-foreground w-24 text-right">
                     {formatDate(col.updatedAt)}
                   </span>
                 </button>

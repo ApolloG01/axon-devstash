@@ -105,7 +105,7 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
                   "h-6 w-6 flex items-center justify-center rounded hover:bg-accent transition-opacity",
                   isFavorite
                     ? "text-amber-400 opacity-100"
-                    : "text-muted-foreground opacity-0 group-hover:opacity-100",
+                    : "text-muted-foreground opacity-0 group-hover:opacity-100 group-focus-within:opacity-100",
                 )}
               >
                 <Star className={cn("h-3.5 w-3.5", isFavorite && "fill-amber-400")} />
@@ -113,7 +113,7 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
               <DropdownMenu>
                 <DropdownMenuTrigger
                   onClick={(e) => e.stopPropagation()}
-                  className="shrink-0 h-6 w-6 flex items-center justify-center rounded hover:bg-accent text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="shrink-0 h-6 w-6 flex items-center justify-center rounded hover:bg-accent text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                   aria-label="Collection options"
                 >
                   <MoreHorizontal className="h-3.5 w-3.5" />

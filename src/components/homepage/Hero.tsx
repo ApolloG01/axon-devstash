@@ -7,7 +7,7 @@ const TYPE_COLORS = [
   { color: "#f59e0b", label: "prompt" },
   { color: "#06b6d4", label: "command" },
   { color: "#22c55e", label: "note" },
-  { color: "#8b5cf6", label: "prompt" },
+  { color: "#10b981", label: "link" },
   { color: "#ec4899", label: "image" },
 ];
 
@@ -67,11 +67,12 @@ function DashboardMockup() {
 
 function TransformArrow() {
   return (
-    <div className="flex items-center justify-center md:rotate-0 rotate-90 shrink-0">
+    <div className="flex items-center justify-center md:rotate-0 rotate-90 shrink-0" aria-hidden="true">
       <svg
         className="w-10 h-5 md:w-12 md:h-6"
         viewBox="0 0 48 24"
         fill="none"
+        aria-hidden="true"
       >
         <path d="M2 12H42" stroke="url(#arrowGrad)" strokeWidth="2.5" strokeLinecap="round" />
         <path d="M34 4l8 8-8 8" stroke="url(#arrowGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -106,7 +107,7 @@ export default function Hero() {
             <div className="inline-flex items-center gap-2 text-xs text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/25 px-3 py-1.5 rounded-full mb-6 font-medium">
               ✦ Developer Knowledge Hub
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#e5e5e5] leading-tight mb-5">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#e5e5e5] leading-tight mb-5">
               Stop Losing Your
               <br />
               <span

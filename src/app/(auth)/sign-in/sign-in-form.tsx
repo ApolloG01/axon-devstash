@@ -5,6 +5,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { APP_NAME } from "@/constants"
 import { credentialsSignIn, githubSignIn } from "@/actions/auth"
 
@@ -66,14 +67,21 @@ export function SignInForm({
         <form action={formAction} className="space-y-3">
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Input name="email" type="email" placeholder="Email" required autoComplete="email" />
-          <Input
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-            autoComplete="current-password"
-          />
+          <div>
+            <Label htmlFor="sign-in-email" className="sr-only">Email</Label>
+            <Input id="sign-in-email" name="email" type="email" placeholder="Email" required autoComplete="email" />
+          </div>
+          <div>
+            <Label htmlFor="sign-in-password" className="sr-only">Password</Label>
+            <Input
+              id="sign-in-password"
+              name="password"
+              type="password"
+              placeholder="Password"
+              required
+              autoComplete="current-password"
+            />
+          </div>
           <div className="flex justify-end">
             <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
               Forgot password?

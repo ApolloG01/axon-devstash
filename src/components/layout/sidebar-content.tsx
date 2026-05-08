@@ -110,6 +110,7 @@ export function SidebarContent({
                 <Link
                   key={type.id}
                   href={`/items/${type.name}s`}
+                  title={collapsed ? `${type.name}s` : undefined}
                   className={cn(
                     "flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
                     collapsed && "justify-center",

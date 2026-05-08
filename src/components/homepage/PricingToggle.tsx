@@ -23,6 +23,8 @@ export default function PricingToggle() {
           className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
             yearly ? "bg-[#3b82f6]" : "bg-[#2a2a2a]"
           }`}
+          role="switch"
+          aria-checked={yearly}
           aria-label="Toggle billing period"
         >
           <span

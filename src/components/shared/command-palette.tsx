@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Search, Layers } from "lucide-react"
 import {
-  Command,
   CommandDialog,
   CommandInput,
   CommandList,
@@ -66,7 +65,6 @@ export function CommandPalette({ items, collections }: CommandPaletteProps) {
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <Command>
         <CommandInput placeholder="Search items and collections..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -113,7 +111,6 @@ export function CommandPalette({ items, collections }: CommandPaletteProps) {
             </CommandGroup>
           )}
         </CommandList>
-        </Command>
       </CommandDialog>
 
       <ItemDrawer itemId={selectedItemId} onClose={() => setSelectedItemId(null)} />

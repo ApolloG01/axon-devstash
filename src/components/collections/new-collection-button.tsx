@@ -112,6 +112,7 @@ export function NewCollectionIconButton() {
         onClick={() => setOpen(true)}
         className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         title="New Collection"
+        aria-label="New collection"
       >
         <Plus className="h-3 w-3" />
       </button>
