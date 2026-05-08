@@ -1,12 +1,23 @@
-# Current Feature
+# Current Feature — Favorite Toggle Buttons
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Wire the favorite star button in `ItemDrawer` to immediately reflect toggled state (optimistic UI or re-fetch after toggle)
+- Wire the favorite icon button on `/collections/[id]` header so it calls `toggleCollectionFavorite` and updates visually
+- Add a direct visible star icon button to `CollectionCard` (replacing or alongside the "Favorite" dropdown item) so users can toggle from the grid without opening the dropdown
+- After toggling, the `/favorites` page and sidebar favorites list should stay in sync (via `router.refresh()` or revalidation)
+
 ## Notes
+
+- `toggleFavorite` and `togglePin` server actions already exist in `src/actions/items.ts` for items
+- `CollectionCard` already has a "Favorite placeholder" in its dropdown — wire it up
+- `CollectionDetailActions` already has a Favorite icon button on the collection detail page — wire it up
+- Use `router.refresh()` after any toggle to keep derived data (sidebar, /favorites) in sync
+- Star icon should visually reflect current `isFavorite` state (filled amber when favorited, outline when not)
 
 ## History
 

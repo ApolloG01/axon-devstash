@@ -2,7 +2,7 @@
 
 import { z } from "zod"
 import { auth } from "@/auth"
-import { createCollectionInDb, getUserCollectionsList, updateCollectionInDb, deleteCollectionInDb } from "@/lib/db/collections"
+import { createCollectionInDb, getUserCollectionsList, updateCollectionInDb, deleteCollectionInDb, toggleCollectionFavoriteInDb } from "@/lib/db/collections"
 
 export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
   const session = await auth()
@@ -71,5 +71,18 @@ export async function deleteCollection(collectionId: string) {
     return { success: true }
   } catch {
     return { success: false, error: "Failed to delete collection" }
+  }
+}
+
+export async function toggleCollectionFavorite(collectionId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
+
+  try {
+    const result = await toggleCollectionFavoriteInDb(session.user.id, collectionId)
+    if (!result) return { success: false as const, error: "Collection not found" }
+    return { success: true as const, data: result }
+  } catch {
+    return { success: false as const, error: "Failed to update" }
   }
 }

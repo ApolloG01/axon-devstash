@@ -118,6 +118,17 @@ export async function getFavoriteCollections(userId: string): Promise<FavoriteCo
   return rows.map((r) => ({ id: r.id, name: r.name, updatedAt: r.updatedAt, itemCount: r._count.items }))
 }
 
+export async function toggleCollectionFavoriteInDb(userId: string, collectionId: string): Promise<{ isFavorite: boolean } | null> {
+  const col = await prisma.collection.findUnique({ where: { id: collectionId, userId }, select: { isFavorite: true } })
+  if (!col) return null
+  const updated = await prisma.collection.update({
+    where: { id: collectionId },
+    data: { isFavorite: !col.isFavorite },
+    select: { isFavorite: true },
+  })
+  return { isFavorite: updated.isFavorite }
+}
+
 export async function createCollectionInDb(
   userId: string,
   data: { name: string; description?: string | null },
