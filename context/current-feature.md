@@ -1,23 +1,12 @@
-# Current Feature — Favorite Toggle Buttons
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Wire the favorite star button in `ItemDrawer` to immediately reflect toggled state (optimistic UI or re-fetch after toggle)
-- Wire the favorite icon button on `/collections/[id]` header so it calls `toggleCollectionFavorite` and updates visually
-- Add a direct visible star icon button to `CollectionCard` (replacing or alongside the "Favorite" dropdown item) so users can toggle from the grid without opening the dropdown
-- After toggling, the `/favorites` page and sidebar favorites list should stay in sync (via `router.refresh()` or revalidation)
-
 ## Notes
-
-- `toggleFavorite` and `togglePin` server actions already exist in `src/actions/items.ts` for items
-- `CollectionCard` already has a "Favorite placeholder" in its dropdown — wire it up
-- `CollectionDetailActions` already has a Favorite icon button on the collection detail page — wire it up
-- Use `router.refresh()` after any toggle to keep derived data (sidebar, /favorites) in sync
-- Star icon should visually reflect current `isFavorite` state (filled amber when favorited, outline when not)
 
 ## History
 
@@ -69,3 +58,4 @@ In Progress
 - **2026-05-08**: Completed Settings Page — `/settings` route created inside `(dashboard)` layout (protected via proxy middleware); Change Password and Delete Account moved from `/profile` to `/settings`; Settings link added to user icon dropdown in sidebar; `/profile` now shows only user info and usage stats.
 - **2026-05-08**: Completed Editor Preferences Settings — `editorPreferences` JSONB column added to `users` table via migration; `EditorPreferences` type + defaults in `src/types/editor-preferences.ts`; `updateEditorPreferences`/`getEditorPreferences` server actions; `EditorPreferencesContext` wraps dashboard layout (fetched server-side, passed as initial state); `EditorPreferencesForm` in `/settings` with theme/font-size/tab-size dropdowns and word-wrap/minimap toggles (auto-save on change, success toast); `CodeEditor` reads theme, fontSize, tabSize, wordWrap, minimap from context.
 - **2026-05-08**: Completed Favorites Page — `getFavoriteItems`/`getFavoriteCollections` DB queries; `/favorites` route added to proxy guard; `FavoritesList` client component with dense monospace list, type icon + title + type badge + date per row, two sections (Items/Collections) with counts, `ItemDrawer` for items and router navigation for collections, empty state; star icon button added to TopBar linking to `/favorites`.
+- **2026-05-08**: Completed Favorite Toggle Buttons — `toggleCollectionFavoriteInDb` DB query + `toggleCollectionFavorite` server action; `CollectionDetailActions` star button wired with local `isFavorite` state (filled amber when on); `CollectionCard` gains a hover-reveal star button (always visible when favorited) and wired dropdown "Favorite/Unfavorite" item; `router.refresh()` keeps sidebar and `/favorites` in sync after every toggle.
