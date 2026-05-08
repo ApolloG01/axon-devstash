@@ -6,7 +6,6 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { APP_NAME } from "@/constants"
 import { credentialsSignIn, githubSignIn } from "@/actions/auth"
 
 export function SignInForm({
@@ -39,10 +38,7 @@ export function SignInForm({
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight">{APP_NAME}</h1>
-        <p className="text-sm text-muted-foreground">Sign in to your account</p>
-      </div>
+      <p className="text-center text-sm text-muted-foreground">Sign in to your account</p>
 
       <div className="space-y-4">
         <form action={githubSignIn}>

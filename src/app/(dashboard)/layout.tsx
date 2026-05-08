@@ -10,6 +10,7 @@ import { DashboardNewItemButton } from "@/components/shared/dashboard-new-item-b
 import { CommandPalette } from "@/components/shared/command-palette"
 import { EditorPreferencesProvider } from "@/context/editor-preferences-context"
 import { getEditorPreferences } from "@/actions/editor-preferences"
+import { LogoMark } from "@/components/shared/logo-mark"
 
 export default async function DashboardLayout({
   children,
@@ -47,9 +48,10 @@ export default async function DashboardLayout({
 
         <Link
           href="/dashboard"
-          className="text-sm font-semibold tracking-tight w-40 shrink-0 hover:opacity-75 transition-opacity"
+          className="flex items-center gap-2 font-semibold tracking-tight shrink-0 hover:opacity-75 transition-opacity"
         >
-          {APP_NAME}
+          <LogoMark className="w-5 h-5 shrink-0" />
+          <span className="text-sm hidden sm:block">{APP_NAME}</span>
         </Link>
 
         <div className="flex-1 max-w-lg">
