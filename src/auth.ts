@@ -9,6 +9,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma as Parameters<typeof PrismaAdapter>[0]),
   session: { strategy: "jwt" },
   trustHost: true,
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error(error) { console.error("[auth]", error) },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) token.sub = user.id
