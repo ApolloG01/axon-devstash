@@ -1,10 +1,24 @@
-# Current Feature
+# Current Feature: Stripe Integration — Phase 2: Webhooks, Feature Gating & UI
 
 ## Status
 
+In Progress
+
 ## Goals
 
+- Create `POST /api/stripe/webhook` — raw body, signature verification, `checkout.session.completed` and `customer.subscription.deleted` handlers
+- Gate `POST /api/upload` — return 403 for Free users before any file processing
+- Gate file/image types in `NewItemDialog` — filter them out for Free users
+- Create `src/components/settings/billing-section.tsx` — interval toggle + Upgrade button for Free; Pro status + Manage Billing for Pro
+- Add Billing section to `/settings` — extend user query, render `BillingSection`, add `?upgraded=1` toast
+
 ## Notes
+
+- Requires Stripe CLI (`stripe listen`) for end-to-end testing — do not test webhook manually without it
+- Webhook must use `req.text()` for raw body; no `bodyParser: false` config needed in App Router
+- `NewItemDialog` already receives `itemTypes` as a prop — filter before passing, no component refactor needed
+- Settings page already has a `PageToast` component pattern from the password-changed flow — reuse it
+- Spec: `context/features/stripe-phase-2-spec.md`
 
 ## History
 

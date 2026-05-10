@@ -42,7 +42,11 @@ export default async function ItemTypePage({
   ])
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
-  const currentType = itemTypes.find((t) => t.name === typeName)
+
+  const visibleItemTypes = session.user.isPro
+    ? itemTypes
+    : itemTypes.filter((t) => t.name !== "file" && t.name !== "image")
+  const currentType = visibleItemTypes.find((t) => t.name === typeName)
 
   return (
     <div className="p-6 max-w-7xl mx-auto w-full">
@@ -55,7 +59,7 @@ export default async function ItemTypePage({
         </div>
         {currentType && (
           <NewItemButton
-            itemTypes={itemTypes}
+            itemTypes={visibleItemTypes}
             collections={collections}
             defaultTypeId={currentType.id}
             label={`New ${typeName}`}
