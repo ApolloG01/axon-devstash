@@ -9,20 +9,21 @@ import { DeleteAccountDialog } from "@/components/profile/delete-account-dialog"
 import { PageToast } from "@/components/shared/page-toast"
 import { EditorPreferencesForm } from "@/components/settings/editor-preferences-form"
 import { ThemeToggle } from "@/components/settings/theme-toggle"
+import { BillingSection } from "@/components/settings/billing-section"
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ passwordChanged?: string }>
+  searchParams: Promise<{ passwordChanged?: string; upgraded?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/sign-in")
 
-  const { passwordChanged } = await searchParams
+  const { passwordChanged, upgraded } = await searchParams
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { password: true },
+    select: { password: true, isPro: true, stripeCustomerId: true },
   })
 
   if (!user) redirect("/sign-in")
@@ -32,6 +33,7 @@ export default async function SettingsPage({
   return (
     <div className="p-6 max-w-2xl mx-auto w-full space-y-8">
       {passwordChanged === "1" && <PageToast message="Password changed successfully!" />}
+      {upgraded === "1" && <PageToast message="Welcome to Pro! Your account has been upgraded." />}
 
       <h1 className="text-lg font-semibold">Settings</h1>
 
@@ -71,6 +73,19 @@ export default async function SettingsPage({
           <Separator />
         </>
       )}
+
+      {/* Billing */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold">Billing</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Manage your Pro subscription.
+          </p>
+        </div>
+        <BillingSection isPro={user.isPro} hasStripeCustomer={!!user.stripeCustomerId} />
+      </section>
+
+      <Separator />
 
       {/* Danger Zone */}
       <section className="space-y-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">

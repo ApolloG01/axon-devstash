@@ -37,6 +37,10 @@ export default async function CollectionDetailPage({
 
   const totalPages = Math.ceil(total / COLLECTIONS_PER_PAGE)
 
+  const visibleItemTypes = session.user.isPro
+    ? itemTypes
+    : itemTypes.filter((t) => t.name !== "file" && t.name !== "image")
+
   return (
     <div className="p-6 max-w-7xl mx-auto w-full">
       {/* Breadcrumb */}
@@ -68,7 +72,7 @@ export default async function CollectionDetailPage({
           />
           <NewCollectionButton />
           <NewItemButton
-            itemTypes={itemTypes}
+            itemTypes={visibleItemTypes}
             collections={collections}
             label="New Item"
           />

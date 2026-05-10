@@ -33,6 +33,10 @@ export default async function DashboardLayout({
 
   const user = session.user
 
+  const visibleItemTypes = session.user.isPro
+    ? itemTypes
+    : itemTypes.filter((t) => t.name !== "file" && t.name !== "image")
+
   const favoriteCollections = collections.filter((c) => c.isFavorite)
   const recentCollections = collections.slice(0, 3)
 
@@ -66,7 +70,7 @@ export default async function DashboardLayout({
           >
             <Star className="h-4 w-4" />
           </Link>
-          <DashboardNewItemButton itemTypes={itemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} />
+          <DashboardNewItemButton itemTypes={visibleItemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} />
         </div>
       </header>
 
