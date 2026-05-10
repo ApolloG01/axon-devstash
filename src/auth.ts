@@ -33,6 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   pages: {
     signIn: "/sign-in",
+    error: "/sign-in",
   },
   providers: [
     GitHub,
