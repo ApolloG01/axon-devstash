@@ -1,24 +1,16 @@
-# Current Feature: Stripe Integration — Phase 2: Webhooks, Feature Gating & UI
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `POST /api/stripe/webhook` — raw body, signature verification, `checkout.session.completed` and `customer.subscription.deleted` handlers
-- Gate `POST /api/upload` — return 403 for Free users before any file processing
-- Gate file/image types in `NewItemDialog` — filter them out for Free users
-- Create `src/components/settings/billing-section.tsx` — interval toggle + Upgrade button for Free; Pro status + Manage Billing for Pro
-- Add Billing section to `/settings` — extend user query, render `BillingSection`, add `?upgraded=1` toast
+<!-- Add goals here -->
 
 ## Notes
 
-- Requires Stripe CLI (`stripe listen`) for end-to-end testing — do not test webhook manually without it
-- Webhook must use `req.text()` for raw body; no `bodyParser: false` config needed in App Router
-- `NewItemDialog` already receives `itemTypes` as a prop — filter before passing, no component refactor needed
-- Settings page already has a `PageToast` component pattern from the password-changed flow — reuse it
-- Spec: `context/features/stripe-phase-2-spec.md`
+<!-- Add notes here -->
 
 ## History
 
@@ -76,3 +68,4 @@ In Progress
 - **2026-05-08**: Completed Homepage (Next.js) — root `/` now serves a full marketing homepage (no more `/dashboard` redirect); `Navbar` (scroll-based opacity, mobile hamburger), `Hero` with `requestAnimationFrame` chaos animation + dashboard mockup visual, `Features` 6-card grid with lucide-react icons and type accent colors, `AISection` with syntax-highlighted code mockup and AI tag demo, `Pricing` with monthly/yearly toggle ($8→$6/mo), `CTA`, `Footer` with 3 link columns; `ScrollAnimation` Intersection Observer fade-in; `src/lib/homepage-data.ts` for static data; `scroll-behavior: smooth` added globally.
 - **2026-05-08**: Completed Auth Nav + Dashboard Logo — `LogoMark` SVG extracted to `src/components/shared/logo-mark.tsx`; homepage `Navbar` added to `(auth)` layout so all auth pages get the top nav (anchor links updated to root-relative `/#features`/`/#pricing`); `LogoMark` icon added to dashboard header logo link; redundant app-name headings removed from sign-in form and register page.
 - **2026-05-08**: Completed Stripe Integration Phase 1 — `stripe` + `@stripe/stripe-js` installed; `Session`/`JWT` types extended with `isPro: boolean`; always-sync JWT callback reads `isPro` from DB on every session validation; `src/lib/stripe.ts` (client singleton, `STRIPE_PRICES`, API v2026-04-22.dahlia); `src/lib/usage-limits.ts` (`checkItemLimit`/`checkCollectionLimit` pure helpers); `src/actions/billing.ts` (`createCheckoutSession`, `createBillingPortalSession`); 50-item Free limit in `createItem`, 3-collection Free limit in `createCollection`; `NEXT_PUBLIC_APP_URL` added to `.env`; 6 Vitest unit tests for usage-limits all passing.
+- **2026-05-10**: Completed Stripe Integration Phase 2 — `POST /api/stripe/webhook` with raw-body signature verification, `checkout.session.completed` (set isPro + stripeCustomerId + stripeSubscriptionId) and `customer.subscription.deleted` (clear isPro + stripeSubscriptionId) handlers; `POST /api/upload` gated with 403 for Free users before any file processing; file/image item types filtered out for Free users in dashboard layout, `/items/[type]`, and `/collections/[id]`; `BillingSection` component (interval toggle + Upgrade for Free; Pro badge + Manage Billing for Pro); `/settings` extended with Billing section, `?upgraded=1` toast, and `isPro`/`stripeCustomerId` user query.
