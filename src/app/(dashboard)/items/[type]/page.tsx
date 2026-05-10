@@ -7,6 +7,7 @@ import { getUserCollectionsList } from "@/lib/db/collections"
 import { ItemGrid } from "@/components/items/item-grid"
 import { NewItemButton } from "@/components/items/new-item-dialog"
 import { Pagination } from "@/components/shared/pagination"
+import { ProGate } from "@/components/shared/pro-gate"
 import { ITEMS_PER_PAGE } from "@/constants"
 
 const TYPE_SLUG_MAP: Record<string, string> = {
@@ -32,6 +33,21 @@ export default async function ItemTypePage({
 
   const session = await auth()
   if (!session?.user?.id) notFound()
+
+  const PRO_ONLY_TYPES = ["file", "image"]
+  if (!session.user.isPro && PRO_ONLY_TYPES.includes(typeName)) {
+    const isImage = typeName === "image"
+    return (
+      <ProGate
+        featureName={isImage ? "Image Gallery" : "File Storage"}
+        description={
+          isImage
+            ? "Store and organize images with a beautiful gallery view. Upgrade to Pro to unlock image uploads."
+            : "Upload and manage files of any type — PDFs, ZIPs, docs, and more. Upgrade to Pro to unlock file storage."
+        }
+      />
+    )
+  }
 
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1)
 

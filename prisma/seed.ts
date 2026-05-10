@@ -25,11 +25,9 @@ const systemItemTypes = [
 // ========================================
 
 const collections = [
-  { id: "col_react",    name: "React Patterns",      description: "Reusable React patterns and hooks",              defaultTypeId: "type_snippet", isFavorite: true  },
-  { id: "col_ai",       name: "AI Workflows",         description: "AI prompts and workflow automations",            defaultTypeId: "type_prompt",  isFavorite: true  },
-  { id: "col_devops",   name: "DevOps",               description: "Infrastructure and deployment resources",        defaultTypeId: "type_command", isFavorite: false },
-  { id: "col_terminal", name: "Terminal Commands",    description: "Useful shell commands for everyday development",  defaultTypeId: "type_command", isFavorite: false },
-  { id: "col_design",   name: "Design Resources",     description: "UI/UX resources and references",                 defaultTypeId: "type_link",    isFavorite: false },
+  { id: "col_react",    name: "React Patterns",   description: "Reusable React patterns and hooks",              defaultTypeId: "type_snippet", isFavorite: true  },
+  { id: "col_ai",       name: "AI Workflows",      description: "AI prompts and workflow automations",            defaultTypeId: "type_prompt",  isFavorite: true  },
+  { id: "col_terminal", name: "Terminal Commands", description: "Useful shell commands for everyday development",  defaultTypeId: "type_command", isFavorite: false },
 ]
 
 // ========================================
@@ -188,63 +186,6 @@ Show the refactored code and explain each change with a one-line justification.`
     tags: ["refactoring", "clean-code"],
   },
 
-  // ── DevOps ──────────────────────────────────────────────────────
-  {
-    id: "item_devops_1",
-    title: "Dockerfile — Node.js multi-stage",
-    description: "Production-optimised multi-stage build for Node.js apps",
-    contentType: "text",
-    content: `FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-EXPOSE 3000
-CMD ["node", "dist/index.js"]`,
-    language: "dockerfile",
-    itemTypeId: "type_snippet",
-    collectionIds: ["col_devops"],
-    tags: ["docker", "node", "devops"],
-  },
-  {
-    id: "item_devops_2",
-    title: "Deploy to production",
-    description: "Pull latest, install deps, build and restart PM2",
-    contentType: "text",
-    content: "git pull origin main && npm ci && npm run build && pm2 restart all",
-    language: "bash",
-    itemTypeId: "type_command",
-    collectionIds: ["col_devops"],
-    tags: ["deploy", "pm2"],
-  },
-  {
-    id: "item_devops_3",
-    title: "Docker documentation",
-    description: "Official Docker documentation and reference",
-    contentType: "url",
-    url: "https://docs.docker.com",
-    itemTypeId: "type_link",
-    collectionIds: ["col_devops"],
-    tags: ["docker", "docs"],
-  },
-  {
-    id: "item_devops_4",
-    title: "GitHub Actions docs",
-    description: "CI/CD workflows with GitHub Actions",
-    contentType: "url",
-    url: "https://docs.github.com/en/actions",
-    itemTypeId: "type_link",
-    collectionIds: ["col_devops"],
-    tags: ["ci-cd", "github", "docs"],
-  },
-
   // ── Terminal Commands ────────────────────────────────────────────
   {
     id: "item_cmd_1",
@@ -290,48 +231,16 @@ CMD ["node", "dist/index.js"]`,
     collectionIds: ["col_terminal"],
     tags: ["npm", "cleanup"],
   },
-
-  // ── Design Resources ─────────────────────────────────────────────
   {
-    id: "item_design_1",
-    title: "Tailwind CSS docs",
-    description: "Official Tailwind CSS utility class reference",
-    contentType: "url",
-    url: "https://tailwindcss.com/docs",
-    itemTypeId: "type_link",
-    collectionIds: ["col_design"],
-    tags: ["tailwind", "css", "docs"],
-  },
-  {
-    id: "item_design_2",
-    title: "shadcn/ui components",
-    description: "Beautifully designed component library built on Radix UI",
-    contentType: "url",
-    url: "https://ui.shadcn.com",
-    itemTypeId: "type_link",
-    collectionIds: ["col_design"],
-    tags: ["components", "ui", "shadcn"],
-    isFavorite: true,
-  },
-  {
-    id: "item_design_3",
-    title: "Radix UI primitives",
-    description: "Unstyled, accessible UI primitives for React",
-    contentType: "url",
-    url: "https://www.radix-ui.com",
-    itemTypeId: "type_link",
-    collectionIds: ["col_design"],
-    tags: ["components", "accessibility", "react"],
-  },
-  {
-    id: "item_design_4",
-    title: "Lucide icons",
-    description: "Open-source icon library with 1000+ icons",
-    contentType: "url",
-    url: "https://lucide.dev/icons",
-    itemTypeId: "type_link",
-    collectionIds: ["col_design"],
-    tags: ["icons", "design"],
+    id: "item_devops_2",
+    title: "Deploy to production",
+    description: "Pull latest, install deps, build and restart PM2",
+    contentType: "text",
+    content: "git pull origin main && npm ci && npm run build && pm2 restart all",
+    language: "bash",
+    itemTypeId: "type_command",
+    collectionIds: ["col_terminal"],
+    tags: ["deploy", "pm2"],
   },
 ]
 

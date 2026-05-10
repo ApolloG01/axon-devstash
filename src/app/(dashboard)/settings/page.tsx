@@ -10,6 +10,7 @@ import { PageToast } from "@/components/shared/page-toast"
 import { EditorPreferencesForm } from "@/components/settings/editor-preferences-form"
 import { ThemeToggle } from "@/components/settings/theme-toggle"
 import { BillingSection } from "@/components/settings/billing-section"
+import { UpgradePoller } from "@/components/settings/upgrade-poller"
 
 export default async function SettingsPage({
   searchParams,
@@ -34,6 +35,7 @@ export default async function SettingsPage({
     <div className="p-6 max-w-2xl mx-auto w-full space-y-8">
       {passwordChanged === "1" && <PageToast message="Password changed successfully!" />}
       {upgraded === "1" && <PageToast message="Welcome to Pro! Your account has been upgraded." />}
+      {upgraded === "1" && <UpgradePoller initialIsPro={user.isPro} />}
 
       <h1 className="text-lg font-semibold">Settings</h1>
 
