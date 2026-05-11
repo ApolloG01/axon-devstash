@@ -16,6 +16,7 @@ import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { createItem } from "@/actions/items"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
+import { CodeEditor } from "@/components/items/code-editor"
 import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 
@@ -105,20 +106,6 @@ function NewItemFormFields({
         />
       </div>
 
-      {isLanguageType && (
-        <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Language
-          </label>
-          <input
-            className="w-full text-sm font-mono bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            placeholder="e.g. typescript"
-          />
-        </div>
-      )}
-
       {isTextContent && (
         <div className="flex flex-col gap-1">
           <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -126,6 +113,13 @@ function NewItemFormFields({
           </label>
           {isMarkdownType ? (
             <MarkdownEditor value={content} onChange={setContent} />
+          ) : isLanguageType ? (
+            <CodeEditor
+              value={content}
+              language={language || "plaintext"}
+              onChange={setContent}
+              onLanguageChange={setLanguage}
+            />
           ) : (
             <textarea
               className="w-full text-sm font-mono bg-muted/30 border border-border rounded px-2.5 py-2 focus:outline-none focus:border-primary resize-none leading-relaxed"

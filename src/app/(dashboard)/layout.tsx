@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { Star } from "lucide-react"
+import { Star, Zap } from "lucide-react"
 import { Sidebar, MobileSidebarTrigger } from "@/components/layout/sidebar"
 import { getSystemItemTypes, getSearchableItems } from "@/lib/db/items"
 import { getCollectionsByUserId, getSearchableCollections } from "@/lib/db/collections"
@@ -63,6 +63,15 @@ export default async function DashboardLayout({
         </div>
 
         <div className="ml-auto flex items-center gap-1">
+          {!session.user.isPro && (
+            <Link
+              href="/upgrade"
+              className="hidden sm:flex items-center gap-1.5 h-8 px-3 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              Upgrade
+            </Link>
+          )}
           <Link
             href="/favorites"
             className="flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"

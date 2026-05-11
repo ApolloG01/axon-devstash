@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 const { auth } = NextAuth(authConfig)
 
 export const proxy = auth((req) => {
-  if (!req.auth && (req.nextUrl.pathname.startsWith("/dashboard") || req.nextUrl.pathname.startsWith("/items") || req.nextUrl.pathname.startsWith("/collections") || req.nextUrl.pathname === "/favorites" || req.nextUrl.pathname === "/profile" || req.nextUrl.pathname === "/settings")) {
+  if (!req.auth && (req.nextUrl.pathname.startsWith("/dashboard") || req.nextUrl.pathname.startsWith("/items") || req.nextUrl.pathname.startsWith("/collections") || req.nextUrl.pathname === "/favorites" || req.nextUrl.pathname === "/profile" || req.nextUrl.pathname === "/settings" || req.nextUrl.pathname === "/upgrade")) {
     const signInUrl = new URL("/sign-in", req.url)
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname)
     return NextResponse.redirect(signInUrl)
@@ -13,5 +13,5 @@ export const proxy = auth((req) => {
 })
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/items/:path*", "/collections/:path*", "/favorites", "/profile", "/settings"],
+  matcher: ["/dashboard/:path*", "/items/:path*", "/collections/:path*", "/favorites", "/profile", "/settings", "/upgrade"],
 }
