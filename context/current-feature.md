@@ -1,32 +1,16 @@
-# Current Feature: AI Auto-Tagging
+# Current Feature
 
 ## Status
 
-Complete
+Not Started
 
 ## Goals
 
-- Create OpenAI client utility (`src/lib/openai.ts`) with `AI_MODEL` constant using the Responses API
-- Add AI rate limit config (50 requests/hour per user) to `src/lib/rate-limit.ts`
-- Create `generateAutoTags` server action with auth, Pro gating, Zod validation, and rate limiting
-- Add "Suggest Tags" button (Sparkles icon, ghost variant) near tags input in `NewItemDialog` and `ItemDrawer` edit mode
-- Display suggested tags as badges with accept (check) and reject (X) controls
-- Accepted tags get appended to the item's tag list
-- Hide "Suggest Tags" button for free users (Pro-only UI gate)
-- Error handling via toast for Pro gating, rate limit, and AI service errors
-- Unit tests for the `generateAutoTags` server action
+<!-- Add goals here -->
 
 ## Notes
 
-- Use the OpenAI **Responses API** (`client.responses.create()`), NOT Chat Completions — gpt-5-nano returns empty content with Chat Completions
-- `response.output_text` is where the content lives (not `choices[0].message.content`)
-- Use `text: { format: { type: 'json_object' } }` for JSON output
-- The model may return `{"tags": [...]}` OR `[...]` — handle both formats
-- Normalize all tags to lowercase
-- Truncate content to 2000 chars before the API call
-- `OPENAI_API_KEY` is already in `.env`
-- `isPro` must be passed as a prop to client components for UI gating (server actions enforce it server-side)
-- See `docs/ai-integration-plan.md` for full architectural context
+<!-- Add notes here -->
 
 ## History
 
@@ -87,3 +71,4 @@ Complete
 - **2026-05-10**: Completed Stripe Integration Phase 2 — `POST /api/stripe/webhook` with raw-body signature verification, `checkout.session.completed` (set isPro + stripeCustomerId + stripeSubscriptionId) and `customer.subscription.deleted` (clear isPro + stripeSubscriptionId) handlers; `POST /api/upload` gated with 403 for Free users before any file processing; file/image item types filtered out for Free users in dashboard layout, `/items/[type]`, and `/collections/[id]`; `BillingSection` component (interval toggle + Upgrade for Free; Pro badge + Manage Billing for Pro); `/settings` extended with Billing section, `?upgraded=1` toast, and `isPro`/`stripeCustomerId` user query.
 - **2026-05-11**: Completed Upgrade Page — ghost "Upgrade" button (with Zap icon) added to dashboard header, visible only for free users; `/upgrade` route added inside `(dashboard)` group with redirect to `/settings` for Pro users; `UpgradePageClient` component mirrors homepage pricing section with monthly/yearly toggle, two-card layout reusing `PRICING_TIERS` data, Free card shows "Current Plan" (disabled), Pro card wires to `createCheckoutSession` server action; `/upgrade` added to proxy middleware guard.
 - **2026-05-11**: Completed Language Dropdown in CodeEditor — `src/constants/languages.ts` defines 34 common languages (Monaco identifiers); `CodeEditor` gains `onLanguageChange` prop: when provided and not readOnly, renders a styled `<select>` in the macOS header bar replacing the static language label; selecting a language immediately updates Monaco syntax highlighting as you type; `new-item-dialog` upgraded to use `CodeEditor` (replacing plain textarea) for snippet/command types with language selector; `item-drawer` edit mode removes standalone language text input, language selector is now embedded in the editor header.
+- **2026-05-11**: Completed AI Auto-Tagging — `openai` v6 installed; `src/lib/openai.ts` lazy singleton with `AI_MODEL="gpt-4o-mini"`; `checkAiTagLimit` (50 req/h per userId) added to rate-limit.ts; `generateAutoTags` server action (`src/actions/ai.ts`) with auth + Pro gate + Zod + rate limit using Responses API (`client.responses.create`, `response.output_text`, `json_object` format, handles both `{"tags":[]}` and `[]` shapes, normalizes to lowercase, truncates to 2000 chars); `TagSuggester` component with Sparkles ghost button + badge-per-suggestion accept (✓) / reject (✗) UI, hidden for free users; `isPro` threaded from session through all item-bearing pages and components (layout → DashboardNewItemButton → NewItemDialog, ItemGrid → ItemDrawer → DrawerBody, FavoritesList); 7 Vitest unit tests covering auth, Pro gate, rate limit, both response formats, normalization, and service errors.
