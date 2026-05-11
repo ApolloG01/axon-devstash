@@ -35,15 +35,28 @@ export async function generateAutoTags(input: z.input<typeof generateAutoTagsSch
 
   try {
     const client = getOpenAI()
-    const response = await client.responses.create({
+    const completion = await client.chat.completions.create({
       model: AI_MODEL,
-      instructions:
-        "You are a developer tool assistant. Generate concise, relevant tags for developer knowledge items. Return only a JSON object with a 'tags' array of 3-5 lowercase strings. No explanations.",
-      input: `Suggest 3-5 tags for this ${typeName}:\n${inputText}`,
-      text: { format: { type: "json_object" } },
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            'You are a developer tool assistant. Generate concise, relevant tags for developer knowledge items. Return ONLY a valid JSON object with a "tags" array of 3-5 lowercase strings. Example: {"tags": ["react", "hooks", "typescript"]}',
+        },
+        {
+          role: "user",
+          content: `Suggest 3-5 tags for this ${typeName}:\n${inputText}`,
+        },
+      ],
     })
 
-    const raw = JSON.parse(response.output_text)
+    const text = completion.choices[0]?.message?.content
+    if (!text) {
+      return { success: false as const, error: "AI returned an empty response. Please try again." }
+    }
+
+    const raw = JSON.parse(text)
     let tags: unknown[]
     if (Array.isArray(raw)) {
       tags = raw
@@ -60,7 +73,8 @@ export async function generateAutoTags(input: z.input<typeof generateAutoTagsSch
       .slice(0, 5)
 
     return { success: true as const, data: normalized }
-  } catch {
+  } catch (err) {
+    console.error("[generateAutoTags]", err)
     return { success: false as const, error: "AI service unavailable. Please try again." }
   }
 }

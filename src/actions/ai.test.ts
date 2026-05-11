@@ -25,6 +25,18 @@ const mockGetOpenAI = vi.mocked(getOpenAI)
 const proSession = { user: { id: "user-1", isPro: true } }
 const freeSession = { user: { id: "user-1", isPro: false } }
 
+function mockOpenAI(content: string) {
+  mockGetOpenAI.mockReturnValue({
+    chat: {
+      completions: {
+        create: vi.fn().mockResolvedValue({
+          choices: [{ message: { content } }],
+        }),
+      },
+    },
+  } as never)
+}
+
 describe("generateAutoTags", () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -51,15 +63,9 @@ describe("generateAutoTags", () => {
     expect(result.error).toContain("Rate limit exceeded")
   })
 
-  it("returns tags from AI response with tags array format", async () => {
+  it("returns tags from AI response with tags object format", async () => {
     mockAuth.mockResolvedValue(proSession as never)
-    mockGetOpenAI.mockReturnValue({
-      responses: {
-        create: vi.fn().mockResolvedValue({
-          output_text: JSON.stringify({ tags: ["react", "hooks", "typescript"] }),
-        }),
-      },
-    } as never)
+    mockOpenAI(JSON.stringify({ tags: ["react", "hooks", "typescript"] }))
 
     const result = await generateAutoTags({ title: "Custom hook", typeName: "snippet" })
     expect(result.success).toBe(true)
@@ -70,13 +76,7 @@ describe("generateAutoTags", () => {
 
   it("handles bare array response format", async () => {
     mockAuth.mockResolvedValue(proSession as never)
-    mockGetOpenAI.mockReturnValue({
-      responses: {
-        create: vi.fn().mockResolvedValue({
-          output_text: JSON.stringify(["react", "hooks", "typescript"]),
-        }),
-      },
-    } as never)
+    mockOpenAI(JSON.stringify(["react", "hooks", "typescript"]))
 
     const result = await generateAutoTags({ title: "Custom hook", typeName: "snippet" })
     expect(result.success).toBe(true)
@@ -87,13 +87,7 @@ describe("generateAutoTags", () => {
 
   it("normalizes tags to lowercase", async () => {
     mockAuth.mockResolvedValue(proSession as never)
-    mockGetOpenAI.mockReturnValue({
-      responses: {
-        create: vi.fn().mockResolvedValue({
-          output_text: JSON.stringify({ tags: ["React", "TypeScript", "HOOKS"] }),
-        }),
-      },
-    } as never)
+    mockOpenAI(JSON.stringify({ tags: ["React", "TypeScript", "HOOKS"] }))
 
     const result = await generateAutoTags({ title: "Custom hook", typeName: "snippet" })
     expect(result.success).toBe(true)
@@ -105,8 +99,10 @@ describe("generateAutoTags", () => {
   it("returns error when AI service throws", async () => {
     mockAuth.mockResolvedValue(proSession as never)
     mockGetOpenAI.mockReturnValue({
-      responses: {
-        create: vi.fn().mockRejectedValue(new Error("Service unavailable")),
+      chat: {
+        completions: {
+          create: vi.fn().mockRejectedValue(new Error("Service unavailable")),
+        },
       },
     } as never)
 

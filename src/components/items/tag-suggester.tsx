@@ -1,9 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Sparkles, Check, X } from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useRef } from "react"
+import { Loader2, Check, X } from "lucide-react"
 import { generateAutoTags } from "@/actions/ai"
 
 interface TagSuggesterProps {
@@ -17,24 +15,33 @@ interface TagSuggesterProps {
 export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagSuggesterProps) {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  if (!isPro) return null
-
-  async function handleSuggest() {
-    if (!title.trim()) {
-      toast.error("Enter a title first")
+  useEffect(() => {
+    if (!isPro || title.trim().length < 3) {
+      setSuggestions([])
+      setLoading(false)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
       return
     }
-    setLoading(true)
+
     setSuggestions([])
-    const result = await generateAutoTags({ title, content, typeName })
-    setLoading(false)
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to generate tags")
-      return
+    setLoading(true)
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
+    debounceRef.current = setTimeout(async () => {
+      const result = await generateAutoTags({ title, content, typeName })
+      setLoading(false)
+      if (result.success) {
+        setSuggestions(result.data)
+      }
+    }, 800)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-    setSuggestions(result.data)
-  }
+  }, [title, content, typeName, isPro])
 
   function handleAccept(tag: string) {
     onAccept(tag)
@@ -45,21 +52,17 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
     setSuggestions((prev) => prev.filter((t) => t !== tag))
   }
 
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="h-6 px-2 text-[11px] gap-1 text-muted-foreground hover:text-foreground w-fit"
-        onClick={handleSuggest}
-        disabled={loading}
-      >
-        <Sparkles className="h-3 w-3" />
-        {loading ? "Suggesting…" : "Suggest Tags"}
-      </Button>
+  if (!isPro || title.trim().length < 3) return null
 
-      {suggestions.length > 0 && (
+  return (
+    <div className="flex flex-col gap-1.5 min-h-6">
+      {loading && (
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          Suggesting tags…
+        </div>
+      )}
+      {!loading && suggestions.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {suggestions.map((tag) => (
             <span
@@ -71,7 +74,7 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
                 type="button"
                 onClick={() => handleAccept(tag)}
                 className="text-emerald-500 hover:text-emerald-400 transition-colors"
-                title="Accept"
+                title="Add tag"
               >
                 <Check className="h-3 w-3" />
               </button>
@@ -79,7 +82,7 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
                 type="button"
                 onClick={() => handleReject(tag)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
-                title="Reject"
+                title="Dismiss"
               >
                 <X className="h-3 w-3" />
               </button>
