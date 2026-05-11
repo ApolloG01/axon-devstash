@@ -2,15 +2,7 @@
 
 ## Status
 
-Not Started
-
-## Goals
-
-<!-- Add goals here -->
-
-## Notes
-
-<!-- Add notes here -->
+Completed
 
 ## History
 
@@ -73,3 +65,4 @@ Not Started
 - **2026-05-11**: Completed Language Dropdown in CodeEditor — `src/constants/languages.ts` defines 34 common languages (Monaco identifiers); `CodeEditor` gains `onLanguageChange` prop: when provided and not readOnly, renders a styled `<select>` in the macOS header bar replacing the static language label; selecting a language immediately updates Monaco syntax highlighting as you type; `new-item-dialog` upgraded to use `CodeEditor` (replacing plain textarea) for snippet/command types with language selector; `item-drawer` edit mode removes standalone language text input, language selector is now embedded in the editor header.
 - **2026-05-11**: Completed AI Auto-Tagging — `openai` v6 installed; `src/lib/openai.ts` lazy singleton with `AI_MODEL="gpt-4o-mini"`; `checkAiTagLimit` (50 req/h per userId) added to rate-limit.ts; `generateAutoTags` server action (`src/actions/ai.ts`) with auth + Pro gate + Zod + rate limit using Chat Completions API (`client.chat.completions.create`, `response_format: json_object`, handles both `{"tags":[]}` and `[]` shapes, normalizes to lowercase, truncates to 2000 chars); `TagSuggester` component with 800ms debounced auto-suggest on title/content change (min 3 chars), spinner while loading, badge-per-suggestion accept (✓) / reject (✗) UI, hidden for free users; `isPro` threaded from session through all item-bearing pages and components (layout → DashboardNewItemButton → NewItemDialog, ItemGrid → ItemDrawer → DrawerBody, FavoritesList); 7 Vitest unit tests covering auth, Pro gate, rate limit, both response formats, normalization, and service errors.
 - **2026-05-11**: Completed AI Description Generator — `generateDescription` server action added to `src/actions/ai.ts` (auth + Pro gate + shared rate-limit bucket + GPT-4o-mini); `DescriptionGenerator` component (`src/components/items/description-generator.tsx`) renders a `Wand2` icon button positioned inside the description input/textarea (Option B); wired into `NewItemDialog` and `ItemDrawer` edit mode for all content types; hidden for free users; 5 Vitest unit tests covering auth, Pro gate, rate limit, success, and error cases.
+- **2026-05-11**: Completed AI Explain Code — `explainCode` server action added to `src/actions/ai.ts` (auth + Pro gate + Zod + shared rate-limit bucket + GPT-4o-mini, 3000-char truncation); `CodeEditor` updated with `isPro`/`onExplain` props, Sparkles Explain button in macOS header, Loader2 spinner during generation, Code/Explain tab toggle once explanation ready, RefreshCw regenerate button, Crown icon for free users (upgrade toast); explanation rendered via ReactMarkdown in editor body; `ItemDrawer` wires `onExplain` callback in read-only mode only (snippet + command types); 6 Vitest unit tests covering auth, Pro gate, rate limit, success, empty response, and service error.

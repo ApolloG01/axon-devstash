@@ -69,6 +69,63 @@ export async function generateDescription(input: z.input<typeof generateDescript
   }
 }
 
+const explainCodeSchema = z.object({
+  content: z.string().trim().min(1),
+  language: z.string().optional(),
+  typeName: z.string().trim().min(1),
+})
+
+export async function explainCode(input: z.input<typeof explainCodeSchema>) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
+  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
+
+  const rl = await checkAiTagLimit(session.user.id)
+  if (rl.limited) {
+    return {
+      success: false as const,
+      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
+    }
+  }
+
+  const parsed = explainCodeSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false as const, error: "Invalid input" }
+  }
+
+  const { content, language, typeName } = parsed.data
+  const truncated = content.slice(0, 3000)
+  const langLabel = language && language !== "plaintext" ? ` (${language})` : ""
+
+  try {
+    const client = getOpenAI()
+    const completion = await client.chat.completions.create({
+      model: AI_MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a developer assistant. Explain the given code or command clearly and concisely in 200-300 words. Cover what it does, how it works, and any key concepts or patterns used. Use markdown formatting with short paragraphs. Do not repeat the code itself.",
+        },
+        {
+          role: "user",
+          content: `Explain this ${typeName}${langLabel}:\n\`\`\`\n${truncated}\n\`\`\``,
+        },
+      ],
+    })
+
+    const text = completion.choices[0]?.message?.content?.trim()
+    if (!text) {
+      return { success: false as const, error: "AI returned an empty response. Please try again." }
+    }
+
+    return { success: true as const, data: text }
+  } catch (err) {
+    console.error("[explainCode]", err)
+    return { success: false as const, error: "AI service unavailable. Please try again." }
+  }
+}
+
 const generateAutoTagsSchema = z.object({
   title: z.string().trim().min(1),
   content: z.string().optional(),
