@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Loader2, Check, X } from "lucide-react"
+import { Loader2, Check, X, RefreshCw } from "lucide-react"
 import { generateAutoTags } from "@/actions/ai"
 
 interface TagSuggesterProps {
@@ -15,18 +15,22 @@ interface TagSuggesterProps {
 export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagSuggesterProps) {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (!isPro || title.trim().length < 3) {
+    if (!isPro || title.trim().length < 3 || !typeName) {
       setSuggestions([])
       setLoading(false)
+      setError(null)
       if (debounceRef.current) clearTimeout(debounceRef.current)
       return
     }
 
     setSuggestions([])
     setLoading(true)
+    setError(null)
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
 
@@ -35,13 +39,15 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
       setLoading(false)
       if (result.success) {
         setSuggestions(result.data)
+      } else {
+        setError(result.error)
       }
     }, 800)
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [title, content, typeName, isPro])
+  }, [title, content, typeName, isPro, retryCount])
 
   function handleAccept(tag: string) {
     onAccept(tag)
@@ -52,7 +58,7 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
     setSuggestions((prev) => prev.filter((t) => t !== tag))
   }
 
-  if (!isPro || title.trim().length < 3) return null
+  if (!isPro || title.trim().length < 3 || !typeName) return null
 
   return (
     <div className="flex flex-col gap-1.5 min-h-6">
@@ -62,7 +68,21 @@ export function TagSuggester({ title, content, typeName, isPro, onAccept }: TagS
           Suggesting tags…
         </div>
       )}
-      {!loading && suggestions.length > 0 && (
+      {!loading && error && (
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span>{error}</span>
+          <button
+            type="button"
+            onClick={() => setRetryCount((c) => c + 1)}
+            className="inline-flex items-center gap-0.5 hover:text-foreground transition-colors"
+            title="Retry"
+          >
+            <RefreshCw className="h-2.5 w-2.5" />
+            Retry
+          </button>
+        </div>
+      )}
+      {!loading && !error && suggestions.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {suggestions.map((tag) => (
             <span

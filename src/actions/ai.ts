@@ -42,11 +42,11 @@ export async function generateAutoTags(input: z.input<typeof generateAutoTagsSch
         {
           role: "system",
           content:
-            'You are a developer tool assistant. Generate concise, relevant tags for developer knowledge items. Return ONLY a valid JSON object with a "tags" array of 3-5 lowercase strings. Example: {"tags": ["react", "hooks", "typescript"]}',
+            'You are a developer knowledge tagging assistant. Generate specific, searchable tags that help developers find this item later.\n\nGood tags: programming languages (javascript, python, rust), frameworks (react, nextjs, django), libraries (lodash, axios), concepts (closures, caching, jwt), tools (docker, webpack), patterns (singleton, debounce).\n\nAvoid generic terms like: code, snippet, developer, programming, function, item, tool, example, tutorial, script.\n\nReturn ONLY a valid JSON object with a "tags" key containing an array of 3-6 lowercase strings. Example: {"tags": ["javascript", "closures", "scope", "es2015"]}',
         },
         {
           role: "user",
-          content: `Suggest 3-5 tags for this ${typeName}:\n${inputText}`,
+          content: `Generate specific tags for this ${typeName}:\n${inputText}`,
         },
       ],
     })
@@ -70,7 +70,7 @@ export async function generateAutoTags(input: z.input<typeof generateAutoTagsSch
       .filter((t): t is string => typeof t === "string")
       .map((t) => t.toLowerCase().trim())
       .filter(Boolean)
-      .slice(0, 5)
+      .slice(0, 6)
 
     return { success: true as const, data: normalized }
   } catch (err) {
