@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { updateItem, deleteItem, toggleFavorite, togglePin } from "@/actions/items"
-import { explainCode } from "@/actions/ai"
+import { explainCode, optimizePrompt } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
@@ -189,9 +189,10 @@ interface ItemContentSectionProps {
   setLanguage: (v: string) => void
   setUrl: (v: string) => void
   isPro?: boolean
+  onUseOptimized?: (optimized: string) => void
 }
 
-function ItemContentSection({ item, editing, content, language, url, setContent, setLanguage, setUrl, isPro }: ItemContentSectionProps) {
+function ItemContentSection({ item, editing, content, language, url, setContent, setLanguage, setUrl, isPro, onUseOptimized }: ItemContentSectionProps) {
   const typeName = item.itemType.name
   const isTextType = TEXT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
@@ -240,7 +241,13 @@ function ItemContentSection({ item, editing, content, language, url, setContent,
                 }
               />
             ) : isMarkdownType ? (
-              <MarkdownEditor value={item.content} readOnly />
+              <MarkdownEditor
+                value={item.content}
+                readOnly
+                isPro={isPro}
+                onOptimize={typeName === "prompt" ? () => optimizePrompt({ content: item.content! }) : undefined}
+                onUseOptimized={typeName === "prompt" ? onUseOptimized : undefined}
+              />
             ) : (
               <pre className="p-3 text-xs font-mono bg-muted/30 border border-border rounded overflow-x-auto whitespace-pre-wrap break-words max-h-72 overflow-y-auto leading-relaxed text-foreground/80">
                 {item.content}
@@ -351,6 +358,21 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
     setTitle(item.title)
     setDescription(item.description ?? "")
     setContent(item.content ?? "")
+    setLanguage(item.language ?? "")
+    setUrl(item.url ?? "")
+    setTags(item.tags.map((t) => t.name).join(", "))
+    setSelectedCollectionIds(item.collections.map((c) => c.collection.id))
+    setEditing(true)
+    if (availableCollections.length === 0) {
+      const cols = await getCollectionsForPicker()
+      setAvailableCollections(cols)
+    }
+  }
+
+  const handleUseOptimized = async (optimized: string) => {
+    setTitle(item.title)
+    setDescription(item.description ?? "")
+    setContent(optimized)
     setLanguage(item.language ?? "")
     setUrl(item.url ?? "")
     setTags(item.tags.map((t) => t.name).join(", "))
@@ -526,6 +548,7 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
           setLanguage={setLanguage}
           setUrl={setUrl}
           isPro={isPro}
+          onUseOptimized={handleUseOptimized}
         />
 
         {/* Tags */}

@@ -126,6 +126,60 @@ export async function explainCode(input: z.input<typeof explainCodeSchema>) {
   }
 }
 
+const optimizePromptSchema = z.object({
+  content: z.string().trim().min(1),
+})
+
+export async function optimizePrompt(input: z.input<typeof optimizePromptSchema>) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
+  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
+
+  const rl = await checkAiTagLimit(session.user.id)
+  if (rl.limited) {
+    return {
+      success: false as const,
+      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
+    }
+  }
+
+  const parsed = optimizePromptSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false as const, error: "Invalid input" }
+  }
+
+  const { content } = parsed.data
+  const truncated = content.slice(0, 3000)
+
+  try {
+    const client = getOpenAI()
+    const completion = await client.chat.completions.create({
+      model: AI_MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an expert prompt engineer. Improve the given prompt to make it clearer, more specific, and more effective while preserving the original intent. Return only the improved prompt text — no explanations, no preamble, no quotes.",
+        },
+        {
+          role: "user",
+          content: `Optimize this prompt:\n\n${truncated}`,
+        },
+      ],
+    })
+
+    const text = completion.choices[0]?.message?.content?.trim()
+    if (!text) {
+      return { success: false as const, error: "AI returned an empty response. Please try again." }
+    }
+
+    return { success: true as const, data: text }
+  } catch (err) {
+    console.error("[optimizePrompt]", err)
+    return { success: false as const, error: "AI service unavailable. Please try again." }
+  }
+}
+
 const generateAutoTagsSchema = z.object({
   title: z.string().trim().min(1),
   content: z.string().optional(),

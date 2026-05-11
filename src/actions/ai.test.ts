@@ -16,7 +16,7 @@ vi.mock("@/lib/openai", () => ({
 import { auth } from "@/auth"
 import { checkAiTagLimit } from "@/lib/rate-limit"
 import { getOpenAI } from "@/lib/openai"
-import { generateAutoTags, generateDescription, explainCode } from "@/actions/ai"
+import { generateAutoTags, generateDescription, explainCode, optimizePrompt } from "@/actions/ai"
 
 const mockAuth = vi.mocked(auth)
 const mockCheckAiTagLimit = vi.mocked(checkAiTagLimit)
@@ -244,6 +244,65 @@ describe("generateDescription", () => {
     } as never)
 
     const result = await generateDescription({ title: "My file", typeName: "file", fileName: "report.pdf" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("AI service unavailable")
+  })
+})
+
+describe("optimizePrompt", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockCheckAiTagLimit.mockResolvedValue({ limited: false })
+  })
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never)
+    const result = await optimizePrompt({ content: "Write me a poem" })
+    expect(result).toEqual({ success: false, error: "Unauthorized" })
+  })
+
+  it("returns error for free users", async () => {
+    mockAuth.mockResolvedValue(freeSession as never)
+    const result = await optimizePrompt({ content: "Write me a poem" })
+    expect(result).toEqual({ success: false, error: "Pro plan required for AI features" })
+  })
+
+  it("returns rate limit error when limit exceeded", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockCheckAiTagLimit.mockResolvedValue({ limited: true, retryAfterSeconds: 30 })
+    const result = await optimizePrompt({ content: "Write me a poem" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Rate limit exceeded")
+  })
+
+  it("returns optimized prompt from AI", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockOpenAI("Write a haiku about the ocean with vivid imagery and a sense of calm.")
+    const result = await optimizePrompt({ content: "Write me a poem about the sea" })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data).toBe("Write a haiku about the ocean with vivid imagery and a sense of calm.")
+    }
+  })
+
+  it("returns error when AI returns empty content", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockOpenAI("")
+    const result = await optimizePrompt({ content: "Summarize this" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("empty response")
+  })
+
+  it("returns error when AI service throws", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockGetOpenAI.mockReturnValue({
+      chat: {
+        completions: {
+          create: vi.fn().mockRejectedValue(new Error("Timeout")),
+        },
+      },
+    } as never)
+    const result = await optimizePrompt({ content: "Tell me about React hooks" })
     expect(result.success).toBe(false)
     expect(result.error).toContain("AI service unavailable")
   })
