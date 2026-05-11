@@ -5,16 +5,18 @@ import { Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { useEditorPreferences } from "@/context/editor-preferences-context"
+import { LANGUAGES } from "@/constants/languages"
 
 interface CodeEditorProps {
   value: string
   language?: string
   onChange?: (value: string) => void
+  onLanguageChange?: (lang: string) => void
   readOnly?: boolean
   className?: string
 }
 
-export function CodeEditor({ value, language, onChange, readOnly = false, className }: CodeEditorProps) {
+export function CodeEditor({ value, language, onChange, onLanguageChange, readOnly = false, className }: CodeEditorProps) {
   const { copied, copy: handleCopy } = useCopyToClipboard()
   const { prefs } = useEditorPreferences()
 
@@ -26,9 +28,21 @@ export function CodeEditor({ value, language, onChange, readOnly = false, classN
           <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
           <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
           <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-          {language && (
+          {onLanguageChange && !readOnly ? (
+            <select
+              value={language ?? "plaintext"}
+              onChange={(e) => onLanguageChange(e.target.value)}
+              className="ml-2 text-[11px] font-mono text-white/50 bg-transparent border-none outline-none cursor-pointer hover:text-white/80 transition-colors appearance-none pr-3"
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.value} value={lang.value} className="bg-[#2d2d2d] text-white">
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          ) : language ? (
             <span className="ml-2 text-[11px] text-white/40 font-mono capitalize">{language}</span>
-          )}
+          ) : null}
         </div>
         <button
           onClick={() => handleCopy(value)}

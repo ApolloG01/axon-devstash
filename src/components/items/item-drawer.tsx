@@ -200,15 +200,13 @@ function ItemContentSection({ item, editing, content, language, url, setContent,
         editing ? (
           <div className="space-y-2">
             {isLanguageType ? (
-              <>
-                <input
-                  className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary font-mono"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  placeholder="Language (e.g. typescript)"
-                />
-                <CodeEditor value={content} language={language || undefined} onChange={setContent} readOnly={false} />
-              </>
+              <CodeEditor
+                value={content}
+                language={language || "plaintext"}
+                onChange={setContent}
+                onLanguageChange={setLanguage}
+                readOnly={false}
+              />
             ) : isMarkdownType ? (
               <MarkdownEditor value={content} onChange={setContent} />
             ) : (

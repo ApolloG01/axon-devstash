@@ -2,15 +2,21 @@
 
 ## Status
 
-Not Started
+Completed
 
 ## Goals
 
-<!-- Add goals here -->
+- Replace the language text input in both the new-item dialog and the item drawer edit mode with a styled dropdown (select) of common languages
+- Position the dropdown inside the CodeEditor header bar (above the Monaco editor), replacing the plain language label
+- Selecting a language immediately updates Monaco syntax highlighting as you type
+- Remove the now-redundant standalone language input fields
+- In new-item-dialog: also upgrade snippet/command from plain `<textarea>` to `CodeEditor`
 
 ## Notes
 
-<!-- Add notes here -->
+- `LANGUAGES` constant defined in `src/constants/languages.ts` — array of `{ label, value }` where value is the Monaco language identifier
+- `CodeEditor` gains `onLanguageChange?: (lang: string) => void` prop; when provided and not readOnly, renders a `<select>` in the header instead of the static label
+- Branch: `feature/language-dropdown`
 
 ## History
 
@@ -69,3 +75,5 @@ Not Started
 - **2026-05-08**: Completed Auth Nav + Dashboard Logo — `LogoMark` SVG extracted to `src/components/shared/logo-mark.tsx`; homepage `Navbar` added to `(auth)` layout so all auth pages get the top nav (anchor links updated to root-relative `/#features`/`/#pricing`); `LogoMark` icon added to dashboard header logo link; redundant app-name headings removed from sign-in form and register page.
 - **2026-05-08**: Completed Stripe Integration Phase 1 — `stripe` + `@stripe/stripe-js` installed; `Session`/`JWT` types extended with `isPro: boolean`; always-sync JWT callback reads `isPro` from DB on every session validation; `src/lib/stripe.ts` (client singleton, `STRIPE_PRICES`, API v2026-04-22.dahlia); `src/lib/usage-limits.ts` (`checkItemLimit`/`checkCollectionLimit` pure helpers); `src/actions/billing.ts` (`createCheckoutSession`, `createBillingPortalSession`); 50-item Free limit in `createItem`, 3-collection Free limit in `createCollection`; `NEXT_PUBLIC_APP_URL` added to `.env`; 6 Vitest unit tests for usage-limits all passing.
 - **2026-05-10**: Completed Stripe Integration Phase 2 — `POST /api/stripe/webhook` with raw-body signature verification, `checkout.session.completed` (set isPro + stripeCustomerId + stripeSubscriptionId) and `customer.subscription.deleted` (clear isPro + stripeSubscriptionId) handlers; `POST /api/upload` gated with 403 for Free users before any file processing; file/image item types filtered out for Free users in dashboard layout, `/items/[type]`, and `/collections/[id]`; `BillingSection` component (interval toggle + Upgrade for Free; Pro badge + Manage Billing for Pro); `/settings` extended with Billing section, `?upgraded=1` toast, and `isPro`/`stripeCustomerId` user query.
+- **2026-05-11**: Completed Upgrade Page — ghost "Upgrade" button (with Zap icon) added to dashboard header, visible only for free users; `/upgrade` route added inside `(dashboard)` group with redirect to `/settings` for Pro users; `UpgradePageClient` component mirrors homepage pricing section with monthly/yearly toggle, two-card layout reusing `PRICING_TIERS` data, Free card shows "Current Plan" (disabled), Pro card wires to `createCheckoutSession` server action; `/upgrade` added to proxy middleware guard.
+- **2026-05-11**: Completed Language Dropdown in CodeEditor — `src/constants/languages.ts` defines 34 common languages (Monaco identifiers); `CodeEditor` gains `onLanguageChange` prop: when provided and not readOnly, renders a styled `<select>` in the macOS header bar replacing the static language label; selecting a language immediately updates Monaco syntax highlighting as you type; `new-item-dialog` upgraded to use `CodeEditor` (replacing plain textarea) for snippet/command types with language selector; `item-drawer` edit mode removes standalone language text input, language selector is now embedded in the editor header.
