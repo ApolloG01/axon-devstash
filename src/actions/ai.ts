@@ -5,6 +5,70 @@ import { auth } from "@/auth"
 import { getOpenAI, AI_MODEL } from "@/lib/openai"
 import { checkAiTagLimit } from "@/lib/rate-limit"
 
+const generateDescriptionSchema = z.object({
+  title: z.string().trim().min(1),
+  typeName: z.string().trim().min(1),
+  content: z.string().optional(),
+  url: z.string().optional(),
+  fileName: z.string().optional(),
+  fileSize: z.number().optional(),
+})
+
+export async function generateDescription(input: z.input<typeof generateDescriptionSchema>) {
+  const session = await auth()
+  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
+  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
+
+  const rl = await checkAiTagLimit(session.user.id)
+  if (rl.limited) {
+    return {
+      success: false as const,
+      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
+    }
+  }
+
+  const parsed = generateDescriptionSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false as const, error: "Invalid input" }
+  }
+
+  const { title, typeName, content, url, fileName, fileSize } = parsed.data
+
+  let context = `Item type: ${typeName}\nTitle: ${title}`
+  if (content) context += `\nContent:\n${content.slice(0, 2000)}`
+  if (url) context += `\nURL: ${url}`
+  if (fileName) context += `\nFile name: ${fileName}`
+  if (fileSize != null) context += `\nFile size: ${fileSize} bytes`
+
+  try {
+    const client = getOpenAI()
+    const completion = await client.chat.completions.create({
+      model: AI_MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a developer knowledge base assistant. Write a concise 1-2 sentence description for the given item that helps the user understand what it is and why it's useful. Be specific and practical. Return plain text only — no markdown, no bullet points, no quotes.",
+        },
+        {
+          role: "user",
+          content: `Write a short description for this ${typeName}:\n${context}`,
+        },
+      ],
+    })
+
+    const text = completion.choices[0]?.message?.content?.trim()
+    if (!text) {
+      return { success: false as const, error: "AI returned an empty response. Please try again." }
+    }
+
+    return { success: true as const, data: text }
+  } catch (err) {
+    console.error("[generateDescription]", err)
+    return { success: false as const, error: "AI service unavailable. Please try again." }
+  }
+}
+
 const generateAutoTagsSchema = z.object({
   title: z.string().trim().min(1),
   content: z.string().optional(),

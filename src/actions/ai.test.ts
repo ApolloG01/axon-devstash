@@ -16,7 +16,7 @@ vi.mock("@/lib/openai", () => ({
 import { auth } from "@/auth"
 import { checkAiTagLimit } from "@/lib/rate-limit"
 import { getOpenAI } from "@/lib/openai"
-import { generateAutoTags } from "@/actions/ai"
+import { generateAutoTags, generateDescription } from "@/actions/ai"
 
 const mockAuth = vi.mocked(auth)
 const mockCheckAiTagLimit = vi.mocked(checkAiTagLimit)
@@ -107,6 +107,84 @@ describe("generateAutoTags", () => {
     } as never)
 
     const result = await generateAutoTags({ title: "Test", typeName: "snippet" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("AI service unavailable")
+  })
+})
+
+describe("generateDescription", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockCheckAiTagLimit.mockResolvedValue({ limited: false })
+  })
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never)
+    const result = await generateDescription({ title: "Test", typeName: "snippet" })
+    expect(result).toEqual({ success: false, error: "Unauthorized" })
+  })
+
+  it("returns error for free users", async () => {
+    mockAuth.mockResolvedValue(freeSession as never)
+    const result = await generateDescription({ title: "Test", typeName: "snippet" })
+    expect(result).toEqual({ success: false, error: "Pro plan required for AI features" })
+  })
+
+  it("returns rate limit error when limit exceeded", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockCheckAiTagLimit.mockResolvedValue({ limited: true, retryAfterSeconds: 30 })
+    const result = await generateDescription({ title: "Test", typeName: "snippet" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Rate limit exceeded")
+  })
+
+  it("returns generated description from AI", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockGetOpenAI.mockReturnValue({
+      chat: {
+        completions: {
+          create: vi.fn().mockResolvedValue({
+            choices: [{ message: { content: "A reusable React hook for debouncing values." } }],
+          }),
+        },
+      },
+    } as never)
+
+    const result = await generateDescription({ title: "useDebounce", typeName: "snippet", content: "function useDebounce..." })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data).toBe("A reusable React hook for debouncing values.")
+    }
+  })
+
+  it("returns error when AI returns empty content", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockGetOpenAI.mockReturnValue({
+      chat: {
+        completions: {
+          create: vi.fn().mockResolvedValue({
+            choices: [{ message: { content: "" } }],
+          }),
+        },
+      },
+    } as never)
+
+    const result = await generateDescription({ title: "Test", typeName: "link", url: "https://example.com" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("empty response")
+  })
+
+  it("returns error when AI service throws", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockGetOpenAI.mockReturnValue({
+      chat: {
+        completions: {
+          create: vi.fn().mockRejectedValue(new Error("Network error")),
+        },
+      },
+    } as never)
+
+    const result = await generateDescription({ title: "My file", typeName: "file", fileName: "report.pdf" })
     expect(result.success).toBe(false)
     expect(result.error).toContain("AI service unavailable")
   })

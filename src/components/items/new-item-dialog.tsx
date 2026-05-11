@@ -20,6 +20,7 @@ import { CodeEditor } from "@/components/items/code-editor"
 import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 import { TagSuggester } from "@/components/items/tag-suggester"
+import { DescriptionGenerator } from "@/components/items/description-generator"
 
 type ItemType = {
   id: string
@@ -102,12 +103,25 @@ function NewItemFormFields({
         <label className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Description
         </label>
-        <input
-          className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 focus:outline-none focus:border-primary"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Optional description"
-        />
+        <div className="relative">
+          <input
+            className="w-full text-sm bg-transparent border border-border rounded px-2.5 py-1.5 pr-8 focus:outline-none focus:border-primary"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Optional description"
+          />
+          <DescriptionGenerator
+            title={title}
+            typeName={typeName}
+            content={content || undefined}
+            url={url || undefined}
+            fileName={uploadedFile?.fileName || undefined}
+            fileSize={uploadedFile?.fileSize ?? undefined}
+            isPro={!!isPro}
+            onGenerate={setDescription}
+            className="absolute right-2 top-1/2 -translate-y-1/2"
+          />
+        </div>
       </div>
 
       {isTextContent && (

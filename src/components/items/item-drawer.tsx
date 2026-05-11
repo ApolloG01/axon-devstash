@@ -24,6 +24,7 @@ import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 import { TagSuggester } from "@/components/items/tag-suggester"
+import { DescriptionGenerator } from "@/components/items/description-generator"
 import type { SerializedItemFull } from "@/lib/db/items"
 
 function formatRelativeTime(dateStr: string): string {
@@ -433,13 +434,26 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
           <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
         )}
         {editing ? (
-          <textarea
-            className="w-full mt-1.5 text-xs text-muted-foreground bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary resize-none"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description (optional)"
-            rows={2}
-          />
+          <div className="relative mt-1.5">
+            <textarea
+              className="w-full text-xs text-muted-foreground bg-transparent border border-border rounded px-2 py-1.5 pr-7 focus:outline-none focus:border-primary resize-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description (optional)"
+              rows={2}
+            />
+            <DescriptionGenerator
+              title={title}
+              typeName={typeName}
+              content={content || undefined}
+              url={url || undefined}
+              fileName={item.fileName || undefined}
+              fileSize={item.fileSize ?? undefined}
+              isPro={!!isPro}
+              onGenerate={setDescription}
+              className="absolute right-2 top-2"
+            />
+          </div>
         ) : (
           item.description && (
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.description}</p>
