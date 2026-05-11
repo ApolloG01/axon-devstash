@@ -16,7 +16,7 @@ vi.mock("@/lib/openai", () => ({
 import { auth } from "@/auth"
 import { checkAiTagLimit } from "@/lib/rate-limit"
 import { getOpenAI } from "@/lib/openai"
-import { generateAutoTags, generateDescription } from "@/actions/ai"
+import { generateAutoTags, generateDescription, explainCode } from "@/actions/ai"
 
 const mockAuth = vi.mocked(auth)
 const mockCheckAiTagLimit = vi.mocked(checkAiTagLimit)
@@ -107,6 +107,65 @@ describe("generateAutoTags", () => {
     } as never)
 
     const result = await generateAutoTags({ title: "Test", typeName: "snippet" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("AI service unavailable")
+  })
+})
+
+describe("explainCode", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockCheckAiTagLimit.mockResolvedValue({ limited: false })
+  })
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as never)
+    const result = await explainCode({ content: "console.log('hi')", typeName: "snippet" })
+    expect(result).toEqual({ success: false, error: "Unauthorized" })
+  })
+
+  it("returns error for free users", async () => {
+    mockAuth.mockResolvedValue(freeSession as never)
+    const result = await explainCode({ content: "console.log('hi')", typeName: "snippet" })
+    expect(result).toEqual({ success: false, error: "Pro plan required for AI features" })
+  })
+
+  it("returns rate limit error when limit exceeded", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockCheckAiTagLimit.mockResolvedValue({ limited: true, retryAfterSeconds: 45 })
+    const result = await explainCode({ content: "ls -la", typeName: "command" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("Rate limit exceeded")
+  })
+
+  it("returns explanation from AI", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockOpenAI("This snippet logs 'hi' to the console.")
+    const result = await explainCode({ content: "console.log('hi')", language: "javascript", typeName: "snippet" })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data).toBe("This snippet logs 'hi' to the console.")
+    }
+  })
+
+  it("returns error when AI returns empty content", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockOpenAI("")
+    const result = await explainCode({ content: "echo hello", typeName: "command" })
+    expect(result.success).toBe(false)
+    expect(result.error).toContain("empty response")
+  })
+
+  it("returns error when AI service throws", async () => {
+    mockAuth.mockResolvedValue(proSession as never)
+    mockGetOpenAI.mockReturnValue({
+      chat: {
+        completions: {
+          create: vi.fn().mockRejectedValue(new Error("Timeout")),
+        },
+      },
+    } as never)
+    const result = await explainCode({ content: "select * from users", typeName: "snippet" })
     expect(result.success).toBe(false)
     expect(result.error).toContain("AI service unavailable")
   })

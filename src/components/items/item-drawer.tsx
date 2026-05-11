@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
 import { updateItem, deleteItem, toggleFavorite, togglePin } from "@/actions/items"
+import { explainCode } from "@/actions/ai"
 import { getCollectionsForPicker } from "@/actions/collections"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
@@ -187,9 +188,10 @@ interface ItemContentSectionProps {
   setContent: (v: string) => void
   setLanguage: (v: string) => void
   setUrl: (v: string) => void
+  isPro?: boolean
 }
 
-function ItemContentSection({ item, editing, content, language, url, setContent, setLanguage, setUrl }: ItemContentSectionProps) {
+function ItemContentSection({ item, editing, content, language, url, setContent, setLanguage, setUrl, isPro }: ItemContentSectionProps) {
   const typeName = item.itemType.name
   const isTextType = TEXT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
@@ -224,7 +226,19 @@ function ItemContentSection({ item, editing, content, language, url, setContent,
         ) : (
           item.content && (
             isLanguageType ? (
-              <CodeEditor value={item.content} language={item.language ?? undefined} readOnly />
+              <CodeEditor
+                value={item.content}
+                language={item.language ?? undefined}
+                readOnly
+                isPro={isPro}
+                onExplain={() =>
+                  explainCode({
+                    content: item.content!,
+                    language: item.language ?? undefined,
+                    typeName: item.itemType.name,
+                  })
+                }
+              />
             ) : isMarkdownType ? (
               <MarkdownEditor value={item.content} readOnly />
             ) : (
@@ -511,6 +525,7 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
           setContent={setContent}
           setLanguage={setLanguage}
           setUrl={setUrl}
+          isPro={isPro}
         />
 
         {/* Tags */}
