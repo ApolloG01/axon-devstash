@@ -79,6 +79,7 @@ export default async function ItemTypePage({
             collections={collections}
             defaultTypeId={currentType.id}
             label={`New ${typeName}`}
+            isPro={session.user.isPro}
           />
         )}
       </div>
@@ -87,6 +88,7 @@ export default async function ItemTypePage({
         items={items}
         emptyMessage={`No ${typeName}s yet.`}
         variant={typeName === "image" ? "image" : typeName === "file" ? "file" : "default"}
+        isPro={session.user.isPro}
       />
 
       <Pagination page={page} totalPages={totalPages} />

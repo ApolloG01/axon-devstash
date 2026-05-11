@@ -92,7 +92,7 @@ export default async function DashboardPage({
       {pinnedItems.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold mb-4">Pinned</h2>
-          <ItemGrid items={pinnedItems} />
+          <ItemGrid items={pinnedItems} isPro={session.user.isPro} />
         </section>
       )}
 
@@ -118,7 +118,7 @@ export default async function DashboardPage({
             </p>
           </div>
         ) : (
-          <ItemGrid items={recentItems} />
+          <ItemGrid items={recentItems} isPro={session.user.isPro} />
         )}
       </section>
     </div>

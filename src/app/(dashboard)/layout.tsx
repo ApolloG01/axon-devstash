@@ -79,7 +79,7 @@ export default async function DashboardLayout({
           >
             <Star className="h-4 w-4" />
           </Link>
-          <DashboardNewItemButton itemTypes={visibleItemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} />
+          <DashboardNewItemButton itemTypes={visibleItemTypes} collections={collections.map((c) => ({ id: c.id, name: c.name }))} isPro={session.user.isPro} />
         </div>
       </header>
 

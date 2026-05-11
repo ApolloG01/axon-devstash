@@ -75,6 +75,7 @@ export default async function CollectionDetailPage({
             itemTypes={visibleItemTypes}
             collections={collections}
             label="New Item"
+            isPro={session.user.isPro}
           />
         </div>
       </div>
@@ -82,6 +83,7 @@ export default async function CollectionDetailPage({
       <ItemGrid
         items={items}
         emptyMessage="No items in this collection yet."
+        isPro={session.user.isPro}
       />
 
       <Pagination page={page} totalPages={totalPages} />

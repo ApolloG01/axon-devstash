@@ -19,6 +19,7 @@ import { MarkdownEditor } from "@/components/items/markdown-editor"
 import { CodeEditor } from "@/components/items/code-editor"
 import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
+import { TagSuggester } from "@/components/items/tag-suggester"
 
 type ItemType = {
   id: string
@@ -44,6 +45,7 @@ interface NewItemDialogProps {
   itemTypes: ItemType[]
   collections: CollectionOption[]
   defaultTypeId?: string
+  isPro?: boolean
 }
 
 interface NewItemFormFieldsProps {
@@ -59,6 +61,7 @@ interface NewItemFormFieldsProps {
   collections: CollectionOption[]
   selectedCollectionIds: string[]
   setSelectedCollectionIds: (ids: string[]) => void
+  isPro?: boolean
 }
 
 function NewItemFormFields({
@@ -71,6 +74,7 @@ function NewItemFormFields({
   tags, setTags,
   uploadedFile, setUploadedFile,
   collections, selectedCollectionIds, setSelectedCollectionIds,
+  isPro,
 }: NewItemFormFieldsProps) {
   const isTextContent = TEXT_CONTENT_TYPES.has(typeName)
   const isLanguageType = LANGUAGE_TYPES.has(typeName)
@@ -172,6 +176,18 @@ function NewItemFormFields({
           placeholder="react, typescript, hooks"
         />
         <p className="text-[10px] text-muted-foreground">Comma-separated</p>
+        <TagSuggester
+          title={title}
+          content={content || url || undefined}
+          typeName={typeName}
+          isPro={!!isPro}
+          onAccept={(tag) => {
+            const existing = tags.split(",").map((t) => t.trim()).filter(Boolean)
+            if (!existing.includes(tag)) {
+              setTags(existing.length > 0 ? `${tags.trim()}, ${tag}` : tag)
+            }
+          }}
+        />
       </div>
 
       {collections.length > 0 && (
@@ -190,7 +206,7 @@ function NewItemFormFields({
   )
 }
 
-export function NewItemDialog({ open, onOpenChange, itemTypes, collections, defaultTypeId }: NewItemDialogProps) {
+export function NewItemDialog({ open, onOpenChange, itemTypes, collections, defaultTypeId, isPro }: NewItemDialogProps) {
   const router = useRouter()
 
   const initialTypeId = defaultTypeId ?? itemTypes[0]?.id ?? ""
@@ -315,6 +331,7 @@ export function NewItemDialog({ open, onOpenChange, itemTypes, collections, defa
           collections={collections}
           selectedCollectionIds={selectedCollectionIds}
           setSelectedCollectionIds={setSelectedCollectionIds}
+          isPro={isPro}
         />
 
         <DialogFooter>
@@ -336,9 +353,10 @@ interface NewItemButtonProps {
   collections: CollectionOption[]
   defaultTypeId?: string
   label?: string
+  isPro?: boolean
 }
 
-export function NewItemButton({ itemTypes, collections, defaultTypeId, label = "New Item" }: NewItemButtonProps) {
+export function NewItemButton({ itemTypes, collections, defaultTypeId, label = "New Item", isPro }: NewItemButtonProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -347,7 +365,7 @@ export function NewItemButton({ itemTypes, collections, defaultTypeId, label = "
         <Plus className="h-4 w-4" />
         {label}
       </Button>
-      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} collections={collections} defaultTypeId={defaultTypeId} />
+      <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} collections={collections} defaultTypeId={defaultTypeId} isPro={isPro} />
     </>
   )
 }

@@ -23,6 +23,7 @@ import { getCollectionsForPicker } from "@/actions/collections"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
+import { TagSuggester } from "@/components/items/tag-suggester"
 import type { SerializedItemFull } from "@/lib/db/items"
 
 function formatRelativeTime(dateStr: string): string {
@@ -294,9 +295,10 @@ interface DrawerBodyProps {
   item: SerializedItemFull
   onItemUpdate: (updated: SerializedItemFull) => void
   onClose: () => void
+  isPro?: boolean
 }
 
-function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
+function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -508,6 +510,20 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
               placeholder="react, typescript, hooks"
             />
             <p className="text-[10px] text-muted-foreground mt-1">Comma-separated</p>
+            <div className="mt-1.5">
+              <TagSuggester
+                title={title}
+                content={content || url || undefined}
+                typeName={item.itemType.name}
+                isPro={!!isPro}
+                onAccept={(tag) => {
+                  const existing = tags.split(",").map((t) => t.trim()).filter(Boolean)
+                  if (!existing.includes(tag)) {
+                    setTags(existing.length > 0 ? `${tags.trim()}, ${tag}` : tag)
+                  }
+                }}
+              />
+            </div>
           </div>
         ) : (
           item.tags.length > 0 && (
@@ -566,9 +582,10 @@ function DrawerBody({ item, onItemUpdate, onClose }: DrawerBodyProps) {
 interface ItemDrawerProps {
   itemId: string | null
   onClose: () => void
+  isPro?: boolean
 }
 
-export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
+export function ItemDrawer({ itemId, onClose, isPro }: ItemDrawerProps) {
   const [item, setItem] = useState<SerializedItemFull | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -595,7 +612,7 @@ export function ItemDrawer({ itemId, onClose }: ItemDrawerProps) {
     <Sheet open={!!itemId} onOpenChange={(open: boolean) => { if (!open) onClose() }}>
       <SheetContent side="right" showCloseButton className="w-full sm:max-w-md p-0 gap-0 overflow-hidden">
         {loading && <DrawerSkeleton />}
-        {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} onClose={onClose} />}
+        {!loading && item && <DrawerBody item={item} onItemUpdate={setItem} onClose={onClose} isPro={isPro} />}
       </SheetContent>
     </Sheet>
   )
