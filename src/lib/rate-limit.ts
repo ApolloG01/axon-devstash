@@ -76,6 +76,11 @@ export async function checkSignInLimit(ip: string, email: string): Promise<RateL
   return check("sign-in", 5, "15 m", `${ip}:${email}`)
 }
 
+// 50 requests per hour, keyed by userId
+export async function checkAiTagLimit(userId: string): Promise<RateLimitResult> {
+  return check("ai-tag", 50, "1 h", userId)
+}
+
 // Reads IP from next/headers — use inside Server Actions
 export async function getActionIp(): Promise<string> {
   const h = await headers()

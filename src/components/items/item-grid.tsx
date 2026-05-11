@@ -11,9 +11,10 @@ interface ItemGridProps {
   items: ItemWithType[]
   emptyMessage?: string
   variant?: "default" | "image" | "file"
+  isPro?: boolean
 }
 
-export function ItemGrid({ items, emptyMessage = "No items yet.", variant = "default" }: ItemGridProps) {
+export function ItemGrid({ items, emptyMessage = "No items yet.", variant = "default", isPro }: ItemGridProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   if (items.length === 0) {
@@ -45,7 +46,7 @@ export function ItemGrid({ items, emptyMessage = "No items yet.", variant = "def
           ))}
         </div>
       )}
-      <ItemDrawer itemId={selectedId} onClose={() => setSelectedId(null)} />
+      <ItemDrawer itemId={selectedId} onClose={() => setSelectedId(null)} isPro={isPro} />
     </>
   )
 }

@@ -28,7 +28,7 @@ export default async function FavoritesPage() {
         </span>
       </div>
 
-      <FavoritesList items={items} collections={collections} />
+      <FavoritesList items={items} collections={collections} isPro={session.user.isPro} />
     </div>
   )
 }

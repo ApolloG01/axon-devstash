@@ -14,6 +14,7 @@ type CollectionSortKey = "name" | "date"
 interface FavoritesListProps {
   items: FavoriteItem[]
   collections: FavoriteCollection[]
+  isPro?: boolean
 }
 
 function formatDate(date: Date) {
@@ -44,7 +45,7 @@ function SortSelect<T extends string>({
   )
 }
 
-export function FavoritesList({ items, collections }: FavoritesListProps) {
+export function FavoritesList({ items, collections, isPro }: FavoritesListProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [itemSort, setItemSort] = useState<ItemSortKey>("date")
   const [collectionSort, setCollectionSort] = useState<CollectionSortKey>("date")
@@ -166,7 +167,7 @@ export function FavoritesList({ items, collections }: FavoritesListProps) {
         )}
       </div>
 
-      <ItemDrawer itemId={selectedItemId} onClose={() => setSelectedItemId(null)} />
+      <ItemDrawer itemId={selectedItemId} onClose={() => setSelectedItemId(null)} isPro={isPro} />
     </>
   )
 }
