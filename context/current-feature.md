@@ -2,21 +2,15 @@
 
 ## Status
 
-Completed
+Not Started
 
 ## Goals
 
-- Replace the language text input in both the new-item dialog and the item drawer edit mode with a styled dropdown (select) of common languages
-- Position the dropdown inside the CodeEditor header bar (above the Monaco editor), replacing the plain language label
-- Selecting a language immediately updates Monaco syntax highlighting as you type
-- Remove the now-redundant standalone language input fields
-- In new-item-dialog: also upgrade snippet/command from plain `<textarea>` to `CodeEditor`
+<!-- Add goals here -->
 
 ## Notes
 
-- `LANGUAGES` constant defined in `src/constants/languages.ts` — array of `{ label, value }` where value is the Monaco language identifier
-- `CodeEditor` gains `onLanguageChange?: (lang: string) => void` prop; when provided and not readOnly, renders a `<select>` in the header instead of the static label
-- Branch: `feature/language-dropdown`
+<!-- Add notes here -->
 
 ## History
 
