@@ -14,27 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { EditCollectionDialog } from "@/components/collections/edit-collection-dialog"
+import { DeleteCollectionDialog } from "@/components/collections/delete-collection-dialog"
 
 export function CollectionCard({ collection }: { collection: CollectionWithTypes }) {
   const router = useRouter()
@@ -55,10 +36,6 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
         toast.error(result.error ?? "Failed to update")
       }
     })
-  }
-
-  function handleCardClick() {
-    router.push(`/collections/${collection.id}`)
   }
 
   function handleSave() {
@@ -89,7 +66,7 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
   return (
     <>
       <div
-        onClick={handleCardClick}
+        onClick={() => router.push(`/collections/${collection.id}`)}
         className="group relative rounded-lg border border-border bg-card hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer"
       >
         <div className="h-1 w-full" style={{ backgroundColor: collection.accentColor }} />
@@ -118,10 +95,7 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
                 >
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenuItem onSelect={() => { setName(collection.name); setDescription(collection.description ?? ""); setEditOpen(true) }}>
                     <Pencil className="h-3.5 w-3.5 mr-2" />
                     Edit
@@ -157,11 +131,7 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
                 {collection.typeIcons.map((type) => {
                   const Icon = ICON_MAP[type.icon]
                   return Icon ? (
-                    <Icon
-                      key={type.name}
-                      className="h-3 w-3"
-                      style={{ color: type.color }}
-                    />
+                    <Icon key={type.name} className="h-3 w-3" style={{ color: type.color }} />
                   ) : null
                 })}
               </div>
@@ -170,65 +140,24 @@ export function CollectionCard({ collection }: { collection: CollectionWithTypes
         </div>
       </div>
 
-      {/* Edit Dialog */}
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Collection</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="col-name">Name</Label>
-              <Input
-                id="col-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Collection name"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="col-desc">Description</Label>
-              <Textarea
-                id="col-desc"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description"
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isPending || !name.trim()}>
-              {isPending ? "Saving…" : "Save"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditCollectionDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        name={name}
+        onNameChange={setName}
+        description={description}
+        onDescriptionChange={setDescription}
+        onSave={handleSave}
+        isPending={isPending}
+      />
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete &ldquo;{collection.name}&rdquo;?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will delete the collection. Items inside will not be deleted — they will simply no longer belong to this collection.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isPending}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isPending ? "Deleting…" : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteCollectionDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        collectionName={collection.name}
+        onDelete={handleDelete}
+        isPending={isPending}
+      />
     </>
   )
 }

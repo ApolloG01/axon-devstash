@@ -2,13 +2,15 @@
 
 import { useState } from "react"
 import Editor from "@monaco-editor/react"
-import { Copy, Check, Sparkles, Loader2, Crown, RefreshCw } from "lucide-react"
+import { Copy, Check, Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { cn } from "@/lib/utils"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { useEditorPreferences } from "@/context/editor-preferences-context"
 import { LANGUAGES } from "@/constants/languages"
+import { MacOsDots } from "@/components/shared/macos-dots"
+import { AIActionButton } from "@/components/items/ai-action-button"
 
 type ExplainResult = { success: boolean; data?: string; error?: string }
 
@@ -53,13 +55,6 @@ export function CodeEditor({
     setActiveTab("explain")
   }
 
-  const handleUpgradePrompt = async () => {
-    const { toast } = await import("sonner")
-    toast.info("Upgrade to Pro to use AI features", {
-      action: { label: "Upgrade", onClick: () => { window.location.href = "/upgrade" } },
-    })
-  }
-
   const hasExplanation = explanation !== null
 
   return (
@@ -68,9 +63,7 @@ export function CodeEditor({
       <div className="flex items-center justify-between px-3 py-2 bg-[#1e1e1e] border-b border-white/[0.06]">
         {/* Left side: dots + language or tabs */}
         <div className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full bg-[#ff5f57] shrink-0" />
-          <span className="h-3 w-3 rounded-full bg-[#febc2e] shrink-0" />
-          <span className="h-3 w-3 rounded-full bg-[#28c840] shrink-0" />
+          <MacOsDots />
 
           {hasExplanation ? (
             <div className="flex items-center gap-0.5 ml-2">
@@ -115,36 +108,16 @@ export function CodeEditor({
         {/* Right side: explain controls + copy */}
         <div className="flex items-center gap-2">
           {onExplain && (
-            explaining ? (
-              <span className="flex items-center gap-1 text-[11px] text-white/40">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Explaining…
-              </span>
-            ) : hasExplanation ? (
-              <button
-                onClick={handleExplain}
-                className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70 transition-colors"
-                title="Regenerate explanation"
-              >
-                <RefreshCw className="h-3 w-3" />
-              </button>
-            ) : isPro ? (
-              <button
-                onClick={handleExplain}
-                className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70 transition-colors"
-              >
-                <Sparkles className="h-3 w-3" />
-                Explain
-              </button>
-            ) : (
-              <button
-                onClick={handleUpgradePrompt}
-                className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 transition-colors"
-              >
-                <Crown className="h-3 w-3" />
-                Explain
-              </button>
-            )
+            <AIActionButton
+              loading={explaining}
+              hasResult={hasExplanation}
+              isPro={isPro}
+              loadingLabel="Explaining…"
+              actionLabel="Explain"
+              icon={Sparkles}
+              onAction={handleExplain}
+              regenerateTitle="Regenerate explanation"
+            />
           )}
 
           <button

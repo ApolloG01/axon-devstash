@@ -1,9 +1,7 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Star, Pin, Copy, Pencil, Trash2, ExternalLink, Save, X, Download } from "lucide-react"
-import { toast } from "sonner"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import {
   AlertDialog,
@@ -16,29 +14,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { ICON_MAP } from "@/constants/icon-map"
 import { cn } from "@/lib/utils"
-import { updateItem, deleteItem, toggleFavorite, togglePin } from "@/actions/items"
 import { explainCode, optimizePrompt } from "@/actions/ai"
-import { getCollectionsForPicker } from "@/actions/collections"
 import { CodeEditor } from "@/components/items/code-editor"
 import { MarkdownEditor } from "@/components/items/markdown-editor"
-import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
-import { TagSuggester } from "@/components/items/tag-suggester"
-import { DescriptionGenerator } from "@/components/items/description-generator"
+import { DrawerHeader } from "@/components/items/drawer-header"
+import { DrawerMetadata } from "@/components/items/drawer-metadata"
+import { useItemDrawerState } from "@/hooks/use-item-drawer-state"
 import type { SerializedItemFull } from "@/lib/db/items"
-
-function formatRelativeTime(dateStr: string): string {
-  const diffMs = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diffMs / 60_000)
-  const hours = Math.floor(mins / 60)
-  const days = Math.floor(hours / 24)
-  if (mins < 1) return "just now"
-  if (mins < 60) return `${mins}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 30) return `${days}d ago`
-  return new Date(dateStr).toLocaleDateString()
-}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -283,7 +266,7 @@ function ItemContentSection({ item, editing, content, language, url, setContent,
 
       {item.contentType === "file" && (
         <div className="space-y-3">
-          {typeName === "image" && item.fileUrl && (
+          {item.itemType.name === "image" && item.fileUrl && (
             <div className="rounded-md overflow-hidden border border-border bg-muted/20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={item.fileUrl} alt={item.fileName ?? "Image"} className="w-full max-h-72 object-contain" />
@@ -321,181 +304,53 @@ interface DrawerBodyProps {
 }
 
 function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
-  const router = useRouter()
-  const [copied, setCopied] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [toggling, setToggling] = useState(false)
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-
-  const [title, setTitle] = useState(item.title)
-  const [description, setDescription] = useState(item.description ?? "")
-  const [content, setContent] = useState(item.content ?? "")
-  const [language, setLanguage] = useState(item.language ?? "")
-  const [url, setUrl] = useState(item.url ?? "")
-  const [tags, setTags] = useState(item.tags.map((t) => t.name).join(", "))
-  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(
-    item.collections.map((c) => c.collection.id)
-  )
-  const [availableCollections, setAvailableCollections] = useState<CollectionOption[]>([])
-
-  const typeName = item.itemType.name
-  const isTextType = TEXT_TYPES.has(typeName)
-  const isLanguageType = LANGUAGE_TYPES.has(typeName)
-  const isUrlType = typeName === "link"
-  const copyText = item.contentType === "url" ? item.url : item.content
-  const IconComponent = ICON_MAP[item.itemType.icon]
-
-  const handleCopy = useCallback(async () => {
-    if (!copyText) return
-    await navigator.clipboard.writeText(copyText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }, [copyText])
-
-  const handleEdit = async () => {
-    setTitle(item.title)
-    setDescription(item.description ?? "")
-    setContent(item.content ?? "")
-    setLanguage(item.language ?? "")
-    setUrl(item.url ?? "")
-    setTags(item.tags.map((t) => t.name).join(", "))
-    setSelectedCollectionIds(item.collections.map((c) => c.collection.id))
-    setEditing(true)
-    if (availableCollections.length === 0) {
-      const cols = await getCollectionsForPicker()
-      setAvailableCollections(cols)
-    }
-  }
-
-  const handleUseOptimized = async (optimized: string) => {
-    setTitle(item.title)
-    setDescription(item.description ?? "")
-    setContent(optimized)
-    setLanguage(item.language ?? "")
-    setUrl(item.url ?? "")
-    setTags(item.tags.map((t) => t.name).join(", "))
-    setSelectedCollectionIds(item.collections.map((c) => c.collection.id))
-    setEditing(true)
-    if (availableCollections.length === 0) {
-      const cols = await getCollectionsForPicker()
-      setAvailableCollections(cols)
-    }
-  }
-
-  const handleSave = async () => {
-    setSaving(true)
-    const tagArray = tags.split(",").map((t) => t.trim()).filter(Boolean)
-    const result = await updateItem(item.id, {
-      title,
-      description: description || null,
-      content: isTextType ? content || null : null,
-      url: isUrlType ? url || null : null,
-      language: isLanguageType ? language || null : null,
-      tags: tagArray,
-      collectionIds: selectedCollectionIds,
-    })
-    setSaving(false)
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to save changes")
-      return
-    }
-    toast.success("Changes saved")
-    onItemUpdate(result.data as unknown as SerializedItemFull)
-    setEditing(false)
-    router.refresh()
-  }
-
-  const handleToggleFavorite = async () => {
-    setToggling(true)
-    const result = await toggleFavorite(item.id)
-    setToggling(false)
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to update")
-      return
-    }
-    onItemUpdate(result.data as unknown as SerializedItemFull)
-    router.refresh()
-  }
-
-  const handleTogglePin = async () => {
-    setToggling(true)
-    const result = await togglePin(item.id)
-    setToggling(false)
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to update")
-      return
-    }
-    const pinned = (result.data as unknown as SerializedItemFull).isPinned
-    toast.success(pinned ? "Item pinned" : "Item unpinned")
-    onItemUpdate(result.data as unknown as SerializedItemFull)
-    router.refresh()
-  }
-
-  const handleDelete = async () => {
-    setDeleting(true)
-    const result = await deleteItem(item.id)
-    setDeleting(false)
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to delete item")
-      return
-    }
-    toast.success("Item deleted")
-    onClose()
-    router.refresh()
-  }
+  const {
+    copied,
+    editing,
+    saving,
+    toggling,
+    confirmDeleteOpen,
+    setConfirmDeleteOpen,
+    deleting,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    content,
+    setContent,
+    language,
+    setLanguage,
+    url,
+    setUrl,
+    tags,
+    setTags,
+    selectedCollectionIds,
+    setSelectedCollectionIds,
+    availableCollections,
+    copyText,
+    handleCopy,
+    handleEdit,
+    handleCancel,
+    handleUseOptimized,
+    handleSave,
+    handleToggleFavorite,
+    handleTogglePin,
+    handleDelete,
+  } = useItemDrawerState(item, onItemUpdate, onClose)
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-border pr-10">
-        <div className="flex items-center gap-1.5 mb-2">
-          {IconComponent && (
-            <IconComponent className="h-3.5 w-3.5 shrink-0" style={{ color: item.itemType.color }} />
-          )}
-          <span className="text-[11px] font-medium capitalize" style={{ color: item.itemType.color }}>
-            {item.itemType.name}
-          </span>
-        </div>
-        {editing ? (
-          <input
-            className="w-full text-base font-semibold leading-snug bg-transparent border-b border-border focus:outline-none focus:border-primary pb-0.5"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-            autoFocus
-          />
-        ) : (
-          <h2 className="text-base font-semibold leading-snug">{item.title}</h2>
-        )}
-        {editing ? (
-          <div className="relative mt-1.5">
-            <textarea
-              className="w-full text-xs text-muted-foreground bg-transparent border border-border rounded px-2 py-1.5 pr-7 focus:outline-none focus:border-primary resize-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description (optional)"
-              rows={2}
-            />
-            <DescriptionGenerator
-              title={title}
-              typeName={typeName}
-              content={content || undefined}
-              url={url || undefined}
-              fileName={item.fileName || undefined}
-              fileSize={item.fileSize ?? undefined}
-              isPro={!!isPro}
-              onGenerate={setDescription}
-              className="absolute right-2 top-2"
-            />
-          </div>
-        ) : (
-          item.description && (
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.description}</p>
-          )
-        )}
-      </div>
+      <DrawerHeader
+        item={item}
+        editing={editing}
+        title={title}
+        description={description}
+        content={content}
+        url={url}
+        isPro={isPro}
+        onTitleChange={setTitle}
+        onDescriptionChange={setDescription}
+      />
 
       <DrawerActionBar
         editing={editing}
@@ -509,7 +364,7 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
         onCopy={handleCopy}
         onEdit={handleEdit}
         onSave={handleSave}
-        onCancel={() => setEditing(false)}
+        onCancel={handleCancel}
         onToggleFavorite={handleToggleFavorite}
         onTogglePin={handleTogglePin}
         onDeleteClick={() => setConfirmDeleteOpen(true)}
@@ -536,7 +391,6 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-4">
         <ItemContentSection
           item={item}
@@ -551,79 +405,18 @@ function DrawerBody({ item, onItemUpdate, onClose, isPro }: DrawerBodyProps) {
           onUseOptimized={handleUseOptimized}
         />
 
-        {/* Tags */}
-        {editing ? (
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Tags</p>
-            <input
-              className="w-full text-xs bg-transparent border border-border rounded px-2 py-1.5 focus:outline-none focus:border-primary"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="react, typescript, hooks"
-            />
-            <p className="text-[10px] text-muted-foreground mt-1">Comma-separated</p>
-            <div className="mt-1.5">
-              <TagSuggester
-                title={title}
-                content={content || url || undefined}
-                typeName={item.itemType.name}
-                isPro={!!isPro}
-                onAccept={(tag) => {
-                  const existing = tags.split(",").map((t) => t.trim()).filter(Boolean)
-                  if (!existing.includes(tag)) {
-                    setTags(existing.length > 0 ? `${tags.trim()}, ${tag}` : tag)
-                  }
-                }}
-              />
-            </div>
-          </div>
-        ) : (
-          item.tags.length > 0 && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Tags</p>
-              <div className="flex flex-wrap gap-1.5">
-                {item.tags.map((tag) => (
-                  <span key={tag.name} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                    #{tag.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )
-        )}
-
-        {/* Collections */}
-        {editing ? (
-          availableCollections.length > 0 && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
-              <CollectionPicker
-                collections={availableCollections}
-                selectedIds={selectedCollectionIds}
-                onChange={setSelectedCollectionIds}
-              />
-            </div>
-          )
-        ) : (
-          item.collections.length > 0 && (
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5">Collections</p>
-              <div className="flex flex-wrap gap-1.5">
-                {item.collections.map(({ collection }) => (
-                  <span key={collection.id} className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                    {collection.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )
-        )}
-
-        {/* Last updated */}
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-0.5">Last Updated</p>
-          <p className="text-xs text-muted-foreground">{formatRelativeTime(item.updatedAt)}</p>
-        </div>
+        <DrawerMetadata
+          item={item}
+          editing={editing}
+          tags={tags}
+          content={content}
+          url={url}
+          selectedCollectionIds={selectedCollectionIds}
+          availableCollections={availableCollections}
+          isPro={isPro}
+          onTagsChange={setTags}
+          onCollectionsChange={setSelectedCollectionIds}
+        />
       </div>
     </div>
   )

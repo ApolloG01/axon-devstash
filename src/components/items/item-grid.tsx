@@ -5,6 +5,7 @@ import { ItemCard } from "@/components/dashboard/item-card"
 import { ImageThumbnailCard } from "@/components/items/image-thumbnail-card"
 import { FileListRow } from "@/components/items/file-list-row"
 import { ItemDrawer } from "@/components/items/item-drawer"
+import { EmptyState } from "@/components/shared/empty-state"
 import type { ItemWithType } from "@/lib/db/items"
 
 interface ItemGridProps {
@@ -18,11 +19,7 @@ export function ItemGrid({ items, emptyMessage = "No items yet.", variant = "def
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-muted-foreground text-sm">{emptyMessage}</p>
-      </div>
-    )
+    return <EmptyState title={emptyMessage} />
   }
 
   return (

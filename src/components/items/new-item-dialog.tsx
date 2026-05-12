@@ -21,6 +21,7 @@ import { FileUpload, type UploadedFile } from "@/components/items/file-upload"
 import { CollectionPicker, type CollectionOption } from "@/components/items/collection-picker"
 import { TagSuggester } from "@/components/items/tag-suggester"
 import { DescriptionGenerator } from "@/components/items/description-generator"
+import { appendTag } from "@/lib/tags"
 
 type ItemType = {
   id: string
@@ -195,12 +196,7 @@ function NewItemFormFields({
           content={content || url || undefined}
           typeName={typeName}
           isPro={!!isPro}
-          onAccept={(tag) => {
-            const existing = tags.split(",").map((t) => t.trim()).filter(Boolean)
-            if (!existing.includes(tag)) {
-              setTags(existing.length > 0 ? `${tags.trim()}, ${tag}` : tag)
-            }
-          }}
+          onAccept={(tag) => setTags(appendTag(tags, tag))}
         />
       </div>
 

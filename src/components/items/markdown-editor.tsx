@@ -3,9 +3,10 @@
 import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Copy, Check, Wand2, Loader2, Crown, RefreshCw } from "lucide-react"
+import { Copy, Check, Wand2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { AIActionButton } from "@/components/items/ai-action-button"
 
 type OptimizeResult = { success: boolean; data?: string; error?: string }
 
@@ -50,13 +51,6 @@ export function MarkdownEditor({
     }
     setOptimized(result.data)
     setActiveTab("optimized")
-  }
-
-  const handleUpgradePrompt = async () => {
-    const { toast } = await import("sonner")
-    toast.info("Upgrade to Pro to use AI features", {
-      action: { label: "Upgrade", onClick: () => { window.location.href = "/upgrade" } },
-    })
   }
 
   return (
@@ -115,36 +109,16 @@ export function MarkdownEditor({
 
         <div className="flex items-center gap-2">
           {onOptimize && (
-            optimizing ? (
-              <span className="flex items-center gap-1 text-[11px] text-white/40">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Optimizing…
-              </span>
-            ) : hasOptimized ? (
-              <button
-                onClick={handleOptimize}
-                className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70 transition-colors"
-                title="Re-optimize"
-              >
-                <RefreshCw className="h-3 w-3" />
-              </button>
-            ) : isPro ? (
-              <button
-                onClick={handleOptimize}
-                className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white/70 transition-colors"
-              >
-                <Wand2 className="h-3 w-3" />
-                Optimize
-              </button>
-            ) : (
-              <button
-                onClick={handleUpgradePrompt}
-                className="flex items-center gap-1 text-[11px] text-white/30 hover:text-white/50 transition-colors"
-              >
-                <Crown className="h-3 w-3" />
-                Optimize
-              </button>
-            )
+            <AIActionButton
+              loading={optimizing}
+              hasResult={hasOptimized}
+              isPro={isPro}
+              loadingLabel="Optimizing…"
+              actionLabel="Optimize"
+              icon={Wand2}
+              onAction={handleOptimize}
+              regenerateTitle="Re-optimize"
+            />
           )}
 
           <button

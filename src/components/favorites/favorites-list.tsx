@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FolderOpen, Star } from "lucide-react"
 import { ItemDrawer } from "@/components/items/item-drawer"
+import { EmptyState } from "@/components/shared/empty-state"
 import { ICON_MAP } from "@/constants/icon-map"
 import type { FavoriteItem } from "@/lib/db/items"
 import type { FavoriteCollection } from "@/lib/db/collections"
@@ -68,13 +69,11 @@ export function FavoritesList({ items, collections, isPro }: FavoritesListProps)
 
   if (!hasAny) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
-        <Star className="h-8 w-8 text-muted-foreground/40" />
-        <p className="text-sm text-muted-foreground font-mono">No favorites yet.</p>
-        <p className="text-xs text-muted-foreground/60 font-mono">
-          Star items and collections to see them here.
-        </p>
-      </div>
+      <EmptyState
+        icon={Star}
+        title="No favorites yet."
+        description="Star items and collections to see them here."
+      />
     )
   }
 
