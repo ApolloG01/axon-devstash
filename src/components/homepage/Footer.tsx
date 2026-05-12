@@ -37,7 +37,7 @@ export default function Footer() {
               <LogoMark />
               {APP_NAME}
             </Link>
-            <p className="text-sm text-[#525252] leading-relaxed">
+            <p className="text-sm text-[#737373] leading-relaxed">
               Developer knowledge hub for snippets, prompts, commands, notes,
               files, and links.
             </p>
@@ -55,7 +55,7 @@ export default function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-[#525252] hover:text-[#a3a3a3] transition-colors"
+                        className="text-sm text-[#737373] hover:text-[#d4d4d4] transition-colors"
                       >
                         {link.label}
                       </a>
@@ -69,21 +69,21 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-[#1c1c1c] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#525252]">
+          <p className="text-xs text-[#737373]">
             © {year} {APP_NAME}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             <a
               href="#"
               aria-label="GitHub"
-              className="text-[#525252] hover:text-[#a3a3a3] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
+              className="text-[#737373] hover:text-[#d4d4d4] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
             >
               <GitHubIcon />
             </a>
             <a
               href="#"
               aria-label="Twitter / X"
-              className="text-[#525252] hover:text-[#a3a3a3] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
+              className="text-[#737373] hover:text-[#d4d4d4] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#3b82f6] rounded"
             >
               <XIcon />
             </a>

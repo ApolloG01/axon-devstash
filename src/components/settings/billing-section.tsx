@@ -54,7 +54,7 @@ export function BillingSection({ isPro, hasStripeCustomer }: BillingSectionProps
         Upgrade to Pro for unlimited items, collections, file uploads, and AI features.
       </p>
 
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Button
           size="sm"
           variant={interval === "monthly" ? "default" : "outline"}
@@ -69,6 +69,9 @@ export function BillingSection({ isPro, hasStripeCustomer }: BillingSectionProps
         >
           Yearly — $72/yr
         </Button>
+        {interval === "yearly" && (
+          <span className="text-xs font-medium text-emerald-400">Save 25%</span>
+        )}
       </div>
 
       <Button onClick={handleUpgrade} disabled={loading}>
