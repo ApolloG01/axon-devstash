@@ -224,3 +224,9 @@ html {
 }
 .markdown-preview strong { color: rgba(255, 255, 255, 0.92); font-weight: 600; }
 .markdown-preview em { color: rgba(255, 255, 255, 0.75); }
+/* Show hover-reveal actions on touch devices (no hover support) */
+@media (hover: none) {
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+}

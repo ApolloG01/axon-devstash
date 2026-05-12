@@ -143,8 +143,8 @@ export function SidebarContent({
 
         {/* Collections */}
         {!collapsed && (
-          <div className="px-4 flex items-center justify-between">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className="px-2 flex items-center justify-between">
+            <p className="px-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
               Collections
             </p>
             <NewCollectionIconButton />

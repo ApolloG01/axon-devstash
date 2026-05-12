@@ -38,7 +38,10 @@ export function SignInForm({
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-sm text-muted-foreground">Sign in to your account</p>
+      <div className="text-center space-y-1">
+        <h1 className="text-2xl font-semibold">Sign in</h1>
+        <p className="text-sm text-muted-foreground">Sign in to your account</p>
+      </div>
 
       <div className="space-y-4">
         <form action={githubSignIn}>
@@ -83,7 +86,7 @@ export function SignInForm({
               Forgot password?
             </Link>
           </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>
             {isPending ? "Signing in…" : "Sign in"}
           </Button>
         </form>

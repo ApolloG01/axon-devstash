@@ -377,7 +377,7 @@ export function NewItemButton({ itemTypes, collections, defaultTypeId, label = "
     <>
       <Button size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" />
-        {label}
+        <span className="hidden sm:inline">{label}</span>
       </Button>
       <NewItemDialog open={open} onOpenChange={setOpen} itemTypes={itemTypes} collections={collections} defaultTypeId={defaultTypeId} isPro={isPro} />
     </>

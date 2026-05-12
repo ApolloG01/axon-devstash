@@ -12,7 +12,10 @@ export default function RegisterPage() {
 
   return (
     <div className="space-y-6">
-      <p className="text-center text-sm text-muted-foreground">Create a new account</p>
+      <div className="text-center space-y-1">
+        <h1 className="text-2xl font-semibold">Create account</h1>
+        <p className="text-sm text-muted-foreground">Create a new account</p>
+      </div>
 
       <div className="space-y-4">
         <form action={githubSignIn}>
@@ -65,7 +68,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>
             {isPending ? "Creating account…" : "Create account"}
           </Button>
         </form>

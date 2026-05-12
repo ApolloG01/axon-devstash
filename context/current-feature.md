@@ -4,6 +4,31 @@
 
 Completed
 
+## Feature: UI Bug Fixes (from Live Playwright Review)
+
+### Goals
+
+Fix the visual and layout issues found during the live Playwright UI review (2026-05-12). Screenshots in `docs/screenshots/`, full report in `docs/ui-review-2026-05-11.md`.
+
+### Critical Fixes
+
+- [x] **Homepage sections invisible** — `ScrollAnimation` observer threshold changed from `0.1` to `0` with `rootMargin: '0px 0px -50px 0px'`. Sections now animate in as users scroll. `prefers-reduced-motion` bypass was already in place.
+- [x] **Mobile top bar overflows at 375px** — `NewCollectionButton` and `NewItemButton` text labels wrapped in `<span className="hidden sm:inline">`. Both render as icon-only at mobile widths, full text at `sm+`.
+- [x] **Sign-in form has ~300px dead space above it** — auth layout `pt-[60px]` replaced with `pt-16 pb-8` to better balance the form in the viewport.
+
+### Major Fixes
+
+- [x] **Sign-in submit button is white** — button given explicit `bg-blue-600 hover:bg-blue-700 text-white` classes to override the theme ambiguity in the auth layout context. Same fix applied to register page.
+- [x] **Stats cards all-gray icons** — each card now has a distinct accent: blue (`text-blue-500 / bg-blue-500/10`) for Total Items, emerald for Collections, amber for Favorite Items and Fav Collections.
+- [x] **Sidebar section label misalignment** — `COLLECTIONS` heading container changed from `px-4` to `px-2` with inner `px-2` on the label, matching the `TYPES` structure.
+- [x] **No visible `<h1>` on sign-in/register** — both pages now have `<h1 className="text-2xl font-semibold">` above the subtitle.
+
+### Minor Fixes
+
+- [x] **Hover-only buttons inaccessible on touch** — `@media (hover: none)` rule added to `globals.css` forcing `group-hover:opacity-100` elements visible on touch devices.
+- [x] **Footer text low contrast** — all footer body/link text raised from `#525252` to `#737373`; hover states raised from `#a3a3a3` to `#d4d4d4`.
+- [x] **Settings billing missing savings callout** — "Save 25%" badge (`text-emerald-400`) added next to the yearly button when it's selected.
+
 ## History
 
 - **2026-04-22**: Initial Next.js 15 + Tailwind CSS v4 setup. Scaffolded project, configured CLAUDE.md, added context files, pushed to GitHub.
@@ -66,4 +91,5 @@ Completed
 - **2026-05-11**: Completed AI Auto-Tagging — `openai` v6 installed; `src/lib/openai.ts` lazy singleton with `AI_MODEL="gpt-4o-mini"`; `checkAiTagLimit` (50 req/h per userId) added to rate-limit.ts; `generateAutoTags` server action (`src/actions/ai.ts`) with auth + Pro gate + Zod + rate limit using Chat Completions API (`client.chat.completions.create`, `response_format: json_object`, handles both `{"tags":[]}` and `[]` shapes, normalizes to lowercase, truncates to 2000 chars); `TagSuggester` component with 800ms debounced auto-suggest on title/content change (min 3 chars), spinner while loading, badge-per-suggestion accept (✓) / reject (✗) UI, hidden for free users; `isPro` threaded from session through all item-bearing pages and components (layout → DashboardNewItemButton → NewItemDialog, ItemGrid → ItemDrawer → DrawerBody, FavoritesList); 7 Vitest unit tests covering auth, Pro gate, rate limit, both response formats, normalization, and service errors.
 - **2026-05-11**: Completed AI Description Generator — `generateDescription` server action added to `src/actions/ai.ts` (auth + Pro gate + shared rate-limit bucket + GPT-4o-mini); `DescriptionGenerator` component (`src/components/items/description-generator.tsx`) renders a `Wand2` icon button positioned inside the description input/textarea (Option B); wired into `NewItemDialog` and `ItemDrawer` edit mode for all content types; hidden for free users; 5 Vitest unit tests covering auth, Pro gate, rate limit, success, and error cases.
 - **2026-05-11**: Completed AI Explain Code — `explainCode` server action added to `src/actions/ai.ts` (auth + Pro gate + Zod + shared rate-limit bucket + GPT-4o-mini, 3000-char truncation); `CodeEditor` updated with `isPro`/`onExplain` props, Sparkles Explain button in macOS header, Loader2 spinner during generation, Code/Explain tab toggle once explanation ready, RefreshCw regenerate button, Crown icon for free users (upgrade toast); explanation rendered via ReactMarkdown in editor body; `ItemDrawer` wires `onExplain` callback in read-only mode only (snippet + command types); 6 Vitest unit tests covering auth, Pro gate, rate limit, success, empty response, and service error.
+- **2026-05-12**: Completed UI Bug Fixes (Live Playwright Review) — 10 fixes: ScrollAnimation threshold/rootMargin corrected; mobile top bar icon-only at 375px; auth layout dead space reduced; sign-in/register buttons explicitly blue; stats card icons color-coded (blue/emerald/amber); sidebar COLLECTIONS label indentation aligned with TYPES; sign-in and register pages now have visible h1; touch-device hover-reveal fix via @media (hover: none) in globals.css; footer body text raised from #525252 to #737373; Settings billing yearly toggle shows "Save 25%" badge.
 - **2026-05-11**: Completed AI Prompt Optimizer — `optimizePrompt` server action added to `src/actions/ai.ts` (auth + Pro gate + Zod + shared rate-limit bucket + GPT-4o-mini, 3000-char truncation); `MarkdownEditor` updated with `isPro`/`onOptimize`/`onUseOptimized` props, Wand2 Optimize button in header, Loader2 spinner during generation, Original/Optimized tab toggle, RefreshCw regenerate, Crown icon for free users (upgrade toast), "Use This" button below optimized view; `ItemDrawer` wires `onOptimize` + `onUseOptimized` in read-only mode for prompt type only; "Use This" pre-fills edit form with optimized content and enters edit mode; 6 Vitest unit tests covering auth, Pro gate, rate limit, success, empty response, and service error.

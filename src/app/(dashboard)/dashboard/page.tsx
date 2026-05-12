@@ -61,16 +61,13 @@ export default async function DashboardPage({
 
       {/* Collections */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold">Collections</h2>
-            {collections.length > 0 && (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {collections.length}
-              </span>
-            )}
-          </div>
-          <NewCollectionInlineButton />
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-sm font-semibold">Collections</h2>
+          {collections.length > 0 && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {collections.length}
+            </span>
+          )}
         </div>
 
         {collections.length === 0 ? (
