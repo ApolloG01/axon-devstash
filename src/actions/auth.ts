@@ -14,6 +14,11 @@ import { randomBytes } from "crypto"
 import { AuthError } from "next-auth"
 import { redirect } from "next/navigation"
 
+function rateLimitMessage(retryAfterSeconds: number | undefined, context: string): string {
+  const mins = Math.ceil((retryAfterSeconds ?? 60) / 60)
+  return `Too many ${context}. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+}
+
 export async function credentialsSignIn(
   _prevState: string | null,
   formData: FormData,
@@ -23,8 +28,7 @@ export async function credentialsSignIn(
   const ip = await getActionIp()
   const rl = await checkSignInLimit(ip, email)
   if (rl.limited) {
-    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
-    return `Too many sign-in attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+    return rateLimitMessage(rl.retryAfterSeconds, "sign-in attempts")
   }
 
   const user = await prisma.user.findUnique({ where: { email }, select: { emailVerified: true, password: true } })
@@ -65,8 +69,7 @@ export async function registerUser(
   const ip = await getActionIp()
   const rl = await checkRegisterLimit(ip)
   if (rl.limited) {
-    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
-    return `Too many registration attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+    return rateLimitMessage(rl.retryAfterSeconds, "registration attempts")
   }
   if (password.length < 8) return "Password must be at least 8 characters."
   if (password !== confirmPassword) return "Passwords do not match."
@@ -110,8 +113,7 @@ export async function requestPasswordReset(
   const ip = await getActionIp()
   const rl = await checkForgotPasswordLimit(ip)
   if (rl.limited) {
-    const mins = Math.ceil((rl.retryAfterSeconds ?? 60) / 60)
-    return `Too many attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`
+    return rateLimitMessage(rl.retryAfterSeconds, "attempts")
   }
 
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, password: true } })

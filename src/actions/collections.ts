@@ -1,63 +1,50 @@
 "use server"
 
 import { z } from "zod"
-import { auth } from "@/auth"
 import { createCollectionInDb, getUserCollectionsList, updateCollectionInDb, deleteCollectionInDb, toggleCollectionFavoriteInDb } from "@/lib/db/collections"
 import { checkCollectionLimit } from "@/lib/usage-limits"
+import { requireSession, zodError } from "@/lib/action-guards"
 
 export async function getCollectionsForPicker(): Promise<{ id: string; name: string }[]> {
-  const session = await auth()
-  if (!session?.user?.id) return []
-  return getUserCollectionsList(session.user.id)
+  const guard = await requireSession()
+  if (!guard) return []
+  return getUserCollectionsList(guard.userId)
 }
 
-const createCollectionSchema = z.object({
+const collectionSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   description: z.string().trim().nullable().optional().transform((v) => v || null),
 })
 
-type CreateCollectionInput = z.input<typeof createCollectionSchema>
+type CollectionInput = z.input<typeof collectionSchema>
 
-export async function createCollection(data: CreateCollectionInput) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+export async function createCollection(data: CollectionInput) {
+  const guard = await requireSession()
+  if (!guard) return { success: false, error: "Unauthorized" }
 
-  const parsed = createCollectionSchema.safeParse(data)
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ")
-    return { success: false, error: message }
-  }
+  const parsed = collectionSchema.safeParse(data)
+  if (!parsed.success) return zodError(parsed.error)
 
-  const limitError = await checkCollectionLimit(session.user.id, session.user.isPro)
+  const limitError = await checkCollectionLimit(guard.userId, guard.isPro)
   if (limitError) return { success: false, error: limitError }
 
   try {
-    const collection = await createCollectionInDb(session.user.id, parsed.data)
+    const collection = await createCollectionInDb(guard.userId, parsed.data)
     return { success: true, data: collection }
   } catch {
     return { success: false, error: "Failed to create collection" }
   }
 }
 
-const updateCollectionSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  description: z.string().trim().nullable().optional().transform((v) => v || null),
-})
+export async function updateCollection(collectionId: string, data: CollectionInput) {
+  const guard = await requireSession()
+  if (!guard) return { success: false, error: "Unauthorized" }
 
-type UpdateCollectionInput = z.input<typeof updateCollectionSchema>
-
-export async function updateCollection(collectionId: string, data: UpdateCollectionInput) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
-
-  const parsed = updateCollectionSchema.safeParse(data)
-  if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join(", ")
-    return { success: false, error: message }
-  }
+  const parsed = collectionSchema.safeParse(data)
+  if (!parsed.success) return zodError(parsed.error)
 
   try {
-    const result = await updateCollectionInDb(session.user.id, collectionId, parsed.data)
+    const result = await updateCollectionInDb(guard.userId, collectionId, parsed.data)
     if (result.count === 0) return { success: false, error: "Collection not found" }
     return { success: true }
   } catch {
@@ -66,11 +53,11 @@ export async function updateCollection(collectionId: string, data: UpdateCollect
 }
 
 export async function deleteCollection(collectionId: string) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+  const guard = await requireSession()
+  if (!guard) return { success: false, error: "Unauthorized" }
 
   try {
-    const result = await deleteCollectionInDb(session.user.id, collectionId)
+    const result = await deleteCollectionInDb(guard.userId, collectionId)
     if (result.count === 0) return { success: false, error: "Collection not found" }
     return { success: true }
   } catch {
@@ -79,11 +66,11 @@ export async function deleteCollection(collectionId: string) {
 }
 
 export async function toggleCollectionFavorite(collectionId: string) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
+  const guard = await requireSession()
+  if (!guard) return { success: false as const, error: "Unauthorized" }
 
   try {
-    const result = await toggleCollectionFavoriteInDb(session.user.id, collectionId)
+    const result = await toggleCollectionFavoriteInDb(guard.userId, collectionId)
     if (!result) return { success: false as const, error: "Collection not found" }
     return { success: true as const, data: result }
   } catch {

@@ -1,9 +1,8 @@
 "use server"
 
 import { z } from "zod"
-import { auth } from "@/auth"
 import { getOpenAI, AI_MODEL } from "@/lib/openai"
-import { checkAiTagLimit } from "@/lib/rate-limit"
+import { requireProAiSession } from "@/lib/action-guards"
 
 const generateDescriptionSchema = z.object({
   title: z.string().trim().min(1),
@@ -15,22 +14,11 @@ const generateDescriptionSchema = z.object({
 })
 
 export async function generateDescription(input: z.input<typeof generateDescriptionSchema>) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
-  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
-
-  const rl = await checkAiTagLimit(session.user.id)
-  if (rl.limited) {
-    return {
-      success: false as const,
-      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
-    }
-  }
+  const guard = await requireProAiSession()
+  if ("success" in guard) return guard
 
   const parsed = generateDescriptionSchema.safeParse(input)
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid input" }
-  }
+  if (!parsed.success) return { success: false as const, error: "Invalid input" }
 
   const { title, typeName, content, url, fileName, fileSize } = parsed.data
 
@@ -76,22 +64,11 @@ const explainCodeSchema = z.object({
 })
 
 export async function explainCode(input: z.input<typeof explainCodeSchema>) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
-  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
-
-  const rl = await checkAiTagLimit(session.user.id)
-  if (rl.limited) {
-    return {
-      success: false as const,
-      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
-    }
-  }
+  const guard = await requireProAiSession()
+  if ("success" in guard) return guard
 
   const parsed = explainCodeSchema.safeParse(input)
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid input" }
-  }
+  if (!parsed.success) return { success: false as const, error: "Invalid input" }
 
   const { content, language, typeName } = parsed.data
   const truncated = content.slice(0, 3000)
@@ -131,22 +108,11 @@ const optimizePromptSchema = z.object({
 })
 
 export async function optimizePrompt(input: z.input<typeof optimizePromptSchema>) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
-  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
-
-  const rl = await checkAiTagLimit(session.user.id)
-  if (rl.limited) {
-    return {
-      success: false as const,
-      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
-    }
-  }
+  const guard = await requireProAiSession()
+  if ("success" in guard) return guard
 
   const parsed = optimizePromptSchema.safeParse(input)
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid input" }
-  }
+  if (!parsed.success) return { success: false as const, error: "Invalid input" }
 
   const { content } = parsed.data
   const truncated = content.slice(0, 3000)
@@ -187,22 +153,11 @@ const generateAutoTagsSchema = z.object({
 })
 
 export async function generateAutoTags(input: z.input<typeof generateAutoTagsSchema>) {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false as const, error: "Unauthorized" }
-  if (!session.user.isPro) return { success: false as const, error: "Pro plan required for AI features" }
-
-  const rl = await checkAiTagLimit(session.user.id)
-  if (rl.limited) {
-    return {
-      success: false as const,
-      error: `Rate limit exceeded. Try again in ${rl.retryAfterSeconds}s.`,
-    }
-  }
+  const guard = await requireProAiSession()
+  if ("success" in guard) return guard
 
   const parsed = generateAutoTagsSchema.safeParse(input)
-  if (!parsed.success) {
-    return { success: false as const, error: "Invalid input" }
-  }
+  if (!parsed.success) return { success: false as const, error: "Invalid input" }
 
   const { title, content, typeName } = parsed.data
   const truncated = content ? content.slice(0, 2000) : ""

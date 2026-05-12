@@ -1,16 +1,16 @@
 "use server"
 
 import { redirect } from "next/navigation"
-import { auth } from "@/auth"
 import { stripe, STRIPE_PRICES } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
+import { requireSession } from "@/lib/action-guards"
 
 export async function createCheckoutSession(interval: "monthly" | "yearly") {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+  const guard = await requireSession()
+  if (!guard) return { success: false, error: "Unauthorized" }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: guard.userId },
     select: { email: true, stripeCustomerId: true, isPro: true },
   })
   if (!user) return { success: false, error: "User not found" }
@@ -24,7 +24,7 @@ export async function createCheckoutSession(interval: "monthly" | "yearly") {
     customer_email: user.stripeCustomerId ? undefined : (user.email ?? undefined),
     customer: user.stripeCustomerId ?? undefined,
     line_items: [{ price: priceId, quantity: 1 }],
-    metadata: { userId: session.user.id },
+    metadata: { userId: guard.userId },
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?upgraded=1`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings`,
   })
@@ -35,11 +35,11 @@ export async function createCheckoutSession(interval: "monthly" | "yearly") {
 }
 
 export async function createBillingPortalSession() {
-  const session = await auth()
-  if (!session?.user?.id) return { success: false, error: "Unauthorized" }
+  const guard = await requireSession()
+  if (!guard) return { success: false, error: "Unauthorized" }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: guard.userId },
     select: { stripeCustomerId: true },
   })
   if (!user?.stripeCustomerId) return { success: false, error: "No billing account found" }
